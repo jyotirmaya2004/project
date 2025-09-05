@@ -162,12 +162,8 @@ body{
 	font-weight: bolder;
 	padding-left: 13px;
 }
-.ord-count{
-	color: rgb(248, 192, 10);
-	font-weight: bolder;
-	margin-left: 25px;
-	margin-top: 12px;
-	text-align: center;
+.nav-ord{
+	display: flex;
 }
 .ord-logo{
 	font-size: 25px;
