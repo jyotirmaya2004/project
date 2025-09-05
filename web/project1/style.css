@@ -1,0 +1,175 @@
+*{
+	margin: 0;
+	font-family: Arial, Helvetica, sans-serif;
+	border: border-box;
+}
+body{
+	width:1000px;
+}
+.navbar{
+	height: 60px;
+	background-color: #0f1111;
+	color: white;
+	display: flex;
+	align-items: center;
+
+}
+.nav-logo{
+	margin: 5px 2px 5px 0px;
+	height: 50px;
+	width: 100px;
+}
+.logo{
+	background-image: url("amazon1.png");
+	background-size:cover;
+	height: 50px;
+	width: 100%;
+}
+.border{
+	border: 1px solid transparent;
+}
+
+.border:hover{
+	border: 1px solid white;
+}
+.add-icon{
+	display: flex;
+}
+.nav-address{
+	margin: 5px 2px 5px 0px;
+	padding: 0px 9px;
+}
+.add-first{
+	color: #cccccc;
+	margin-left: 20px;
+	font-size: 12px;
+}
+.add-icon{
+	margin:6px 0px 0px;
+}
+.add-sec{
+	color: #ffffff;
+	font-size: 14px;
+}
+.nav-search{
+	display: flex;
+	height: 40px;
+	font-size: 14px;
+	width: 452px;
+	background-color: rgb(248, 192, 10);
+	border-radius: 3px;
+}
+.search-select{
+	display: flex;
+	background-color: #e6e6e6;
+}
+.search-select1{
+	background-color: #e6e6e6;
+	font-size: 13px;
+	color:rgb(122, 121, 121);
+	padding-left: 8px;
+	width: 30px;
+	height:39.4px;
+	border: none;
+	appearance: none;
+}
+.select-icon{
+	color: rgb(122, 121, 121);
+	padding-top: 15px;
+	font-size: 8px;
+	padding-right: 5px;
+}
+.search-select1:hover{
+	color: #0f1111;
+}
+.search-icon{
+	color: #0f1111;
+}
+.search-input::placeholder{
+	font-size: 14px;
+	padding-left: 14px;
+}
+.search-input{
+	width: 358.91px;
+	height: 37.4px;
+	border:none;
+}
+.search-icon{
+	align-items: center;
+	padding-top: 10px;
+	padding-left: 8px;
+	color: black;
+	font-size: 22px;
+
+}
+.nav-lang{
+	display: flex;
+	margin-left: 15px;
+	width:59.38px;
+	height: 45px;
+}
+.nav-lang1{
+	display: flex;
+}
+.lang-imag{
+	padding-top: 18px;
+	width: 20px;
+	height: 15px;
+}
+.lang-select{
+	padding-top: 5px;
+	padding-left: 2px;
+	border:none;
+	background-color: #0f1111;
+	color: white;
+	font-weight: bolder;
+	appearance: none;
+}
+.lang-caret{
+	font-size: 8px;
+	padding-top: 23px;
+}
+.nav-account{
+	display: flex;
+}
+.acc-hello{
+	color: white;
+	margin-top: 3px;
+	margin-left: 15px;
+	font-size: 12px;
+}
+.acc-list{
+	border:none;
+	background-color: transparent;
+	color: white;
+	font-weight: bolder;
+	font-size: 14px;
+	padding-left: 10px;
+	appearance: none;
+}
+.acc-caret{
+	font-size: 8px;
+	padding-top: 23px;
+}
+.ord-first{
+	color: white;
+	margin-top: 3px;
+	margin-left: 15px;
+	font-size: 12px;
+}
+.ord-sec{
+	font-size: 14px;
+	font-weight: bolder;
+	padding-left: 13px;
+}
+.ord-count{
+	color: rgb(248, 192, 10);
+	font-weight: bolder;
+	margin-left: 25px;
+	margin-top: 12px;
+	text-align: center;
+}
+.ord-logo{
+	font-size: 25px;
+	margin-left: 30px;
+}
