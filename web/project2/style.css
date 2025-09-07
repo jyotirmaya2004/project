@@ -86,12 +86,12 @@ body {
     }
 
     input {
+      background-color:rgba(0,0,0,0.8);
       padding: 15px;
       width: 100%;
       max-width: 320px;
       font-size: 1rem;
       border: 1px solid #ccc;
-      background: transparent;
       color: white;
       margin-bottom: 15px;
       box-sizing: border-box;
