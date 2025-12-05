@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Media Queries: Types & Examples — Demo Project</title>
+  <style>
+    /* ====== Base styles ====== */
+    :root{
+      --accent:#0b63ff;
+      --muted:#6b7280;
+      --bg:#f8fafc;
+      --card:#ffffff;
+      --gap:18px;
+      font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+      color:#0f172a;
+    }
+    body{margin:0;background:var(--bg);padding:28px;}
+    .wrap{max-width:1100px;margin:0 auto;}
+    header{display:flex;align-items:center;gap:16px;margin-bottom:18px}
+    header h1{font-size:1.4rem;margin:0}
+    header p{margin:0;color:var(--muted)}
+
+    .grid{display:grid;grid-template-columns:repeat(2, 1fr);gap:var(--gap)}
+    .card{background:var(--card);padding:16px;border-radius:12px;box-shadow:0 6px 18px rgba(15,23,42,0.06)}
+    .sample{padding:12px;border-radius:8px;margin-top:12px;background:#fbfdff;border:1px dashed #e6eefc}
+    code{background:#0f172a;color:#fff;padding:2px 6px;border-radius:6px;font-size:.9em}
+    .note{color:var(--muted);font-size:0.95rem}
+
+    /* mobile-first: default styles apply to all media (media type 'all') */
+    .hero{display:flex;gap:12px;align-items:center}
+    .box{flex:1;padding:14px;border-radius:10px;background:linear-gradient(180deg,#ffffff,#f1f9ff);}
+
+    /* ---------------------------------------- */
+    /* Example of media type: screen + width breakpoints */
+    /* This uses the 'screen' media type explicitly (same as default for browsers). */
+    @media screen and (max-width: 900px){
+      .grid{grid-template-columns:1fr}
+    }
+
+    /* orientation example */
+    @media screen and (orientation:landscape) and (min-width:700px){
+      header{background:linear-gradient(90deg,#ffffff 0,#f8fbff 100%);padding:12px;border-radius:10px}
+    }
+
+    /* resolution example (high DPI screens) */
+    @media screen and (min-resolution: 2dppx){
+      header h1::after{content:" — HiDPI";font-size:0.85rem;color:var(--muted);margin-left:8px}
+    }
+
+    /* ---------------------------------------- */
+    /* print: applies when printing (or in print preview) */
+    @media print{
+      /* Simplify layout for paper */
+      body{background:white;color:#000}
+      header p{display:none}
+      .grid{grid-template-columns:1fr}
+      .card{box-shadow:none;border:1px solid #ddd}
+      .no-print{display:none}
+    }
+
+    /* ---------------------------------------- */
+    /* speech: intended for speech synthesizers / screen readers that support CSS 'speech' */
+    /* Note: browser support is limited; this is educational. */
+    @media speech{
+      /* voice properties are not widely supported in modern browsers, but shown here for completeness */
+      .card{speak:auto;voice-volume:medium}
+      .card h3{speech-rate:110%}
+    }
+
+    /* ---------------------------------------- */
+    /* Deprecated media types shown as comments only (may not be supported):
+       tty, tv, handheld, projection, braille, embossed, aural
+       Browsers today usually ignore these. We still include a commented example
+       so students know what they looked like historically.
+
+    @media tv {
+      /* hypothetical styles for TVs */
+    /* } */
+    */
+
+    /* ---------------------------------------- */
+    /* 'all' media type: applies to all devices. Usually you omit it, but here's a demonstration. */
+    @media all and (min-width:1200px){
+      body{padding:40px}
+    }
+
+    /* helper for demo highlighting when each query triggers (for interactive demo) */
+    .status{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+    .pill{padding:6px 10px;border-radius:999px;background:#f1f5f9;color:#0b1220;font-weight:600;font-size:0.85rem}
+
+    /* small responsive tweaks */
+    @media (max-width:480px){
+      header h1{font-size:1.1rem}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>Media Queries — Types & Practical Examples</h1>
+        <p class="note">Resize the window, open print preview, or emulate devices to see each media query in action.</p>
+      </div>
+      <div style="margin-left:auto;text-align:right">
+        <div class="note">This single-file demo shows <code>screen</code>, <code>print</code>, <code>speech</code>, <code>all</code>, plus examples of <code>orientation</code> & <code>resolution</code>.</div>
+        <div style="margin-top:8px" class="no-print"><button onclick="window.print()">Print Preview</button></div>
+      </div>
+    </header>
+
+    <main class="grid">
+      <section class="card">
+        <h3>Media Type: <code>screen</code></h3>
+        <p class="note">Used for visual screens (desktops, phones, tablets). Most responsive CSS uses <code>@media screen</code> (or omits <code>screen</code> since it's the default).</p>
+        <div class="sample">
+          <div class="hero">
+            <div class="box">
+              <strong>Resize the window:</strong>
+              <div class="status">
+                <span class="pill">Breakpoint: max-width:900px → stacked layout</span>
+                <span class="pill">Orientation: landscape (min-width:700px style)</span>
+                <span class="pill">Resolution: min-resolution:2dppx → HiDPI badge</span>
+              </div>
+              <p class="note">Try developer tools to emulate mobile/desktop and rotate to see orientation rules.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h3>Media Type: <code>print</code></h3>
+        <p class="note">Applies when printing or in print preview. Use it to simplify pages: hide navigation, change colors to black/white, adjust fonts and pagination.</p>
+        <div class="sample">
+          <ol>
+            <li>Click the <strong>Print Preview</strong> button above (or press <kbd>Ctrl</kbd>+<kbd>P</kbd>).</li>
+            <li>Notice how background, navigation hints and buttons disappear.</li>
+            <li>Paper-friendly styles are in the CSS under <code>@media print</code>.</li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="card">
+        <h3>Media Type: <code>speech</code></h3>
+        <p class="note">Intended for speech synthesizers (screen readers with style support). Browser support is limited — this is for educational completeness.</p>
+        <div class="sample">
+          <p class="note">If your user agent supports CSS speech properties, this media query allows you to change voice, pitch, rate, etc. Most modern screen readers ignore CSS speech rules; use ARIA and semantic HTML for accessibility instead.</p>
+        </div>
+      </section>
+
+      <section class="card">
+        <h3>Media Type: <code>all</code> (universal)</h3>
+        <p class="note">The <code>all</code> media type matches every device. It's equivalent to omitting the media type. Useful when you want a conditional rule to apply everywhere beyond a certain condition.</p>
+        <div class="sample">
+          <p class="note">This demo adds extra page padding when the viewport is wide (see the <code>@media all and (min-width:1200px)</code> rule in the CSS).</p>
+        </div>
+      </section>
+
+      <section class="card">
+        <h3>Deprecated / Historical Media Types</h3>
+        <p class="note">Older CSS specs listed types like <code>tv</code>, <code>projection</code>, <code>handheld</code>, <code>tty</code>, <code>braille</code>, <code>embossed</code>, and <code>aural</code>. Modern browsers generally ignore them. Use feature queries and responsive design instead.</p>
+        <div class="sample">
+          <p class="note">This demo contains commented examples of such media types in the CSS for reference (not active in most browsers).</p>
+        </div>
+      </section>
+
+    </main>
+
+    <footer style="margin-top:22px;text-align:center;color:var(--muted)">
+      <small>Tips: use DevTools to test device emulation, rotate device, toggle print preview. For accessibility, prefer semantic HTML + ARIA instead of relying solely on <code>@media speech</code>.</small>
+    </footer>
+  </div>
+
+  <script>
+    // A tiny runtime indicator for demonstration (non-essential)
+    (function(){
+      // show HiDPI detection in console
+      if (window.devicePixelRatio && window.devicePixelRatio >= 2) console.log('HiDPI detected: devicePixelRatio=' + window.devicePixelRatio);
+    })();
+  </script>
+</body>
+</html>
