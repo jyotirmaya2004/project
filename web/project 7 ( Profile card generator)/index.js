@@ -49,7 +49,7 @@ form.addEventListener("submit", function (e) {
   profile.classList.add("profile");
 
   let img = document.createElement("img");
-  img.src = input[4].value || "https://via.placeholder.com/150"; // FIXED IMAGE
+  img.src = input[4].value || "https://th.bing.com/th/id/OIP.ghDeAxQENeJRnpp7tlZyCwHaHa?w=196&h=196&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3"; // FIXED IMAGE
 
   // Text
   let h3 = document.createElement("h3");
