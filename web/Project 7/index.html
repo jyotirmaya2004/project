@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Profile</title>
+    <style>
+      * {
+        padding: 0;
+        margin: 0;
+        box-sizing: border-box;
+        font-family: "Segoe UI", Tahoma, Verdana, Arial, sans-serif;
+        font-size: 16px; /* Good for readability */
+        line-height: 1.5;
+        color: #333; /* Dark gray for better contrast */
+      }
+      #main {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;   /* Stack form and card vertically */
+  align-items: center;      /* Center horizontally */
+  justify-content: flex-start; /* Start from top */
+  background-color: rgb(223, 202, 202);
+}
+
+      form {
+        margin-top: 30px;
+        padding: 25px;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        font-weight: 600;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid #00bfa6;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      }
+      .form_value {
+        display: flex;
+        flex-direction: row;
+        margin-bottom: 20px;
+      }
+      .desc,
+      .place {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .desc {
+        gap: 11px;
+      }
+      .place {
+        /* Input field styling */
+        .form-input {
+          width: 100%;
+          border: 2px solid #ccc;
+          border-radius: 8px;
+          font-size: 16px;
+          outline: none;
+          transition: all 0.3s ease;
+		  padding-left: 10px;
+        }
+
+        /* Focus effect */
+        .form-input:focus {
+          border-color: #4a90e2;
+          box-shadow: 0 0 8px rgba(74, 144, 226, 0.4);
+        }
+      }
+      .btn {
+        background-color: #00bfa6;
+        padding: 9px 35px;
+        color: #fff;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        cursor: pointer;
+        border-radius: 10px;
+        border: 2px dashed #00bfa6;
+        box-shadow:
+          rgba(50, 50, 93, 0.25) 0px 2px 5px -1px,
+          rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+        transition: 0.4s;
+      }
+
+      .btn span:last-child {
+        display: none;
+      }
+
+      .btn:hover {
+        transition: 0.4s;
+        border: 2px dashed #00bfa6;
+        background-color: #fff;
+        color: #00bfa6;
+      }
+
+      .btn:active {
+        background-color: #87dbd0;
+      }
+      .card {
+  display: inline;          /* Change from inline-block */
+  margin-top: 30px;        /* Space below form */
+  text-align: center;      /* Center text inside card */
+  padding: 20px;
+  border: 2px solid #00bfa6;
+  border-radius: 12px;
+  background: #fff;
+  max-width: 400px;
+  min-width: 200px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+.profile{
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: red;
+  margin-bottom: 7px;
+  overflow: hidden;
+}
+.profile img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+
+}
+.card h6{
+  margin-top: 3px;
+  font-weight: 300;
+}
+.card h5{
+  margin-top: 3px;
+}
+.card p{
+  font-size: 12px;
+  margin-top: 10px;
+}
+
+    </style>
+  </head>
+  <body>
+    <div id="main">
+      <form action="">
+        <h4>Profile Card Generator</h4>
+        <br />
+        <div class="form_value">
+          <div class="desc">
+            <label for="name">Enter your name : </label>
+            <label for="age">Enter your age : </label>
+            <label for="occupation">Enter your occupation : </label>
+            <label for="bio">Enter your bio : </label>
+            <label for="profile">Paste you profile link : </label>
+          </div>
+          <div class="place">
+            <input
+              class="form-input"
+              type="text"
+              name="name"
+              id="name"
+              placeholder=" Name"
+            />
+            <input
+              class="form-input"
+              name="age"
+              type="number"
+              id="age"
+              placeholder=" Age"
+            />
+            <input
+              class="form-input"
+              type="text"
+              name="occupation"
+              id="occupation"
+              placeholder=" Occupation"
+            />
+            <input
+              class="form-input"
+              type="text"
+              name="bio"
+              id="bio"
+              placeholder=" Bio"
+            />
+            <input
+              class="form-input"
+              type="text"
+              name="profile"
+              id="profile"
+              placeholder=" Profile link"
+            />
+          </div>
+        </div>
+        <label for="submit">Do you want to generate your profile card ?</label>
+        <input type="submit" value="Generate" id="submit" class="btn" />
+
+
+	  </form>
+    <!-- <div class="card">
+      <div class="profile">
+        <img src="https://plus.unsplash.com/premium_photo-1689568126014-06fea9d5d341?w=1000&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8cHJvZmlsZXxlbnwwfHwwfHx8MA%3D%3D" alt="">
+      </div>
+      <h3>Jyotirmaya Behera</h3>
+      <h5>Creative programmer</h5>
+      <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Perferendis sit saepe unde, sunt aliquid eius dignissimos nulla similique laboriosam explicabo dicta tempora non sint neque eos incidunt velit voluptatibus ipsum.
+      </p>
+    </div> -->
+
+    </div>
+
+    <script src="index.js"></script>
+  </body>
+</html>
