@@ -1,0 +1,51 @@
+[
+  {
+    "title": "Mahiye Jinna Sohna",
+    "artist": "Darshan Raval",
+    "image": "assests/card2img.jpeg",
+    "audio": "songs/song1.mp3"
+  },
+  {
+    "title": "Mera Paas Tum Ho",
+    "artist": "Rahat Fateh Ali Khan",
+    "image": "assests/card3img.jpeg",
+    "audio": "songs/song2.mp3"
+  },
+  {
+    "title": "Bahut Pyar Karte Hain (New Lyrics) FULL VERSION - JalRaj  New Hindi Covers  90s Songs",
+    "artist": "Rahat Fateh Ali Khan",
+    "image": "assests/card4.jpg",
+    "audio": "songs/song3.mp3"
+  },
+  {
+    "title": "Sanson Ki Mala Pe Simroon Mein  Live Performance  Nusrat Fateh Ali Khan  Sagar Wali Qawwali 2.0",
+    "artist": "Nusrat Fateh Ali Khan",
+    "image": "assests/card5.jpg",
+    "audio": "songs/song4.mp3"
+  },
+  {
+    "title": "Mahiye Jinna Sohna",
+    "artist": "Darshan Raval",
+    "image": "assests/card2img.jpeg",
+    "audio": "songs/song1.mp3"
+  },
+  {
+    "title": "Mera Paas Tum Ho",
+    "artist": "Rahat Fateh Ali Khan",
+    "image": "assests/card3img.jpeg",
+    "audio": "songs/song2.mp3"
+  },
+  {
+    "title": "Bahut Pyar Karte Hain (New Lyrics) FULL VERSION - JalRaj  New Hindi Covers  90s Songs",
+    "artist": "Rahat Fateh Ali Khan",
+    "image": "assests/card4.jpg",
+    "audio": "songs/song3.mp3"
+  },
+  {
+    "title": "Sanson Ki Mala Pe Simroon Mein  Live Performance  Nusrat Fateh Ali Khan  Sagar Wali Qawwali 2.0",
+    "artist": "Nusrat Fateh Ali Khan",
+    "image": "assests/card5.jpg",
+    "audio": "songs/song4.mp3"
+  }
+
+]
