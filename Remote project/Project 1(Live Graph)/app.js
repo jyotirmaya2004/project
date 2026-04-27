@@ -49,22 +49,19 @@ function fetchdata() {
 }
 
 function generateRandomData() {
-  // Generate realistic random values
   let temp = (Math.random() * (40 - 20) + 20).toFixed(2); // 20°C to 40°C
   let hum = (Math.random() * (90 - 30) + 30).toFixed(2); // 30% to 90%
   let now = new Date();
 
-let date = now.toLocaleDateString();     // e.g. 26/4/2026
-let time = now.toLocaleTimeString();     // e.g. 10:35:21 AM
+let date = now.toLocaleDateString();
+let time = now.toLocaleTimeString();
 
 let label = date + " " + time;
 
-  // Store data
   tempdata.push(temp);
   humdata.push(hum);
   labels.push(label);
 
-  // Maintain max points
   if (tempdata.length > maxpoints) {
     tempdata.shift();
     humdata.shift();
@@ -101,6 +98,32 @@ function createGraph() {
         },
       ],
     },
+    options: {
+      responsive: true,
+      scales: {
+        x: {
+          title: {
+            display: true,
+            text: "Time (Date & Clock)",   // X-axis label
+            font: {
+              size: 14,
+              weight: "bold"
+            }
+          }
+        },
+        y: {
+          title: {
+            display: true,
+            text: "Values (°C / % Humidity)",  // Y-axis label
+            font: {
+              size: 14,
+              weight: "bold"
+            }
+          },
+          beginAtZero: true
+        }
+      }
+    }
   });
 }
 
@@ -117,4 +140,4 @@ createGraph();
 setInterval(() => {
 //   fetchdata();
 	generateRandomData()
-}, 5000);
+}, 5000*12); //change in every 1 minutes
