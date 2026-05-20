@@ -1,0 +1,63 @@
+Project: Plant Leaf Disease Detection - Run Instructions
+
+Prerequisites:
+- Python 3.8 or higher installed
+- Git (optional) to clone the repo
+- Recommended: 8+ GB RAM (TensorFlow models can be memory hungry)
+
+1) Open the project folder
+- Change directory to the project root (where `app.py` lives):
+  - Windows PowerShell / CMD:
+    cd "e:\NIELIT Internship\Project\PlantLeafDiseaseDetection-main\PlantLeafDiseaseDetection-main"
+
+2) Create and activate a virtual environment
+- Windows PowerShell:
+    python -m venv venv
+    .\venv\Scripts\Activate.ps1
+- Windows CMD:
+    python -m venv venv
+    .\venv\Scripts\activate
+- macOS / Linux:
+    python3 -m venv venv
+    source venv/bin/activate
+
+3) Install dependencies
+    pip install -r requirements.txt
+
+Notes on dependencies:
+- This project requires Flask, Pillow, numpy, and TensorFlow (see `requirements.txt`).
+
+4) Confirm model files
+- The web app expects a saved model under `models/plant_leaf_disease_detector/`.
+- Ensure `saved_model.pb` and the `variables/` directory are present.
+
+5) Run the web app
+- Start the Flask app:
+    python app.py
+- The app runs on host `0.0.0.0` and port `5000` by default. Open in a browser:
+    http://127.0.0.1:5000
+
+6) Optional: Enable debug mode
+- To enable Flask debug mode, set the environment variable before running:
+  - Windows PowerShell:
+      $env:FLASK_DEBUG = "1"
+      python app.py
+  - macOS / Linux:
+      export FLASK_DEBUG=1
+      python app.py
+
+7) To train a new model (optional)
+- Training scripts/notebooks are included: `train_mobilenetv2.py` and `Train.ipynb`.
+- Training requires a dataset and sufficient GPU/memory. Review those files for dataset paths and hyperparameters.
+
+Troubleshooting
+- If you get TensorFlow import or memory errors, check your Python/TensorFlow version and available RAM.
+- If the web page shows "Prediction failed: ...", inspect the server console for the exception stack trace.
+
+Where to look in the code
+- Web UI entrypoint: `app.py`
+- Prediction logic and class names: `model_utility.py`
+- Model files folder: `models/plant_leaf_disease_detector/`
+
+Need help?
+- Reply here and I can run quick verification steps or adjust the instructions for your environment.

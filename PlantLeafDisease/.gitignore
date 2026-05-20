@@ -1,0 +1,4 @@
+.vscode/
+__pycache__/
+models/*_tf_compat/
+models/*_tf21_compat/

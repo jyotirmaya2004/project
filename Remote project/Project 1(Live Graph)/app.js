@@ -140,4 +140,4 @@ createGraph();
 setInterval(() => {
 //   fetchdata();
 	generateRandomData()
-}, 5000*12); //change in every 1 minutes
+}, 5000); //change in every 1 minutes
