@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import json
 import os
+from importlib import import_module
+from io import BytesIO
 from pathlib import Path
 from typing import Any
 
@@ -12,7 +14,13 @@ import pandas as pd
 import streamlit as st
 from dotenv import load_dotenv
 from openai import APIConnectionError, OpenAI
-from PIL import Image, UnidentifiedImageError
+from PIL import Image, ImageOps, UnidentifiedImageError
+
+try:
+    register_heif_opener = import_module("pillow_heif").register_heif_opener
+    register_heif_opener()
+except Exception:
+    pass
 
 from predict import PredictionError, load_class_names, predict_disease
 
@@ -28,6 +36,8 @@ ALLOWED_EXTENSIONS = {
     "gif",
     "tif",
     "tiff",
+    "heic",
+    "heif",
 }
 
 load_dotenv()
@@ -159,19 +169,23 @@ def validate_uploaded_image(uploaded_file: Any) -> Image.Image:
         raise ValueError("Please upload a common image file such as JPG, PNG, WEBP, BMP, GIF, or TIFF.")
 
     try:
-        image = Image.open(uploaded_file)
+        raw_bytes = uploaded_file.getvalue()
+        image = Image.open(BytesIO(raw_bytes))
+        image = ImageOps.exif_transpose(image)
         if getattr(image, "is_animated", False):
             image.seek(0)
         image.verify()
-        uploaded_file.seek(0)
-        image = Image.open(uploaded_file)
+
+        image = Image.open(BytesIO(raw_bytes))
+        image = ImageOps.exif_transpose(image)
         if getattr(image, "is_animated", False):
             image.seek(0)
-        image = image.convert("RGB")
-        uploaded_file.seek(0)
-        return image
-    except (UnidentifiedImageError, OSError) as exc:
-        raise ValueError("The uploaded file does not appear to be a valid image.") from exc
+        return image.convert("RGB")
+    except (UnidentifiedImageError, OSError, AttributeError) as exc:
+        raise ValueError(
+            "The uploaded file does not appear to be a valid image. If you are on a phone, try the camera option "
+            "or convert HEIC photos to JPG/PNG if your browser does not support them."
+        ) from exc
 
 
 def agriculture_question(text: str) -> bool:
@@ -279,22 +293,6 @@ def initialize_session_state() -> None:
     st.session_state.setdefault("chat_messages", [])
 
 
-def render_sidebar() -> None:
-    """Render project details in the sidebar."""
-    with st.sidebar:
-        st.title("LeafCare AI")
-        st.caption("Plant disease detection")
-        st.markdown(
-            """
-            **Supported files:** JPG, PNG, WEBP, BMP, GIF, TIFF  
-            **Model input:** 224 x 224  
-            **Engine:** TensorFlow + MobileNetV2
-            """
-        )
-        st.divider()
-        st.info("For pesticide or fungicide use, follow local agricultural extension guidance and product labels.")
-
-
 def render_page_header() -> None:
     """Render the application header."""
     st.markdown(
@@ -376,8 +374,8 @@ def render_chatbot() -> None:
             unsafe_allow_html=True,
         )
 
-    control_col, spacer_col = st.columns([0.28, 0.72])
-    with control_col:
+    action_col, spacer_col = st.columns([0.22, 0.78])
+    with action_col:
         if st.button("Clear chat", use_container_width=True, disabled=not st.session_state.chat_messages):
             st.session_state.chat_messages = []
             st.rerun()
@@ -398,15 +396,10 @@ def render_chatbot() -> None:
         with st.chat_message(message["role"]):
             st.write(message["content"])
 
-    with st.form("chat_form", clear_on_submit=True):
-        user_message = st.text_input(
-            "Ask a plant disease or farming question",
-            placeholder="Ask a plant disease or farming question",
-            label_visibility="collapsed",
-        )
-        submitted = st.form_submit_button("Send", use_container_width=True)
-
-    active_message = selected_prompt or (user_message if submitted else None)
+    active_message = selected_prompt or st.chat_input(
+        "Ask a plant disease or farming question",
+        key="chat_input",
+    )
     if active_message:
         st.session_state.chat_messages.append({"role": "user", "content": active_message})
         with st.chat_message("user"):
@@ -418,6 +411,64 @@ def render_chatbot() -> None:
                 st.write(reply)
 
         st.session_state.chat_messages.append({"role": "assistant", "content": reply})
+
+
+def render_upload_section(disease_info: dict[str, dict[str, str]]) -> None:
+    """Render the upload and prediction workflow."""
+    render_panel_header("Leaf Image", "Use a clear photo with the leaf filling most of the frame.")
+    source_choice = st.radio(
+        "Image source",
+        ["Upload from device", "Take a photo"],
+        horizontal=True,
+        label_visibility="collapsed",
+    )
+
+    if source_choice == "Upload from device":
+        source_file = st.file_uploader(
+            "Choose a leaf image",
+            type=sorted(ALLOWED_EXTENSIONS),
+            accept_multiple_files=False,
+            label_visibility="visible",
+        )
+    else:
+        source_file = st.camera_input(
+            "Take a leaf photo",
+            label_visibility="visible",
+        )
+
+    image = None
+    if source_file:
+        try:
+            image = validate_uploaded_image(source_file)
+            st.image(
+                image,
+                caption=source_file.name if getattr(source_file, "name", None) else "Captured image",
+                use_column_width=True,
+            )
+            file_size = getattr(source_file, "size", 0) or 0
+            if file_size and file_size > 15 * 1024 * 1024:
+                st.warning(
+                    "Large mobile photos can fail during upload. If that happens, retake the photo or resize it to a smaller JPG."
+                )
+        except ValueError as exc:
+            st.error(str(exc))
+
+    predict_clicked = st.button("Analyze Leaf", disabled=image is None, type="primary", use_container_width=True)
+
+    if predict_clicked and image is not None:
+        try:
+            with st.spinner("Analyzing leaf image..."):
+                st.session_state.prediction = predict_disease(image)
+            st.success("Prediction completed.")
+        except PredictionError as exc:
+            st.error(str(exc))
+        except Exception:
+            st.error("Something went wrong while analyzing the image. Please try another clear leaf photo.")
+
+    if st.session_state.prediction:
+        render_prediction_results(st.session_state.prediction, disease_info)
+    else:
+        st.info("Your prediction results and disease guidance will appear here after analysis.")
 
 
 def inject_custom_css() -> None:
@@ -442,6 +493,12 @@ def inject_custom_css() -> None:
             color: var(--leaf-ink);
         }
 
+        [data-testid="collapsedControl"],
+        [data-testid="stSidebar"],
+        [data-testid="stSidebarContent"] {
+            display: none !important;
+        }
+
         [data-testid="stAppViewContainer"] * {
             box-sizing: border-box;
         }
@@ -449,25 +506,6 @@ def inject_custom_css() -> None:
         .main .block-container {
             width: min(100%, 1220px);
             padding: 1.25rem 1.5rem 3rem;
-        }
-
-        [data-testid="stSidebar"] {
-            background: #eef5ee;
-            border-right: 1px solid var(--leaf-line);
-        }
-
-        [data-testid="stSidebar"] p,
-        [data-testid="stSidebar"] span,
-        [data-testid="stSidebar"] li,
-        [data-testid="stSidebar"] strong,
-        [data-testid="stSidebar"] h1 {
-            color: var(--leaf-ink) !important;
-            opacity: 1 !important;
-        }
-
-        [data-testid="stSidebar"] h1 {
-            font-size: 1.45rem;
-            line-height: 1.2;
         }
 
         .app-hero {
@@ -741,10 +779,6 @@ def inject_custom_css() -> None:
             [data-testid="stMetric"] {
                 min-height: auto;
             }
-
-            [data-testid="stSidebar"] {
-                background: #eef5ee !important;
-            }
         }
 
         @media (max-width: 520px) {
@@ -774,6 +808,10 @@ def inject_custom_css() -> None:
                 font-size: 0.92rem;
             }
         }
+
+        [data-testid="stChatInput"] {
+            border-radius: 8px;
+        }
         </style>
         """,
         unsafe_allow_html=True,
@@ -786,51 +824,15 @@ def main() -> None:
         page_title="Plant Leaf Disease Detection",
         page_icon=":seedling:",
         layout="wide",
-        initial_sidebar_state="expanded",
+        initial_sidebar_state="collapsed",
     )
     initialize_session_state()
     disease_info = ensure_disease_info()
     inject_custom_css()
 
-    render_sidebar()
     render_page_header()
 
-    upload_col, result_col = st.columns([0.9, 1.1], gap="large")
-    with upload_col:
-        render_panel_header("Leaf Image", "Use a clear photo with the leaf filling most of the frame.")
-        uploaded_file = st.file_uploader(
-            "Choose a leaf image",
-            type=sorted(ALLOWED_EXTENSIONS),
-            accept_multiple_files=False,
-            label_visibility="collapsed",
-        )
-
-        image = None
-        if uploaded_file:
-            try:
-                image = validate_uploaded_image(uploaded_file)
-                st.image(image, caption=uploaded_file.name, use_column_width=True)
-            except ValueError as exc:
-                st.error(str(exc))
-
-        predict_clicked = st.button("Analyze Leaf", disabled=image is None, type="primary", use_container_width=True)
-
-    with result_col:
-        if predict_clicked and uploaded_file is not None:
-            try:
-                with st.spinner("Analyzing leaf image..."):
-                    uploaded_file.seek(0)
-                    st.session_state.prediction = predict_disease(uploaded_file)
-                st.success("Prediction completed.")
-            except PredictionError as exc:
-                st.error(str(exc))
-            except Exception:
-                st.error("Something went wrong while analyzing the image. Please try another clear leaf photo.")
-
-        if st.session_state.prediction:
-            render_prediction_results(st.session_state.prediction, disease_info)
-        else:
-            st.info("Your prediction results and disease guidance will appear here after analysis.")
+    render_upload_section(disease_info)
 
     st.divider()
     render_chatbot()
