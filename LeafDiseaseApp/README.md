@@ -5,11 +5,12 @@ A production-ready Streamlit web application that detects plant leaf diseases fr
 ## Features
 
 - TensorFlow Keras model loading with process-level caching
-- JPG, JPEG, PNG, WEBP, BMP, GIF, and TIFF image upload support
+- JPG, JPEG, PNG, WEBP, BMP, GIF, TIFF, HEIC, and HEIF image upload support
 - MobileNetV2 preprocessing with 224 x 224 image resizing
 - Top 3 disease predictions with confidence scores
 - Disease knowledge base for symptoms, causes, treatment, and prevention
 - NVIDIA API chatbot with session memory and agriculture topic restriction
+- Sidebar-free mobile-first layout with chat-style assistant input
 - Modular prediction logic separated from the Streamlit UI
 
 ## Project Structure
@@ -60,6 +61,8 @@ Install dependencies:
 pip install -r requirements.txt
 ```
 
+If you want reliable iPhone-style photo uploads, keep `pillow-heif` installed so HEIC and HEIF files can be decoded.
+
 ## NVIDIA API Configuration
 
 Create a `.env` file in the project root using `.env.example` as the guide:
@@ -94,10 +97,11 @@ http://localhost:8501
 ## How To Use
 
 1. Upload a clear image of a single plant leaf in a common image format such as JPG, PNG, WEBP, BMP, GIF, or TIFF.
-2. Click **Predict Disease**.
-3. Review the predicted disease, confidence score, and top 3 predictions.
-4. Read disease symptoms, causes, treatment, and prevention guidance.
-5. Ask the AI assistant agriculture-related questions about plant health, fertilizers, pest control, and farming practices.
+2. On mobile, switch to the camera capture option if gallery uploads are unstable.
+3. Click **Analyze Leaf**.
+4. Review the predicted disease, confidence score, and top 3 predictions.
+5. Read disease symptoms, causes, treatment, and prevention guidance.
+6. Ask the AI assistant agriculture-related questions about plant health, fertilizers, pest control, and farming practices.
 
 ## Model Notes
 
@@ -129,6 +133,7 @@ Add screenshots of the running app to a `screenshots/` folder when documenting a
 - If prediction fails, confirm the model file and class names file are present in the `model/` directory.
 - If the chatbot does not respond, check that `.env` contains a valid `NVIDIA_API_KEY` and restart Streamlit.
 - If an uploaded file is rejected, confirm it is a valid image file and try again.
+- If phone photos still fail, try the camera capture option or convert HEIC images to JPG if your browser cannot decode them.
 
 ## Future Improvements
 

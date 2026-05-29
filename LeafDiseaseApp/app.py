@@ -53,6 +53,16 @@ def readable_name(class_name: str) -> str:
     return class_name.replace("___", " - ").replace("_", " ").strip()
 
 
+def normalize_display_text(text: str) -> str:
+    """Convert stored guidance text into clean markdown-friendly output."""
+    return (
+        text.replace("<br />", "\n")
+        .replace("<br/>", "\n")
+        .replace("<br>", "\n")
+        .strip()
+    )
+
+
 def split_class_name(class_name: str) -> tuple[str, str]:
     """Split a PlantVillage-style class into crop and condition names."""
     parts = class_name.split("___", maxsplit=1)
@@ -258,6 +268,7 @@ def ask_nvidia_assistant(user_message: str, disease_context: dict[str, Any] | No
                 "crop disease symptoms, causes, treatment, prevention, fertilizers, soil, irrigation, pests, "
                 "and farming practices. If a question is unrelated, politely refuse and redirect to plant care. "
                 "Give practical, safe, locally adaptable guidance and recommend local extension advice for chemical use. "
+                "Use plain markdown only. Do not output HTML tags such as <br> or raw HTML tables. "
                 f"{context_text}"
             ),
         },
@@ -336,11 +347,19 @@ def render_prediction_results(prediction: dict[str, Any], disease_info: dict[str
     metric_left.metric("Predicted Disease", prediction["disease"])
     metric_right.metric("Confidence", f"{prediction['confidence']:.2f}%")
 
-    top_predictions = pd.DataFrame(prediction["top_predictions"])
-    top_predictions = top_predictions[["disease", "confidence"]].rename(
-        columns={"disease": "Disease", "confidence": "Confidence (%)"}
-    )
-    st.dataframe(top_predictions, use_container_width=True, hide_index=True)
+    st.markdown("<div class='mini-label'>Top predictions</div>", unsafe_allow_html=True)
+    top_prediction_cols = st.columns(len(prediction["top_predictions"]))
+    for col, top_prediction in zip(top_prediction_cols, prediction["top_predictions"]):
+        with col:
+            st.markdown(
+                f"""
+                <div class="prediction-card">
+                    <strong>{top_prediction['disease']}</strong>
+                    <span>{top_prediction['confidence']:.2f}% confidence</span>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
 
     info = disease_info.get(prediction["class_name"], build_default_disease_info(prediction["class_name"]))
     render_panel_header("Disease Guidance", "Symptoms, causes, treatment, and prevention.")
@@ -351,7 +370,7 @@ def render_prediction_results(prediction: dict[str, Any], disease_info: dict[str
         ("Prevention", "prevention"),
     ]:
         with st.expander(title, expanded=title in {"Symptoms", "Treatment"}):
-            st.write(info[key])
+            st.markdown(normalize_display_text(info[key]))
 
 
 def render_chatbot() -> None:
@@ -394,7 +413,7 @@ def render_chatbot() -> None:
 
     for message in st.session_state.chat_messages:
         with st.chat_message(message["role"]):
-            st.write(message["content"])
+            st.markdown(normalize_display_text(message["content"]))
 
     active_message = selected_prompt or st.chat_input(
         "Ask a plant disease or farming question",
@@ -403,12 +422,12 @@ def render_chatbot() -> None:
     if active_message:
         st.session_state.chat_messages.append({"role": "user", "content": active_message})
         with st.chat_message("user"):
-            st.write(active_message)
+            st.markdown(normalize_display_text(active_message))
 
         with st.chat_message("assistant"):
             with st.spinner("Thinking through the crop-care details..."):
-                reply = ask_nvidia_assistant(active_message, st.session_state.prediction)
-                st.write(reply)
+                reply = normalize_display_text(ask_nvidia_assistant(active_message, st.session_state.prediction))
+                st.markdown(reply)
 
         st.session_state.chat_messages.append({"role": "assistant", "content": reply})
 
