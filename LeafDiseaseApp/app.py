@@ -446,14 +446,21 @@ def handle_chat_message(message: str) -> None:
 def render_upload_section(disease_info: dict[str, dict[str, str]]) -> None:
     """Render the upload and prediction workflow."""
     render_panel_header("Leaf Image", "Use a clear photo with the leaf filling most of the frame.")
+    st.markdown(
+        """
+        <div class="upload-note">
+            <strong>Choose an image source</strong>
+            <span>Use your gallery for saved photos, or capture a fresh leaf photo from the camera.</span>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
     source_choice = st.radio(
         "Image source",
         ["Upload from device", "Take a photo"],
         horizontal=True,
-        label_visibility="visible",
+        label_visibility="collapsed",
     )
-
-    st.caption("Upload an image from your gallery or switch to camera capture if mobile uploads are unstable.")
 
     if source_choice == "Upload from device":
         source_file = st.file_uploader(
@@ -464,6 +471,14 @@ def render_upload_section(disease_info: dict[str, dict[str, str]]) -> None:
             help="Use JPG, PNG, WEBP, BMP, GIF, TIFF, HEIC, or HEIF.",
         )
     else:
+        st.markdown(
+            """
+            <div class="camera-note">
+                Keep the leaf close, steady, and well lit. Avoid shadows and busy backgrounds.
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
         source_file = st.camera_input(
             "Take a leaf photo",
             label_visibility="visible",
@@ -474,6 +489,7 @@ def render_upload_section(disease_info: dict[str, dict[str, str]]) -> None:
     if source_file:
         try:
             image = validate_uploaded_image(source_file)
+            st.markdown('<div class="preview-label">Selected image preview</div>', unsafe_allow_html=True)
             st.image(
                 image,
                 caption=source_file.name if getattr(source_file, "name", None) else "Captured image",
