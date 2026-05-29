@@ -5,7 +5,7 @@ A production-ready Streamlit web application that detects plant leaf diseases fr
 ## Features
 
 - TensorFlow Keras model loading with process-level caching
-- JPG, JPEG, and PNG image upload support
+- JPG, JPEG, PNG, WEBP, BMP, GIF, and TIFF image upload support
 - MobileNetV2 preprocessing with 224 x 224 image resizing
 - Top 3 disease predictions with confidence scores
 - Disease knowledge base for symptoms, causes, treatment, and prevention
@@ -93,7 +93,7 @@ http://localhost:8501
 
 ## How To Use
 
-1. Upload a clear image of a single plant leaf in JPG, JPEG, or PNG format.
+1. Upload a clear image of a single plant leaf in a common image format such as JPG, PNG, WEBP, BMP, GIF, or TIFF.
 2. Click **Predict Disease**.
 3. Review the predicted disease, confidence score, and top 3 predictions.
 4. Read disease symptoms, causes, treatment, and prevention guidance.
@@ -128,7 +128,7 @@ Add screenshots of the running app to a `screenshots/` folder when documenting a
 - If TensorFlow fails to install, verify your Python version is supported by your TensorFlow release.
 - If prediction fails, confirm the model file and class names file are present in the `model/` directory.
 - If the chatbot does not respond, check that `.env` contains a valid `NVIDIA_API_KEY` and restart Streamlit.
-- If an uploaded file is rejected, convert it to JPG, JPEG, or PNG and try again.
+- If an uploaded file is rejected, confirm it is a valid image file and try again.
 
 ## Future Improvements
 

@@ -16,7 +16,6 @@ BASE_DIR = Path(__file__).resolve().parent
 MODEL_PATH = BASE_DIR / "model" / "leaf_disease_model.keras"
 CLASS_NAMES_PATH = BASE_DIR / "model" / "class_names.json"
 IMAGE_SIZE = (224, 224)
-ALLOWED_FORMATS = {"JPEG", "PNG"}
 
 
 class PredictionError(Exception):
@@ -73,12 +72,11 @@ def _open_image(image_source: str | Path | bytes | BinaryIO | Image.Image) -> Im
         else:
             image = Image.open(image_source)
 
+        if getattr(image, "is_animated", False):
+            image.seek(0)
         image.load()
     except (UnidentifiedImageError, OSError, ValueError) as exc:
-        raise PredictionError("Please upload a valid JPG, JPEG, or PNG image.") from exc
-
-    if image.format and image.format.upper() not in ALLOWED_FORMATS:
-        raise PredictionError("Unsupported image format. Please use JPG, JPEG, or PNG.")
+        raise PredictionError("Please upload a valid image file.") from exc
 
     return image.convert("RGB")
 

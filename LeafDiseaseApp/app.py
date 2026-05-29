@@ -19,7 +19,16 @@ from predict import PredictionError, load_class_names, predict_disease
 
 BASE_DIR = Path(__file__).resolve().parent
 DISEASE_INFO_PATH = BASE_DIR / "disease_info.json"
-ALLOWED_EXTENSIONS = {"jpg", "jpeg", "png"}
+ALLOWED_EXTENSIONS = {
+    "jpg",
+    "jpeg",
+    "png",
+    "webp",
+    "bmp",
+    "gif",
+    "tif",
+    "tiff",
+}
 
 load_dotenv()
 CHAT_MODEL = os.getenv("NVIDIA_MODEL", "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning")
@@ -147,13 +156,18 @@ def validate_uploaded_image(uploaded_file: Any) -> Image.Image:
         raise ValueError("Please upload a leaf image first.")
 
     if not is_allowed_file(uploaded_file.name):
-        raise ValueError("Only JPG, JPEG, and PNG images are supported.")
+        raise ValueError("Please upload a common image file such as JPG, PNG, WEBP, BMP, GIF, or TIFF.")
 
     try:
         image = Image.open(uploaded_file)
+        if getattr(image, "is_animated", False):
+            image.seek(0)
         image.verify()
         uploaded_file.seek(0)
-        image = Image.open(uploaded_file).convert("RGB")
+        image = Image.open(uploaded_file)
+        if getattr(image, "is_animated", False):
+            image.seek(0)
+        image = image.convert("RGB")
         uploaded_file.seek(0)
         return image
     except (UnidentifiedImageError, OSError) as exc:
@@ -272,7 +286,7 @@ def render_sidebar() -> None:
         st.caption("Plant disease detection")
         st.markdown(
             """
-            **Supported files:** JPG, JPEG, PNG  
+            **Supported files:** JPG, PNG, WEBP, BMP, GIF, TIFF  
             **Model input:** 224 x 224  
             **Engine:** TensorFlow + MobileNetV2
             """
@@ -384,8 +398,15 @@ def render_chatbot() -> None:
         with st.chat_message(message["role"]):
             st.write(message["content"])
 
-    user_message = st.chat_input("Ask a plant disease or farming question")
-    active_message = selected_prompt or user_message
+    with st.form("chat_form", clear_on_submit=True):
+        user_message = st.text_input(
+            "Ask a plant disease or farming question",
+            placeholder="Ask a plant disease or farming question",
+            label_visibility="collapsed",
+        )
+        submitted = st.form_submit_button("Send", use_container_width=True)
+
+    active_message = selected_prompt or (user_message if submitted else None)
     if active_message:
         st.session_state.chat_messages.append({"role": "user", "content": active_message})
         with st.chat_message("user"):
@@ -421,14 +442,27 @@ def inject_custom_css() -> None:
             color: var(--leaf-ink);
         }
 
+        [data-testid="stAppViewContainer"] * {
+            box-sizing: border-box;
+        }
+
         .main .block-container {
             width: min(100%, 1220px);
-            padding: 1.25rem 1.5rem 2.5rem;
+            padding: 1.25rem 1.5rem 3rem;
         }
 
         [data-testid="stSidebar"] {
             background: #eef5ee;
             border-right: 1px solid var(--leaf-line);
+        }
+
+        [data-testid="stSidebar"] p,
+        [data-testid="stSidebar"] span,
+        [data-testid="stSidebar"] li,
+        [data-testid="stSidebar"] strong,
+        [data-testid="stSidebar"] h1 {
+            color: var(--leaf-ink) !important;
+            opacity: 1 !important;
         }
 
         [data-testid="stSidebar"] h1 {
@@ -526,6 +560,10 @@ def inject_custom_css() -> None:
             background: rgba(255, 255, 255, 0.78);
         }
 
+        [data-testid="stFileUploader"] * {
+            max-width: 100%;
+        }
+
         [data-testid="stImage"] img {
             border-radius: 8px;
             border: 1px solid var(--leaf-line);
@@ -542,6 +580,10 @@ def inject_custom_css() -> None:
             font-weight: 700;
             white-space: normal;
             transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+        }
+
+        .stButton > button * {
+            color: inherit !important;
         }
 
         .stButton > button:hover {
@@ -619,7 +661,16 @@ def inject_custom_css() -> None:
             border-radius: 8px;
             border: 1px solid var(--leaf-line);
             background: #ffffff;
+            color: var(--leaf-ink);
             box-shadow: 0 8px 22px rgba(28, 53, 38, 0.05);
+        }
+
+        [data-testid="stChatMessage"] p,
+        [data-testid="stChatMessage"] li,
+        [data-testid="stChatMessage"] div,
+        [data-testid="stChatMessage"] span {
+            color: var(--leaf-ink) !important;
+            opacity: 1 !important;
         }
 
         [data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-user"]),
@@ -627,12 +678,36 @@ def inject_custom_css() -> None:
             background: #f8fbf7;
         }
 
-        [data-testid="stChatInput"] {
+        [data-testid="stForm"] {
+            border: 1px solid var(--leaf-line);
             border-radius: 8px;
+            background: #ffffff;
+            padding: 0.85rem;
+            box-shadow: 0 8px 22px rgba(28, 53, 38, 0.05);
         }
 
-        .stAlert {
+        [data-testid="stTextInput"] input {
             border-radius: 8px;
+            border: 1px solid #cad8ca;
+            background: #ffffff;
+            color: var(--leaf-ink) !important;
+        }
+
+        [data-testid="stTextInput"] input::placeholder {
+            color: #6f7c73 !important;
+            opacity: 1 !important;
+        }
+
+        .stAlert,
+        [data-testid="stAlert"] {
+            border-radius: 8px;
+            color: var(--leaf-ink) !important;
+        }
+
+        [data-testid="stAlert"] *,
+        .stAlert * {
+            color: var(--leaf-ink) !important;
+            opacity: 1 !important;
         }
 
         hr {
@@ -641,7 +716,7 @@ def inject_custom_css() -> None:
 
         @media (max-width: 900px) {
             .main .block-container {
-                padding: 0.9rem 0.85rem 2rem;
+                padding: 0.9rem 0.85rem 2.5rem;
             }
 
             .app-hero {
@@ -666,9 +741,18 @@ def inject_custom_css() -> None:
             [data-testid="stMetric"] {
                 min-height: auto;
             }
+
+            [data-testid="stSidebar"] {
+                background: #eef5ee !important;
+            }
         }
 
         @media (max-width: 520px) {
+            [data-testid="stHeader"],
+            [data-testid="stToolbar"] {
+                display: none;
+            }
+
             .app-hero h1 {
                 font-size: 2rem;
             }
@@ -679,6 +763,10 @@ def inject_custom_css() -> None:
 
             [data-testid="stFileUploader"] {
                 padding: 0.75rem;
+            }
+
+            [data-testid="stForm"] {
+                padding: 0.7rem;
             }
 
             .stButton > button {
@@ -711,7 +799,7 @@ def main() -> None:
     with upload_col:
         render_panel_header("Leaf Image", "Use a clear photo with the leaf filling most of the frame.")
         uploaded_file = st.file_uploader(
-            "Choose a JPG, JPEG, or PNG image",
+            "Choose a leaf image",
             type=sorted(ALLOWED_EXTENSIONS),
             accept_multiple_files=False,
             label_visibility="collapsed",
@@ -721,7 +809,7 @@ def main() -> None:
         if uploaded_file:
             try:
                 image = validate_uploaded_image(uploaded_file)
-                st.image(image, caption=uploaded_file.name, use_container_width=True)
+                st.image(image, caption=uploaded_file.name, use_column_width=True)
             except ValueError as exc:
                 st.error(str(exc))
 
