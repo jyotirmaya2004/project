@@ -1,0 +1,140 @@
+# Plant Leaf Disease Detection
+
+A production-ready Streamlit web application that detects plant leaf diseases from uploaded images using a TensorFlow MobileNetV2 model. The app also provides disease guidance and an agriculture-only AI assistant powered by the NVIDIA API.
+
+## Features
+
+- TensorFlow Keras model loading with process-level caching
+- JPG, JPEG, and PNG image upload support
+- MobileNetV2 preprocessing with 224 x 224 image resizing
+- Top 3 disease predictions with confidence scores
+- Disease knowledge base for symptoms, causes, treatment, and prevention
+- NVIDIA API chatbot with session memory and agriculture topic restriction
+- Modular prediction logic separated from the Streamlit UI
+
+## Project Structure
+
+```text
+LeafDiseaseApp/
+├── model/
+│   ├── leaf_disease_model.keras
+│   └── class_names.json
+├── test_images/
+├── app.py
+├── predict.py
+├── disease_info.json
+├── requirements.txt
+├── .env.example
+└── README.md
+```
+
+## Installation
+
+Open the project folder in VS Code or a terminal:
+
+```bash
+cd LeafDiseaseApp
+```
+
+Create a virtual environment:
+
+```bash
+python -m venv .venv
+```
+
+Activate it on Windows PowerShell:
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+```
+
+Activate it on macOS or Linux:
+
+```bash
+source .venv/bin/activate
+```
+
+Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+## NVIDIA API Configuration
+
+Create a `.env` file in the project root using `.env.example` as the guide:
+
+```env
+NVIDIA_API_KEY=your_nvidia_api_key_here
+NVIDIA_MODEL=meta/llama-3.1-70b-instruct
+```
+
+The chatbot uses NVIDIA's OpenAI-compatible endpoint:
+
+```text
+https://integrate.api.nvidia.com/v1
+```
+
+If `NVIDIA_API_KEY` is not configured, disease prediction still works, and the chatbot will show a friendly configuration message.
+
+## Running Streamlit
+
+Start the app locally:
+
+```bash
+streamlit run app.py
+```
+
+Streamlit will print a local URL, typically:
+
+```text
+http://localhost:8501
+```
+
+## How To Use
+
+1. Upload a clear image of a single plant leaf in JPG, JPEG, or PNG format.
+2. Click **Predict Disease**.
+3. Review the predicted disease, confidence score, and top 3 predictions.
+4. Read disease symptoms, causes, treatment, and prevention guidance.
+5. Ask the AI assistant agriculture-related questions about plant health, fertilizers, pest control, and farming practices.
+
+## Model Notes
+
+The app expects:
+
+- `model/leaf_disease_model.keras`
+- `model/class_names.json`
+
+Images are resized to `224 x 224` and preprocessed with:
+
+```python
+tensorflow.keras.applications.mobilenet_v2.preprocess_input
+```
+
+This matches the MobileNetV2 preprocessing used during training.
+
+## Project Screenshots
+
+Add screenshots of the running app to a `screenshots/` folder when documenting a deployment or submission:
+
+- Upload and prediction screen
+- Prediction result with top 3 table
+- Disease knowledge base section
+- AI assistant chat section
+
+## Troubleshooting
+
+- If TensorFlow fails to install, verify your Python version is supported by your TensorFlow release.
+- If prediction fails, confirm the model file and class names file are present in the `model/` directory.
+- If the chatbot does not respond, check that `.env` contains a valid `NVIDIA_API_KEY` and restart Streamlit.
+- If an uploaded file is rejected, convert it to JPG, JPEG, or PNG and try again.
+
+## Future Improvements
+
+- Add Grad-CAM heatmaps to explain model attention.
+- Store prediction history in a database.
+- Add multilingual disease guidance.
+- Add location-aware crop treatment recommendations.
+- Add confidence thresholds and uncertainty warnings.
+- Package the app with Docker for easier deployment.

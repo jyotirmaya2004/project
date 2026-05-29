@@ -1,0 +1,752 @@
+"""Streamlit web app for plant leaf disease detection."""
+
+from __future__ import annotations
+
+import json
+import os
+from pathlib import Path
+from typing import Any
+
+import httpx
+import pandas as pd
+import streamlit as st
+from dotenv import load_dotenv
+from openai import APIConnectionError, OpenAI
+from PIL import Image, UnidentifiedImageError
+
+from predict import PredictionError, load_class_names, predict_disease
+
+
+BASE_DIR = Path(__file__).resolve().parent
+DISEASE_INFO_PATH = BASE_DIR / "disease_info.json"
+ALLOWED_EXTENSIONS = {"jpg", "jpeg", "png"}
+
+load_dotenv()
+CHAT_MODEL = os.getenv("NVIDIA_MODEL", "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning")
+CHAT_TEMPERATURE = float(os.getenv("NVIDIA_TEMPERATURE", "0.6"))
+CHAT_TOP_P = float(os.getenv("NVIDIA_TOP_P", "0.95"))
+CHAT_MAX_TOKENS = int(os.getenv("NVIDIA_MAX_TOKENS", "1200"))
+CHAT_REASONING_BUDGET = int(os.getenv("NVIDIA_REASONING_BUDGET", "1024"))
+
+
+def readable_name(class_name: str) -> str:
+    """Convert model class labels into user-facing text."""
+    return class_name.replace("___", " - ").replace("_", " ").strip()
+
+
+def split_class_name(class_name: str) -> tuple[str, str]:
+    """Split a PlantVillage-style class into crop and condition names."""
+    parts = class_name.split("___", maxsplit=1)
+    crop = parts[0].replace("_", " ").replace(",", ", ")
+    condition = parts[1].replace("_", " ") if len(parts) > 1 else class_name.replace("_", " ")
+    return crop.strip(), condition.strip()
+
+
+def build_default_disease_info(class_name: str) -> dict[str, str]:
+    """Create practical disease guidance for a class when a JSON entry is missing."""
+    crop, condition = split_class_name(class_name)
+    disease_name = readable_name(class_name)
+
+    if condition.lower() == "healthy":
+        return {
+            "disease_name": disease_name,
+            "symptoms": f"The {crop} leaf appears generally healthy, with even color, normal shape, and no clear disease lesions.",
+            "causes": "Healthy results are usually associated with balanced nutrition, suitable watering, good sunlight, and low pest or pathogen pressure.",
+            "treatment": "No disease treatment is required. Continue routine crop monitoring and avoid unnecessary pesticide use.",
+            "prevention": "Maintain sanitation, rotate crops where appropriate, water at the base of plants, inspect leaves weekly, and remove stressed plant debris.",
+        }
+
+    lower_condition = condition.lower()
+    if "rust" in lower_condition:
+        symptoms = f"{crop} leaves may show orange, brown, or reddish pustules that can spread across the leaf surface."
+        causes = "Rust fungi thrive in humid weather, dense canopies, and situations where leaves stay wet for long periods."
+        treatment = "Remove heavily infected leaves, improve airflow, and use a crop-approved fungicide early when local guidance recommends it."
+    elif "blight" in lower_condition:
+        symptoms = f"{crop} leaves may develop dark, expanding spots, scorched margins, yellowing tissue, and rapid leaf decline."
+        causes = "Blight is favored by wet foliage, plant stress, infected debris, and warm or cool humid periods depending on the pathogen."
+        treatment = "Remove infected debris, avoid overhead irrigation, improve spacing, and apply recommended protective fungicides when disease pressure is high."
+    elif "mildew" in lower_condition:
+        symptoms = f"{crop} leaves may show white or gray powdery growth, curling, yellowing, and reduced vigor."
+        causes = "Powdery mildew is encouraged by crowded plants, shade, moderate humidity, and poor airflow."
+        treatment = "Prune crowded growth, remove badly affected leaves, and use sulfur, potassium bicarbonate, or another locally approved fungicide if needed."
+    elif "bacterial" in lower_condition:
+        symptoms = f"{crop} leaves may show small water-soaked spots that turn brown or black, often with yellow halos."
+        causes = "Bacteria spread through splashing water, contaminated tools, infected seed or transplants, and handling wet plants."
+        treatment = "Remove infected leaves, disinfect tools, avoid working wet plants, and use copper-based products only where they are locally recommended."
+    elif "virus" in lower_condition or "mosaic" in lower_condition or "curl" in lower_condition:
+        symptoms = f"{crop} leaves may show mottling, mosaic patterns, curling, distortion, yellowing, and stunted plant growth."
+        causes = "Plant viruses are commonly spread by insect vectors, infected transplants, weeds, and contaminated tools."
+        treatment = "There is no curative spray for viral infection. Remove severely infected plants and manage insect vectors promptly."
+    elif "mite" in lower_condition:
+        symptoms = f"{crop} leaves may show stippling, bronzing, fine webbing, curling, and premature leaf drop."
+        causes = "Spider mites increase quickly in hot, dry conditions and on water-stressed plants."
+        treatment = "Rinse leaf undersides, reduce plant stress, encourage beneficial insects, and use insecticidal soap or miticide when appropriate."
+    elif "scab" in lower_condition:
+        symptoms = f"{crop} leaves and fruit may develop olive-brown, velvety, scabby lesions and distorted young leaves."
+        causes = "Scab fungi survive on infected leaves and spread during cool, wet spring weather."
+        treatment = "Remove fallen infected leaves, prune for airflow, and apply preventive fungicides according to local extension advice."
+    elif "rot" in lower_condition:
+        symptoms = f"{crop} leaves may show dark circular spots, browning tissue, and fruit or stem lesions depending on infection stage."
+        causes = "Rot pathogens survive in infected plant material and spread during wet, humid conditions."
+        treatment = "Remove infected material, improve sanitation and drainage, and use labeled fungicides as part of an integrated plan."
+    else:
+        symptoms = f"{crop} leaves may show discoloration, spots, curling, blighting, or other abnormal patterns linked with {condition}."
+        causes = "Disease development is often associated with susceptible varieties, infected debris, humid weather, pest vectors, and plant stress."
+        treatment = "Remove severely affected leaves, improve airflow and watering practices, and follow local agricultural guidance for approved treatments."
+
+    return {
+        "disease_name": disease_name,
+        "symptoms": symptoms,
+        "causes": causes,
+        "treatment": treatment,
+        "prevention": "Use clean planting material, rotate crops where possible, remove infected debris, avoid overhead watering, keep tools clean, and monitor plants regularly.",
+    }
+
+
+def ensure_disease_info() -> dict[str, dict[str, str]]:
+    """Create or repair disease_info.json so every model class has knowledge-base content."""
+    try:
+        class_names = load_class_names()
+    except PredictionError:
+        class_names = []
+
+    disease_info: dict[str, dict[str, str]] = {}
+    if DISEASE_INFO_PATH.exists():
+        try:
+            with DISEASE_INFO_PATH.open("r", encoding="utf-8") as file:
+                loaded = json.load(file)
+                if isinstance(loaded, dict):
+                    disease_info = loaded
+        except (json.JSONDecodeError, OSError):
+            disease_info = {}
+
+    changed = False
+    for class_name in class_names:
+        required_keys = {"disease_name", "symptoms", "causes", "treatment", "prevention"}
+        existing = disease_info.get(class_name)
+        if not isinstance(existing, dict) or not required_keys.issubset(existing):
+            disease_info[class_name] = build_default_disease_info(class_name)
+            changed = True
+
+    if changed or not DISEASE_INFO_PATH.exists():
+        with DISEASE_INFO_PATH.open("w", encoding="utf-8") as file:
+            json.dump(disease_info, file, indent=2, ensure_ascii=False)
+
+    return disease_info
+
+
+def is_allowed_file(file_name: str) -> bool:
+    """Validate uploaded file extension."""
+    suffix = Path(file_name).suffix.lower().lstrip(".")
+    return suffix in ALLOWED_EXTENSIONS
+
+
+def validate_uploaded_image(uploaded_file: Any) -> Image.Image:
+    """Validate and return a displayable image from Streamlit's uploader."""
+    if uploaded_file is None:
+        raise ValueError("Please upload a leaf image first.")
+
+    if not is_allowed_file(uploaded_file.name):
+        raise ValueError("Only JPG, JPEG, and PNG images are supported.")
+
+    try:
+        image = Image.open(uploaded_file)
+        image.verify()
+        uploaded_file.seek(0)
+        image = Image.open(uploaded_file).convert("RGB")
+        uploaded_file.seek(0)
+        return image
+    except (UnidentifiedImageError, OSError) as exc:
+        raise ValueError("The uploaded file does not appear to be a valid image.") from exc
+
+
+def agriculture_question(text: str) -> bool:
+    """Basic topic gate before sending a chat message to the NVIDIA endpoint."""
+    agricultural_terms = {
+        "agriculture", "plant", "leaf", "disease", "crop", "farming", "farm", "soil", "fertilizer",
+        "pesticide", "fungicide", "insect", "pest", "irrigation", "harvest", "seed", "fruit",
+        "vegetable", "symptom", "cause", "treatment", "prevent", "prevention", "tomato", "potato", "corn",
+        "maize", "apple", "grape", "pepper", "orange", "peach", "strawberry", "soybean",
+        "squash", "cherry", "blueberry", "raspberry", "mildew", "blight", "rust", "rot",
+        "scab", "mosaic", "mite", "watering", "compost", "nutrient", "nitrogen", "organic",
+        "spray", "remove", "safe", "first",
+    }
+    normalized = text.lower()
+    return any(term in normalized for term in agricultural_terms)
+
+
+def contextual_follow_up(text: str, disease_context: dict[str, Any] | None) -> bool:
+    """Allow short follow-up questions when a prediction gives the chat enough context."""
+    if not disease_context:
+        return False
+
+    follow_up_terms = {
+        "this", "it", "that", "result", "prediction", "prevent", "prevention", "treat", "treatment",
+        "symptom", "cause", "safe", "compost", "first", "next", "fix", "control", "manage",
+    }
+    normalized = text.lower()
+    return any(term in normalized for term in follow_up_terms)
+
+
+def greeting_message(text: str) -> bool:
+    """Detect simple greetings that do not need an API call."""
+    normalized = text.strip().lower().strip("!.?, ")
+    return normalized in {"hi", "hello", "hey", "namaste", "good morning", "good afternoon", "good evening"}
+
+
+def get_chat_client() -> OpenAI | None:
+    """Create an OpenAI-compatible client for NVIDIA NIM APIs."""
+    api_key = os.getenv("NVIDIA_API_KEY")
+    if not api_key:
+        return None
+    http_client = httpx.Client(trust_env=False, timeout=60)
+    return OpenAI(base_url="https://integrate.api.nvidia.com/v1", api_key=api_key, http_client=http_client)
+
+
+def ask_nvidia_assistant(user_message: str, disease_context: dict[str, Any] | None) -> str:
+    """Send an agriculture-scoped chat request to NVIDIA with session memory."""
+    if greeting_message(user_message):
+        return "Hello! Ask me about a plant disease, crop-care issue, fertilizer, soil, pests, or farming practice."
+
+    if not agriculture_question(user_message) and not contextual_follow_up(user_message, disease_context):
+        return "I can help with plant diseases, crop care, fertilizers, soil, pests, and farming practices. Please ask me something in that area."
+
+    client = get_chat_client()
+    if client is None:
+        return "NVIDIA_API_KEY is not configured. Add it to your environment or .env file, then restart Streamlit."
+
+    context_text = ""
+    if disease_context:
+        context_text = (
+            f"Current model prediction: {disease_context.get('disease')} "
+            f"with {disease_context.get('confidence')}% confidence."
+        )
+
+    messages = [
+        {
+            "role": "system",
+            "content": (
+                "You are an agriculture and plant disease assistant. Only answer questions about plant health, "
+                "crop disease symptoms, causes, treatment, prevention, fertilizers, soil, irrigation, pests, "
+                "and farming practices. If a question is unrelated, politely refuse and redirect to plant care. "
+                "Give practical, safe, locally adaptable guidance and recommend local extension advice for chemical use. "
+                f"{context_text}"
+            ),
+        },
+        *st.session_state.chat_messages[-10:],
+        {"role": "user", "content": user_message},
+    ]
+
+    try:
+        response = client.chat.completions.create(
+            model=os.getenv("NVIDIA_MODEL", CHAT_MODEL),
+            messages=messages,
+            temperature=CHAT_TEMPERATURE,
+            top_p=CHAT_TOP_P,
+            max_tokens=CHAT_MAX_TOKENS,
+            extra_body={
+                "chat_template_kwargs": {"enable_thinking": True},
+                "reasoning_budget": CHAT_REASONING_BUDGET,
+            },
+        )
+        return response.choices[0].message.content or "I could not generate a response. Please try again."
+    except APIConnectionError:
+        return (
+            "The NVIDIA assistant could not connect to the API. Restart Streamlit from your normal terminal, "
+            "then check your internet connection, VPN, proxy, or firewall settings if this continues."
+        )
+    except Exception as exc:
+        return f"The NVIDIA assistant is currently unavailable: {exc}"
+
+
+def initialize_session_state() -> None:
+    """Prepare Streamlit session variables."""
+    st.session_state.setdefault("prediction", None)
+    st.session_state.setdefault("chat_messages", [])
+
+
+def render_sidebar() -> None:
+    """Render project details in the sidebar."""
+    with st.sidebar:
+        st.title("LeafCare AI")
+        st.caption("Plant disease detection")
+        st.markdown(
+            """
+            **Supported files:** JPG, JPEG, PNG  
+            **Model input:** 224 x 224  
+            **Engine:** TensorFlow + MobileNetV2
+            """
+        )
+        st.divider()
+        st.info("For pesticide or fungicide use, follow local agricultural extension guidance and product labels.")
+
+
+def render_page_header() -> None:
+    """Render the application header."""
+    st.markdown(
+        """
+        <section class="app-hero">
+            <div>
+                <p class="eyebrow">Plant health workspace</p>
+                <h1>Leaf Disease Detection</h1>
+                <p class="hero-copy">
+                    Upload a leaf photo, review the model result, and continue the diagnosis with an agriculture-focused assistant.
+                </p>
+            </div>
+            <div class="hero-status">
+                <span>Image analysis</span>
+                <strong>Ready</strong>
+            </div>
+        </section>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def render_panel_header(title: str, subtitle: str | None = None) -> None:
+    """Render a consistent section header."""
+    subtitle_html = f"<p>{subtitle}</p>" if subtitle else ""
+    st.markdown(
+        f"""
+        <div class="panel-heading">
+            <h2>{title}</h2>
+            {subtitle_html}
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def render_prediction_results(prediction: dict[str, Any], disease_info: dict[str, dict[str, str]]) -> None:
+    """Display model prediction and disease guidance."""
+    render_panel_header("Prediction Result", "Most likely class and confidence ranking.")
+    metric_left, metric_right = st.columns(2)
+    metric_left.metric("Predicted Disease", prediction["disease"])
+    metric_right.metric("Confidence", f"{prediction['confidence']:.2f}%")
+
+    top_predictions = pd.DataFrame(prediction["top_predictions"])
+    top_predictions = top_predictions[["disease", "confidence"]].rename(
+        columns={"disease": "Disease", "confidence": "Confidence (%)"}
+    )
+    st.dataframe(top_predictions, use_container_width=True, hide_index=True)
+
+    info = disease_info.get(prediction["class_name"], build_default_disease_info(prediction["class_name"]))
+    render_panel_header("Disease Guidance", "Symptoms, causes, treatment, and prevention.")
+    for title, key in [
+        ("Symptoms", "symptoms"),
+        ("Causes", "causes"),
+        ("Treatment", "treatment"),
+        ("Prevention", "prevention"),
+    ]:
+        with st.expander(title, expanded=title in {"Symptoms", "Treatment"}):
+            st.write(info[key])
+
+
+def render_chatbot() -> None:
+    """Render the agriculture-only chatbot."""
+    render_panel_header(
+        "AI Plant Care Assistant",
+        "Ask follow-up questions about the current result or another plant-care issue.",
+    )
+
+    prediction = st.session_state.prediction
+    if prediction:
+        st.markdown(
+            f"""
+            <div class="context-chip">
+                <span>Current context</span>
+                <strong>{prediction["disease"]}</strong>
+                <em>{prediction["confidence"]:.2f}% confidence</em>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    control_col, spacer_col = st.columns([0.28, 0.72])
+    with control_col:
+        if st.button("Clear chat", use_container_width=True, disabled=not st.session_state.chat_messages):
+            st.session_state.chat_messages = []
+            st.rerun()
+
+    prompt_cols = st.columns(3)
+    prompt_options = [
+        "What should I do first?",
+        "How can I prevent this?",
+        "Is this safe to compost?",
+    ]
+    selected_prompt = None
+    for index, (col, prompt) in enumerate(zip(prompt_cols, prompt_options)):
+        with col:
+            if st.button(prompt, use_container_width=True, key=f"quick_prompt_{index}"):
+                selected_prompt = prompt
+
+    for message in st.session_state.chat_messages:
+        with st.chat_message(message["role"]):
+            st.write(message["content"])
+
+    user_message = st.chat_input("Ask a plant disease or farming question")
+    active_message = selected_prompt or user_message
+    if active_message:
+        st.session_state.chat_messages.append({"role": "user", "content": active_message})
+        with st.chat_message("user"):
+            st.write(active_message)
+
+        with st.chat_message("assistant"):
+            with st.spinner("Thinking through the crop-care details..."):
+                reply = ask_nvidia_assistant(active_message, st.session_state.prediction)
+                st.write(reply)
+
+        st.session_state.chat_messages.append({"role": "assistant", "content": reply})
+
+
+def inject_custom_css() -> None:
+    """Apply responsive visual styling."""
+    st.markdown(
+        """
+        <style>
+        :root {
+            --leaf-bg: #f6f8f5;
+            --leaf-panel: #ffffff;
+            --leaf-ink: #17231b;
+            --leaf-muted: #607066;
+            --leaf-line: #dfe7df;
+            --leaf-green: #24744b;
+            --leaf-green-dark: #185837;
+            --leaf-accent: #d47f2f;
+            --leaf-soft: #eaf3ea;
+        }
+
+        html, body, [data-testid="stAppViewContainer"] {
+            background: var(--leaf-bg);
+            color: var(--leaf-ink);
+        }
+
+        .main .block-container {
+            width: min(100%, 1220px);
+            padding: 1.25rem 1.5rem 2.5rem;
+        }
+
+        [data-testid="stSidebar"] {
+            background: #eef5ee;
+            border-right: 1px solid var(--leaf-line);
+        }
+
+        [data-testid="stSidebar"] h1 {
+            font-size: 1.45rem;
+            line-height: 1.2;
+        }
+
+        .app-hero {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 1.5rem;
+            padding: 1.45rem 1.6rem;
+            margin-bottom: 1.2rem;
+            border: 1px solid var(--leaf-line);
+            border-radius: 8px;
+            background:
+                linear-gradient(135deg, rgba(36, 116, 75, 0.14), rgba(212, 127, 47, 0.10)),
+                var(--leaf-panel);
+            box-shadow: 0 14px 34px rgba(28, 53, 38, 0.08);
+        }
+
+        .eyebrow {
+            margin: 0 0 0.35rem;
+            color: var(--leaf-green);
+            font-size: 0.78rem;
+            font-weight: 800;
+            letter-spacing: 0;
+            text-transform: uppercase;
+        }
+
+        .app-hero h1 {
+            margin: 0;
+            color: var(--leaf-ink);
+            font-size: clamp(2rem, 4vw, 3.6rem);
+            line-height: 1.02;
+            letter-spacing: 0;
+        }
+
+        .hero-copy {
+            max-width: 740px;
+            margin: 0.65rem 0 0;
+            color: var(--leaf-muted);
+            font-size: 1.02rem;
+            line-height: 1.55;
+        }
+
+        .hero-status {
+            min-width: 150px;
+            padding: 0.75rem 0.85rem;
+            border: 1px solid rgba(36, 116, 75, 0.22);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.72);
+        }
+
+        .hero-status span,
+        .context-chip span {
+            display: block;
+            color: var(--leaf-muted);
+            font-size: 0.76rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0;
+        }
+
+        .hero-status strong {
+            display: block;
+            margin-top: 0.2rem;
+            color: var(--leaf-green-dark);
+            font-size: 1.35rem;
+        }
+
+        .panel-heading {
+            margin: 0.35rem 0 0.8rem;
+        }
+
+        .panel-heading h2 {
+            margin: 0;
+            color: var(--leaf-ink);
+            font-size: 1.2rem;
+            line-height: 1.25;
+            letter-spacing: 0;
+        }
+
+        .panel-heading p {
+            margin: 0.25rem 0 0;
+            color: var(--leaf-muted);
+            font-size: 0.92rem;
+        }
+
+        [data-testid="stFileUploader"] {
+            padding: 1rem;
+            border: 1px dashed #b8c8b8;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.78);
+        }
+
+        [data-testid="stImage"] img {
+            border-radius: 8px;
+            border: 1px solid var(--leaf-line);
+            object-fit: cover;
+            max-height: 430px;
+        }
+
+        .stButton > button {
+            min-height: 2.65rem;
+            border-radius: 8px;
+            border: 1px solid #cad8ca;
+            background: #ffffff;
+            color: var(--leaf-ink);
+            font-weight: 700;
+            white-space: normal;
+            transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+        }
+
+        .stButton > button:hover {
+            border-color: var(--leaf-green);
+            color: var(--leaf-green-dark);
+            box-shadow: 0 8px 20px rgba(28, 53, 38, 0.10);
+        }
+
+        .stButton > button[kind="primary"] {
+            border-color: var(--leaf-green);
+            background: var(--leaf-green);
+            color: #ffffff;
+        }
+
+        .stButton > button[kind="primary"]:hover {
+            background: var(--leaf-green-dark);
+            color: #ffffff;
+        }
+
+        [data-testid="stMetric"] {
+            min-height: 118px;
+            border: 1px solid var(--leaf-line);
+            border-radius: 8px;
+            padding: 1rem;
+            background: var(--leaf-panel);
+            box-shadow: 0 10px 24px rgba(28, 53, 38, 0.06);
+        }
+
+        [data-testid="stMetricLabel"] {
+            color: var(--leaf-muted);
+            font-weight: 700;
+        }
+
+        [data-testid="stMetricValue"] {
+            color: var(--leaf-green-dark);
+            font-size: clamp(1.25rem, 2vw, 1.65rem);
+            white-space: normal;
+        }
+
+        [data-testid="stDataFrame"] {
+            border: 1px solid var(--leaf-line);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .streamlit-expanderHeader {
+            font-weight: 800;
+            color: var(--leaf-ink);
+        }
+
+        .context-chip {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+            margin: 0.15rem 0 0.95rem;
+            padding: 0.85rem 1rem;
+            border: 1px solid var(--leaf-line);
+            border-left: 4px solid var(--leaf-green);
+            border-radius: 8px;
+            background: var(--leaf-soft);
+        }
+
+        .context-chip strong {
+            color: var(--leaf-ink);
+        }
+
+        .context-chip em {
+            color: var(--leaf-muted);
+            font-style: normal;
+            font-weight: 700;
+        }
+
+        [data-testid="stChatMessage"] {
+            border-radius: 8px;
+            border: 1px solid var(--leaf-line);
+            background: #ffffff;
+            box-shadow: 0 8px 22px rgba(28, 53, 38, 0.05);
+        }
+
+        [data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-user"]),
+        [data-testid="stChatMessage"]:has([aria-label="user avatar"]) {
+            background: #f8fbf7;
+        }
+
+        [data-testid="stChatInput"] {
+            border-radius: 8px;
+        }
+
+        .stAlert {
+            border-radius: 8px;
+        }
+
+        hr {
+            margin: 1.35rem 0;
+        }
+
+        @media (max-width: 900px) {
+            .main .block-container {
+                padding: 0.9rem 0.85rem 2rem;
+            }
+
+            .app-hero {
+                align-items: flex-start;
+                flex-direction: column;
+                padding: 1.15rem;
+            }
+
+            .hero-status {
+                width: 100%;
+            }
+
+            .hero-copy {
+                font-size: 0.96rem;
+            }
+
+            [data-testid="column"] {
+                width: 100% !important;
+                flex: 1 1 100% !important;
+            }
+
+            [data-testid="stMetric"] {
+                min-height: auto;
+            }
+        }
+
+        @media (max-width: 520px) {
+            .app-hero h1 {
+                font-size: 2rem;
+            }
+
+            .panel-heading h2 {
+                font-size: 1.08rem;
+            }
+
+            [data-testid="stFileUploader"] {
+                padding: 0.75rem;
+            }
+
+            .stButton > button {
+                min-height: 2.85rem;
+                font-size: 0.92rem;
+            }
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def main() -> None:
+    """Run the Streamlit application."""
+    st.set_page_config(
+        page_title="Plant Leaf Disease Detection",
+        page_icon=":seedling:",
+        layout="wide",
+        initial_sidebar_state="expanded",
+    )
+    initialize_session_state()
+    disease_info = ensure_disease_info()
+    inject_custom_css()
+
+    render_sidebar()
+    render_page_header()
+
+    upload_col, result_col = st.columns([0.9, 1.1], gap="large")
+    with upload_col:
+        render_panel_header("Leaf Image", "Use a clear photo with the leaf filling most of the frame.")
+        uploaded_file = st.file_uploader(
+            "Choose a JPG, JPEG, or PNG image",
+            type=sorted(ALLOWED_EXTENSIONS),
+            accept_multiple_files=False,
+            label_visibility="collapsed",
+        )
+
+        image = None
+        if uploaded_file:
+            try:
+                image = validate_uploaded_image(uploaded_file)
+                st.image(image, caption=uploaded_file.name, use_container_width=True)
+            except ValueError as exc:
+                st.error(str(exc))
+
+        predict_clicked = st.button("Analyze Leaf", disabled=image is None, type="primary", use_container_width=True)
+
+    with result_col:
+        if predict_clicked and uploaded_file is not None:
+            try:
+                with st.spinner("Analyzing leaf image..."):
+                    uploaded_file.seek(0)
+                    st.session_state.prediction = predict_disease(uploaded_file)
+                st.success("Prediction completed.")
+            except PredictionError as exc:
+                st.error(str(exc))
+            except Exception:
+                st.error("Something went wrong while analyzing the image. Please try another clear leaf photo.")
+
+        if st.session_state.prediction:
+            render_prediction_results(st.session_state.prediction, disease_info)
+        else:
+            st.info("Your prediction results and disease guidance will appear here after analysis.")
+
+    st.divider()
+    render_chatbot()
+
+
+if __name__ == "__main__":
+    main()
