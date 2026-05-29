@@ -641,6 +641,59 @@ def inject_custom_css() -> None:
             font-size: 0.92rem;
         }
 
+        .upload-note,
+        .camera-note {
+            margin: 0 0 0.85rem;
+            padding: 0.85rem 0.95rem;
+            border: 1px solid var(--leaf-line);
+            border-radius: 8px;
+            background: #ffffff;
+            color: var(--leaf-ink);
+        }
+
+        .upload-note strong {
+            display: block;
+            margin-bottom: 0.15rem;
+            color: var(--leaf-ink);
+            font-size: 0.98rem;
+        }
+
+        .upload-note span,
+        .camera-note {
+            color: var(--leaf-muted);
+            font-size: 0.92rem;
+            line-height: 1.45;
+        }
+
+        .preview-label {
+            margin: 0.8rem 0 0.4rem;
+            color: var(--leaf-ink);
+            font-size: 0.92rem;
+            font-weight: 800;
+        }
+
+        [role="radiogroup"] {
+            display: flex;
+            gap: 0.65rem;
+            flex-wrap: wrap;
+            margin-bottom: 0.9rem;
+        }
+
+        [role="radiogroup"] label {
+            min-height: 2.7rem;
+            padding: 0.55rem 0.75rem;
+            border: 1px solid #cad8ca;
+            border-radius: 8px;
+            background: #ffffff;
+            color: var(--leaf-ink) !important;
+            font-weight: 800;
+        }
+
+        [role="radiogroup"] label * {
+            color: var(--leaf-ink) !important;
+            opacity: 1 !important;
+        }
+
         .mini-label {
             margin: 0.25rem 0 0.45rem;
             color: var(--leaf-muted);
@@ -681,8 +734,56 @@ def inject_custom_css() -> None:
             background: rgba(255, 255, 255, 0.78);
         }
 
-        [data-testid="stFileUploader"] * {
+        [data-testid="stFileUploader"] *,
+        [data-testid="stCameraInput"] * {
             max-width: 100%;
+        }
+
+        [data-testid="stFileUploader"] section {
+            background: #ffffff !important;
+            border: 1px dashed #b8c8b8 !important;
+            border-radius: 8px !important;
+        }
+
+        [data-testid="stFileUploader"] label,
+        [data-testid="stCameraInput"] label,
+        [data-testid="stFileUploader"] p,
+        [data-testid="stCameraInput"] p,
+        [data-testid="stFileUploader"] small,
+        [data-testid="stCameraInput"] small {
+            color: var(--leaf-ink) !important;
+            opacity: 1 !important;
+        }
+
+        [data-testid="stFileUploader"] button,
+        [data-testid="stCameraInput"] button {
+            min-height: 2.75rem;
+            border: 1px solid var(--leaf-green) !important;
+            border-radius: 8px !important;
+            background: var(--leaf-green) !important;
+            color: #ffffff !important;
+            font-weight: 800 !important;
+        }
+
+        [data-testid="stFileUploader"] button *,
+        [data-testid="stCameraInput"] button * {
+            color: #ffffff !important;
+            opacity: 1 !important;
+        }
+
+        [data-testid="stCameraInput"] {
+            padding: 1rem;
+            border: 1px solid var(--leaf-line);
+            border-radius: 8px;
+            background: #ffffff;
+        }
+
+        [data-testid="stCameraInput"] video,
+        [data-testid="stCameraInput"] img {
+            width: 100% !important;
+            border-radius: 8px !important;
+            border: 1px solid var(--leaf-line);
+            background: #111827;
         }
 
         [data-testid="stImage"] img {
@@ -880,6 +981,15 @@ def inject_custom_css() -> None:
 
             [data-testid="stFileUploader"] {
                 padding: 0.75rem;
+            }
+
+            [data-testid="stCameraInput"] {
+                padding: 0.75rem;
+            }
+
+            [role="radiogroup"] {
+                display: grid;
+                grid-template-columns: 1fr;
             }
 
             [data-testid="stForm"] {
