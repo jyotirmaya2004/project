@@ -10,7 +10,6 @@ from pathlib import Path
 from typing import Any
 
 import httpx
-import pandas as pd
 import streamlit as st
 from dotenv import load_dotenv
 from openai import APIConnectionError, OpenAI
@@ -348,18 +347,16 @@ def render_prediction_results(prediction: dict[str, Any], disease_info: dict[str
     metric_right.metric("Confidence", f"{prediction['confidence']:.2f}%")
 
     st.markdown("<div class='mini-label'>Top predictions</div>", unsafe_allow_html=True)
-    top_prediction_cols = st.columns(len(prediction["top_predictions"]))
-    for col, top_prediction in zip(top_prediction_cols, prediction["top_predictions"]):
-        with col:
-            st.markdown(
-                f"""
-                <div class="prediction-card">
-                    <strong>{top_prediction['disease']}</strong>
-                    <span>{top_prediction['confidence']:.2f}% confidence</span>
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
+    for top_prediction in prediction["top_predictions"]:
+        st.markdown(
+            f"""
+            <div class="prediction-card">
+                <strong>{top_prediction['disease']}</strong>
+                <span>{top_prediction['confidence']:.2f}% confidence</span>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
 
     info = disease_info.get(prediction["class_name"], build_default_disease_info(prediction["class_name"]))
     render_panel_header("Disease Guidance", "Symptoms, causes, treatment, and prevention.")
@@ -405,31 +402,45 @@ def render_chatbot() -> None:
         "How can I prevent this?",
         "Is this safe to compost?",
     ]
-    selected_prompt = None
     for index, (col, prompt) in enumerate(zip(prompt_cols, prompt_options)):
         with col:
             if st.button(prompt, use_container_width=True, key=f"quick_prompt_{index}"):
-                selected_prompt = prompt
+                handle_chat_message(prompt)
+                st.rerun()
 
     for message in st.session_state.chat_messages:
         with st.chat_message(message["role"]):
             st.markdown(normalize_display_text(message["content"]))
 
-    active_message = selected_prompt or st.chat_input(
-        "Ask a plant disease or farming question",
-        key="chat_input",
-    )
-    if active_message:
-        st.session_state.chat_messages.append({"role": "user", "content": active_message})
-        with st.chat_message("user"):
-            st.markdown(normalize_display_text(active_message))
+    st.markdown("<div class='chat-composer-label'>Message</div>", unsafe_allow_html=True)
+    st.caption("Type a plant-care question, then press Send. Quick prompts below can also start a conversation.")
 
-        with st.chat_message("assistant"):
-            with st.spinner("Thinking through the crop-care details..."):
-                reply = normalize_display_text(ask_nvidia_assistant(active_message, st.session_state.prediction))
-                st.markdown(reply)
+    with st.form("chat_form", clear_on_submit=True):
+        user_message = st.text_area(
+            "Ask a plant disease or farming question",
+            placeholder="Example: What should I spray for strawberry leaf scorch?",
+            height=90,
+            label_visibility="collapsed",
+        )
+        submitted = st.form_submit_button("Send", use_container_width=True, type="primary")
 
-        st.session_state.chat_messages.append({"role": "assistant", "content": reply})
+    if submitted and user_message.strip():
+        handle_chat_message(user_message.strip())
+        st.rerun()
+
+
+def handle_chat_message(message: str) -> None:
+    """Append a chat message and generate the assistant reply."""
+    st.session_state.chat_messages.append({"role": "user", "content": message})
+    with st.chat_message("user"):
+        st.markdown(normalize_display_text(message))
+
+    with st.chat_message("assistant"):
+        with st.spinner("Thinking through the crop-care details..."):
+            reply = normalize_display_text(ask_nvidia_assistant(message, st.session_state.prediction))
+            st.markdown(reply)
+
+    st.session_state.chat_messages.append({"role": "assistant", "content": reply})
 
 
 def render_upload_section(disease_info: dict[str, dict[str, str]]) -> None:
@@ -439,8 +450,10 @@ def render_upload_section(disease_info: dict[str, dict[str, str]]) -> None:
         "Image source",
         ["Upload from device", "Take a photo"],
         horizontal=True,
-        label_visibility="collapsed",
+        label_visibility="visible",
     )
+
+    st.caption("Upload an image from your gallery or switch to camera capture if mobile uploads are unstable.")
 
     if source_choice == "Upload from device":
         source_file = st.file_uploader(
@@ -448,11 +461,13 @@ def render_upload_section(disease_info: dict[str, dict[str, str]]) -> None:
             type=sorted(ALLOWED_EXTENSIONS),
             accept_multiple_files=False,
             label_visibility="visible",
+            help="Use JPG, PNG, WEBP, BMP, GIF, TIFF, HEIC, or HEIF.",
         )
     else:
         source_file = st.camera_input(
             "Take a leaf photo",
             label_visibility="visible",
+            help="Tap the camera button and capture a clear photo with the leaf filling most of the frame.",
         )
 
     image = None
@@ -608,6 +623,39 @@ def inject_custom_css() -> None:
             margin: 0.25rem 0 0;
             color: var(--leaf-muted);
             font-size: 0.92rem;
+        }
+
+        .mini-label {
+            margin: 0.25rem 0 0.45rem;
+            color: var(--leaf-muted);
+            font-size: 0.8rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .prediction-card {
+            margin: 0.5rem 0 0;
+            padding: 0.9rem 1rem;
+            border: 1px solid var(--leaf-line);
+            border-radius: 8px;
+            background: #ffffff;
+            box-shadow: 0 8px 20px rgba(28, 53, 38, 0.05);
+        }
+
+        .prediction-card strong {
+            display: block;
+            color: var(--leaf-ink);
+            font-size: 0.98rem;
+            line-height: 1.35;
+        }
+
+        .prediction-card span {
+            display: block;
+            margin-top: 0.25rem;
+            color: var(--leaf-muted);
+            font-size: 0.88rem;
+            font-weight: 700;
         }
 
         [data-testid="stFileUploader"] {
