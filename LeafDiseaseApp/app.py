@@ -197,6 +197,13 @@ def validate_uploaded_image(uploaded_file: Any) -> Image.Image:
         ) from exc
 
 
+def image_to_preview_bytes(image: Image.Image) -> bytes:
+    """Create a stable image copy independent of Streamlit temp media files."""
+    buffer = BytesIO()
+    image.save(buffer, format="JPEG", quality=92, optimize=True)
+    return buffer.getvalue()
+
+
 def agriculture_question(text: str) -> bool:
     """Basic topic gate before sending a chat message to the NVIDIA endpoint."""
     agricultural_terms = {
@@ -301,6 +308,8 @@ def initialize_session_state() -> None:
     """Prepare Streamlit session variables."""
     st.session_state.setdefault("prediction", None)
     st.session_state.setdefault("chat_messages", [])
+    st.session_state.setdefault("selected_image_bytes", None)
+    st.session_state.setdefault("selected_image_name", None)
 
 
 def render_page_header() -> None:
@@ -489,26 +498,49 @@ def render_upload_section(disease_info: dict[str, dict[str, str]]) -> None:
     if source_file:
         try:
             image = validate_uploaded_image(source_file)
+            st.session_state.selected_image_bytes = image_to_preview_bytes(image)
+            st.session_state.selected_image_name = (
+                source_file.name if getattr(source_file, "name", None) else "Captured image"
+            )
+        except ValueError as exc:
+            image = None
+            st.session_state.selected_image_bytes = None
+            st.session_state.selected_image_name = None
+            st.error(str(exc))
+
+    if st.session_state.selected_image_bytes:
+        try:
+            image = Image.open(BytesIO(st.session_state.selected_image_bytes)).convert("RGB")
             st.markdown('<div class="preview-label">Selected image preview</div>', unsafe_allow_html=True)
             st.image(
                 image,
-                caption=source_file.name if getattr(source_file, "name", None) else "Captured image",
+                caption=st.session_state.selected_image_name or "Selected image",
                 use_column_width=True,
             )
-            file_size = getattr(source_file, "size", 0) or 0
-            if file_size and file_size > 15 * 1024 * 1024:
-                st.warning(
-                    "Large mobile photos can fail during upload. If that happens, retake the photo or resize it to a smaller JPG."
-                )
-        except ValueError as exc:
-            st.error(str(exc))
+        except (UnidentifiedImageError, OSError):
+            image = None
+            st.session_state.selected_image_bytes = None
+            st.session_state.selected_image_name = None
+            st.warning("The selected image preview expired. Please upload or capture it again.")
 
-    predict_clicked = st.button("Analyze Leaf", disabled=image is None, type="primary", use_container_width=True)
+    if source_file:
+        file_size = getattr(source_file, "size", 0) or 0
+        if file_size and file_size > 15 * 1024 * 1024:
+            st.warning(
+                "Large mobile photos can fail during upload. If that happens, retake the photo or resize it to a smaller JPG."
+            )
 
-    if predict_clicked and image is not None:
+    predict_clicked = st.button(
+        "Analyze Leaf",
+        disabled=image is None or not st.session_state.selected_image_bytes,
+        type="primary",
+        use_container_width=True,
+    )
+
+    if predict_clicked and image is not None and st.session_state.selected_image_bytes:
         try:
             with st.spinner("Analyzing leaf image..."):
-                st.session_state.prediction = predict_disease(image)
+                st.session_state.prediction = predict_disease(BytesIO(st.session_state.selected_image_bytes))
             st.success("Prediction completed.")
         except PredictionError as exc:
             st.error(str(exc))
