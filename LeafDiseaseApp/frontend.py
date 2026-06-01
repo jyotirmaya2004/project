@@ -256,6 +256,9 @@ def render_chatbot() -> None:
     if "chat_open" not in st.session_state:
         st.session_state.chat_open = False
 
+    if "chat_messages" not in st.session_state:
+        st.session_state.chat_messages = [{"role": "assistant", "content": "Hello! 🌱 I'm your AI Plant Care Assistant. How can I help you today?"}]
+
     if not st.session_state.chat_open:
         # Render the floating launcher button
         with st.container():
@@ -297,5 +300,8 @@ def render_chatbot() -> None:
 
             if submitted and user_message.strip():
                 with st.spinner("Thinking..."):
-                    handle_chat_message(user_message.strip())
+                    try:
+                        handle_chat_message(user_message.strip())
+                    except Exception as exc:
+                        st.error(f"Chat connection error: {exc}")
                 st.rerun()
