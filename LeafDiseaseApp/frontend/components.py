@@ -7,7 +7,7 @@ def prediction_card(disease, confidence):
         f"""
         <div style="
         background:rgba(255,255,255,0.05);
-        padding:20px;
+        padding:25px;
         border-radius:20px;
         border:1px solid rgba(255,255,255,0.1);
         margin-bottom:15px;
@@ -18,10 +18,12 @@ def prediction_card(disease, confidence):
                 {disease}
             </h2>
 
-            <h4>
-                Confidence: {confidence:.2f}%
-            </h4>
-
+            <p style="
+            font-size:18px;
+            font-weight:bold;
+            ">
+            Confidence: {confidence:.2f}%
+            </p>
         </div>
         """,
         unsafe_allow_html=True
@@ -29,7 +31,12 @@ def prediction_card(disease, confidence):
 
     st.progress(confidence / 100)
 
-
+    if confidence >= 90:
+        st.success("High Confidence Prediction")
+    elif confidence >= 70:
+        st.warning("Moderate Confidence Prediction")
+    else:
+        st.error("Low Confidence Prediction")
 def top_predictions_card(predictions):
 
     st.subheader("📊 Top Predictions")
