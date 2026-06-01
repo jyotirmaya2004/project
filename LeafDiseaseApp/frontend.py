@@ -110,9 +110,15 @@ def render_page_header() -> None:
                         <p class="text-muted mb-0" style="font-size: 15px;">Upload a clear leaf photo, review the prediction, and get practical plant-care guidance.</p>
                     </div>
                 </div>
-                <div class="text-center px-4 py-2 rounded shadow-sm border mt-3 mt-md-0 bg-white" style="border-color: var(--primary) !important;">
-                    <small class="d-block text-muted fw-semibold">Status</small>
-                    <strong style="color: var(--primary);">Ready</strong>
+                <div class="d-flex gap-2 mt-3 mt-md-0">
+                    <div class="text-center px-3 py-2 rounded shadow-sm border bg-white d-flex align-items-center justify-content-center" style="border-color: var(--primary) !important; font-size: 20px; min-width: 54px;" title="Current Theme">
+                        <span class="theme-icon-light">☀️</span>
+                        <span class="theme-icon-dark">🌙</span>
+                    </div>
+                    <div class="text-center px-4 py-2 rounded shadow-sm border bg-white" style="border-color: var(--primary) !important;">
+                        <small class="d-block text-muted fw-semibold">Status</small>
+                        <strong style="color: var(--primary);">Ready</strong>
+                    </div>
                 </div>
             </div>
         </div>
