@@ -1,6 +1,7 @@
 """Frontend UI components and layout for the Leaf Disease App."""
 
 from io import BytesIO
+from textwrap import dedent
 
 import streamlit as st
 from PIL import Image, UnidentifiedImageError
@@ -20,94 +21,96 @@ from app import (
 
 def inject_custom_css() -> None:
     """Apply Bootstrap 5 and custom CSS for floating elements and styling."""
-    css = """
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    css = dedent(
+        """
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+        <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
-    :root {
-        --bg: #f4f7f4;
-        --panel: #ffffff;
-        --text: #1a231e;
-        --primary: #1e824c;
-        --muted: #6c757d;
-        --line: rgba(128, 128, 128, 0.2);
-        --soft: rgba(46, 204, 113, 0.1);
-        --radius: 12px;
-    }
-
-    @media (prefers-color-scheme: dark) {
         :root {
-            --bg: #0e1117;
-            --panel: #262730;
-            --text: #fafafa;
-            --primary: #2ecc71;
-            --muted: #a3a8b8;
-            --line: rgba(255, 255, 255, 0.1);
+            --bg: #f4f7f4;
+            --panel: #ffffff;
+            --text: #1a231e;
+            --primary: #1e824c;
+            --muted: #6c757d;
+            --line: rgba(128, 128, 128, 0.2);
+            --soft: rgba(46, 204, 113, 0.1);
+            --radius: 12px;
         }
-    }
 
-    html, body, [data-testid="stAppViewContainer"] {
-        font-family: Inter, system-ui, -apple-system, sans-serif;
-        background: var(--bg);
-        color: var(--text);
-    }
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #0e1117;
+                --panel: #262730;
+                --text: #fafafa;
+                --primary: #2ecc71;
+                --muted: #a3a8b8;
+                --line: rgba(255, 255, 255, 0.1);
+            }
+        }
 
-    /* Prevents Bootstrap from overwriting Streamlit text colors globally */
-    p, h1, h2, h3, h4, h5, h6, span, div { color: inherit; }
+        html, body, [data-testid="stAppViewContainer"] {
+            font-family: Inter, system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
 
-    /* Override Bootstrap specific classes to respect Dark Mode */
-    .card { background-color: var(--panel) !important; border-color: var(--line) !important; color: var(--text) !important; }
-    .bg-white, .bg-light { background-color: var(--panel) !important; }
-    .text-dark { color: var(--text) !important; }
-    .text-muted { color: var(--muted) !important; }
-    .border { border-color: var(--line) !important; }
-    .shadow-sm { box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important; }
+        /* Prevent Bootstrap from overwriting Streamlit text colors globally */
+        p, h1, h2, h3, h4, h5, h6, span, div { color: inherit; }
 
-    /* Floating Chat Launcher Button */
-    div[data-testid="stVerticalBlock"]:has(#chat-launcher) {
-        position: fixed;
-        bottom: 30px;
-        right: 30px;
-        z-index: 1050;
-        width: auto !important;
-    }
-    div[data-testid="stVerticalBlock"]:has(#chat-launcher) button {
-        border-radius: 50px;
-        padding: 14px 28px;
-        font-size: 16px;
-        box-shadow: 0 4px 16px rgba(0,0,0,0.2) !important;
-        font-weight: bold;
-        transition: transform 0.2s ease;
-    }
-    div[data-testid="stVerticalBlock"]:has(#chat-launcher) button:hover {
-        transform: translateY(-2px) scale(1.02);
-    }
+        /* Override Bootstrap specific classes to respect Dark Mode */
+        .card { background-color: var(--panel) !important; border-color: var(--line) !important; color: var(--text) !important; }
+        .bg-white, .bg-light { background-color: var(--panel) !important; }
+        .text-dark { color: var(--text) !important; }
+        .text-muted { color: var(--muted) !important; }
+        .border { border-color: var(--line) !important; }
+        .shadow-sm { box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important; }
 
-    /* Floating Chat Window */
-    div[data-testid="stVerticalBlock"]:has(#chat-window) {
-        position: fixed;
-        bottom: 30px;
-        right: 30px;
-        width: 400px;
-        max-width: 90vw;
-        background-color: var(--panel);
-        border-radius: 16px;
-        box-shadow: 0 12px 40px rgba(0,0,0,0.3) !important;
-        z-index: 1050;
-        padding: 20px;
-        border: 1px solid var(--line);
-    }
+        /* Floating Chat Launcher Button */
+        div[data-testid="stVerticalBlock"]:has(#chat-launcher) {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1050;
+            width: auto !important;
+        }
+        div[data-testid="stVerticalBlock"]:has(#chat-launcher) button {
+            border-radius: 50px;
+            padding: 14px 28px;
+            font-size: 16px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.2) !important;
+            font-weight: bold;
+            transition: transform 0.2s ease;
+        }
+        div[data-testid="stVerticalBlock"]:has(#chat-launcher) button:hover {
+            transform: translateY(-2px) scale(1.02);
+        }
 
-    /* Fix Streamlit form styling inside the chat widget */
-    div[data-testid="stVerticalBlock"]:has(#chat-window) [data-testid="stForm"] {
-        border: none;
-        padding: 0;
-        margin-bottom: 0;
-    }
-    </style>
-    """
+        /* Floating Chat Window */
+        div[data-testid="stVerticalBlock"]:has(#chat-window) {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 400px;
+            max-width: 90vw;
+            background-color: var(--panel);
+            border-radius: 16px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.3) !important;
+            z-index: 1050;
+            padding: 20px;
+            border: 1px solid var(--line);
+        }
+
+        /* Fix Streamlit form styling inside the chat widget */
+        div[data-testid="stVerticalBlock"]:has(#chat-window) [data-testid="stForm"] {
+            border: none;
+            padding: 0;
+            margin-bottom: 0;
+        }
+        </style>
+        """
+    ).strip()
     st.markdown(css, unsafe_allow_html=True)
 
 
