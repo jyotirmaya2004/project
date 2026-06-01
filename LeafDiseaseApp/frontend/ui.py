@@ -1,5 +1,5 @@
 import streamlit as st
-from .styles import load_css
+from frontend.styles import load_css
 
 def render_header():
     st.markdown("""
