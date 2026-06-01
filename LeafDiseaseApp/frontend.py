@@ -279,6 +279,12 @@ def inject_custom_css() -> None:
                 z-index: 20;
             }
 
+            div[data-testid="stVerticalBlock"]:has(#analyze-cta) {
+                position: sticky;
+                bottom: 14px;
+                z-index: 20;
+            }
+
             .cta-bar .stButton > button {
                 width: 100%;
                 min-height: 58px;
@@ -397,6 +403,14 @@ def inject_custom_css() -> None:
                 border: 1px solid rgba(255, 255, 255, 0.14);
             }
 
+            div[data-testid="stVerticalBlock"]:has(#chat-fab-anchor) {
+                position: fixed;
+                right: 18px;
+                bottom: 18px;
+                z-index: 999;
+                width: auto !important;
+            }
+
             .fab-chat button {
                 width: 58px !important;
                 height: 58px !important;
@@ -406,6 +420,18 @@ def inject_custom_css() -> None:
                 background: transparent !important;
                 border: none !important;
                 box-shadow: none !important;
+            }
+
+            div[data-testid="stVerticalBlock"]:has(#chat-fab-anchor) button {
+                width: 58px !important;
+                height: 58px !important;
+                border-radius: 50% !important;
+                padding: 0 !important;
+                font-size: 1.2rem !important;
+                background: linear-gradient(135deg, #10b981, #34d399) !important;
+                border: none !important;
+                box-shadow: 0 18px 40px rgba(16, 185, 129, 0.34) !important;
+                color: #06110c !important;
             }
 
             .chat-panel {
@@ -420,6 +446,15 @@ def inject_custom_css() -> None:
                 border: 1px solid rgba(167, 243, 208, 0.14);
                 box-shadow: var(--shadow);
                 padding: 16px;
+            }
+
+            div[data-testid="stVerticalBlock"]:has(#chat-panel-anchor) {
+                position: fixed;
+                right: 18px;
+                bottom: 88px;
+                width: 380px;
+                max-width: calc(100vw - 36px);
+                z-index: 998;
             }
 
             .chat-panel h3 {
@@ -490,6 +525,17 @@ def inject_custom_css() -> None:
                     width: calc(100vw - 24px);
                     right: 12px;
                     bottom: 80px;
+                }
+
+                div[data-testid="stVerticalBlock"]:has(#chat-panel-anchor) {
+                    width: calc(100vw - 24px);
+                    right: 12px;
+                    bottom: 80px;
+                }
+
+                div[data-testid="stVerticalBlock"]:has(#chat-fab-anchor) {
+                    right: 12px;
+                    bottom: 12px;
                 }
             }
 
