@@ -1,14 +1,5 @@
 import streamlit as st
-from frontend.styles import load_css
-from frontend.components import (
-    prediction_card,
-    top_predictions_card,
-    symptoms_card,
-    causes_card,
-    treatment_card,
-    prevention_card
-)
-from frontend.chatbot import chatbot_ui
+
 from frontend.styles import load_css
 
 from frontend.components import (
@@ -93,6 +84,20 @@ def render_prediction_section(uploaded_file):
                     uploaded_file
                 )
 
+            # Save prediction history
+            if "prediction_history" not in st.session_state:
+
+                st.session_state.prediction_history = []
+
+            st.session_state.prediction_history.append({
+
+                "Disease":
+                    result["disease"],
+
+                "Confidence":
+                    result["confidence"]
+            })
+
             prediction_card(
                 result["disease"],
                 result["confidence"]
@@ -100,9 +105,7 @@ def render_prediction_section(uploaded_file):
 
             top_predictions = []
 
-            for pred in result[
-                "top_predictions"
-            ]:
+            for pred in result["top_predictions"]:
 
                 top_predictions.append(
                     (
@@ -115,10 +118,8 @@ def render_prediction_section(uploaded_file):
                 top_predictions
             )
 
-            disease_info = (
-                get_disease_details(
-                    result["class_name"]
-                )
+            disease_info = get_disease_details(
+                result["class_name"]
             )
 
             symptoms_card(
@@ -146,7 +147,6 @@ def render_prediction_section(uploaded_file):
             st.error(
                 f"Unexpected Error: {e}"
             )
-
 def render_feature_cards():
     st.markdown("## 🚀 Features")
 
