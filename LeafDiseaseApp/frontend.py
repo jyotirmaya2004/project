@@ -21,22 +21,31 @@ from app import (
 def inject_custom_css() -> None:
     """Apply Bootstrap 5 and custom CSS for floating elements and styling."""
     css = """
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
+    @import url('https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css');
+    @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css');
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
     :root {
         --bg: #f4f7f4;
         --panel: #ffffff;
         --text: #1a231e;
-        --label: #3d5244;
-        --muted: #62776b;
-        --line: #e0e8e2;
         --primary: #1e824c;
-        --primary-600: #145f36;
-        --accent: #e67e22;
-        --soft: #eafaf1;
+        --muted: #6c757d;
+        --line: rgba(128, 128, 128, 0.2);
+        --soft: rgba(46, 204, 113, 0.1);
         --radius: 12px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+        :root {
+            --bg: #0e1117;
+            --panel: #262730;
+            --text: #fafafa;
+            --primary: #2ecc71;
+            --muted: #a3a8b8;
+            --line: rgba(255, 255, 255, 0.1);
+        }
     }
 
     html, body, [data-testid="stAppViewContainer"] {
@@ -47,6 +56,14 @@ def inject_custom_css() -> None:
 
     /* Prevents Bootstrap from overwriting Streamlit text colors globally */
     p, h1, h2, h3, h4, h5, h6, span, div { color: inherit; }
+
+    /* Override Bootstrap specific classes to respect Dark Mode */
+    .card { background-color: var(--panel) !important; border-color: var(--line) !important; color: var(--text) !important; }
+    .bg-white, .bg-light { background-color: var(--panel) !important; }
+    .text-dark { color: var(--text) !important; }
+    .text-muted { color: var(--muted) !important; }
+    .border { border-color: var(--line) !important; }
+    .shadow-sm { box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important; }
 
     /* Floating Chat Launcher Button */
     div[data-testid="stVerticalBlock"]:has(#chat-launcher) {
