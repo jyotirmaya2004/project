@@ -29,7 +29,7 @@ def prediction_card(disease, confidence):
         unsafe_allow_html=True
     )
 
-    st.progress(confidence / 100)
+    st.progress(float(confidence) / 100)
 
     if confidence >= 90:
         st.success("High Confidence Prediction")
