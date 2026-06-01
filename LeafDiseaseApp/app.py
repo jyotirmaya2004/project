@@ -317,12 +317,17 @@ def render_page_header() -> None:
     st.markdown(
         """
         <section class="app-hero">
-            <div>
-                <p class="eyebrow">Plant health workspace</p>
-                <h1>Leaf Disease Detection</h1>
-                <p class="hero-copy">
-                    Upload a leaf photo, review the model result, and continue the diagnosis with an agriculture-focused assistant.
-                </p>
+            <div class="hero-left">
+                <div class="hero-brand">
+                    <div class="logo">🌱</div>
+                    <div>
+                        <p class="eyebrow">Plant health workspace</p>
+                        <h1>Leaf Disease Detection</h1>
+                        <p class="hero-copy">
+                            Upload a clear leaf photo, review the prediction, and get practical plant-care guidance.
+                        </p>
+                    </div>
+                </div>
             </div>
             <div class="hero-status">
                 <span>Image analysis</span>
@@ -604,13 +609,15 @@ def inject_custom_css() -> None:
         }
 
         html, body, [data-testid="stAppViewContainer"]{ font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; background: var(--bg); color: var(--text); }
-        .main .block-container{ max-width:1160px; padding:20px 24px 40px; }
+        .main .block-container{ max-width:1160px; padding:20px 24px 40px; padding-top:84px; }
 
         .app-hero{ display:flex; gap:20px; align-items:center; justify-content:space-between; padding:22px; border-radius:var(--radius); background: linear-gradient(180deg, rgba(31,122,73,0.06), rgba(224,138,58,0.03)); border:1px solid var(--line); }
         .app-hero h1{ margin:0; font-size:28px; font-weight:800; color:var(--text); }
         .eyebrow{ color:var(--primary); font-weight:700; font-size:12px; text-transform:uppercase; letter-spacing:0.04em; }
         .hero-copy{ margin-top:8px; color:var(--muted); max-width:680px; }
         .hero-status{ padding:10px 12px; border-radius:8px; background:var(--panel); border:1px solid rgba(31,122,73,0.12); text-align:center; min-width:140px; color:var(--text); }
+        .hero-brand{ display:flex; align-items:center; gap:14px; }
+        .logo{ width:56px; height:56px; border-radius:10px; background: linear-gradient(135deg, var(--primary), var(--accent)); display:flex; align-items:center; justify-content:center; color:#fff; font-size:24px; font-weight:800; box-shadow: 0 6px 18px rgba(12,23,16,0.06); }
 
         .panel-heading h2{ margin:0; font-size:16px; font-weight:700; color:var(--text); }
         .panel-heading p{ margin:6px 0 0; color:var(--muted); font-size:13px; }
@@ -666,8 +673,8 @@ def inject_custom_css() -> None:
         a, button { -webkit-tap-highlight-color: rgba(0,0,0,0); }
 
         /* Responsive tweaks */
-        @media (max-width:900px){ .main .block-container{ padding:14px; } .app-hero{ flex-direction:column; align-items:flex-start; } .hero-copy{ max-width:100%; } }
-        @media (max-width:520px){ .app-hero h1{ font-size:20px; } .stButton > button{ width:100%; } }
+        @media (max-width:900px){ .main .block-container{ padding:64px 14px 28px; } .app-hero{ flex-direction:column; align-items:flex-start; } .hero-copy{ max-width:100%; } }
+        @media (max-width:520px){ .main .block-container{ padding-top:72px; } .app-hero h1{ font-size:20px; } .stButton > button{ width:100%; } .logo{ width:44px; height:44px; font-size:18px; } }
 
         </style>"""
 
