@@ -591,6 +591,11 @@ def render_topbar() -> None:
     )
 
 
+def render_page_header() -> None:
+    """Backward-compatible alias for the top bar header."""
+    render_topbar()
+
+
 def render_upload_card() -> Image.Image | None:
     """Render the upload area and return a validated image if available."""
     st.markdown(
@@ -654,6 +659,31 @@ def render_upload_card() -> Image.Image | None:
             st.warning("The selected image preview expired. Please upload or capture it again.")
 
     return image
+
+
+def render_upload_section(disease_info: dict[str, dict[str, str]]) -> None:
+    """Backward-compatible upload section that includes analysis and prediction rendering."""
+    image = render_upload_card()
+
+    selected_bytes = st.session_state.get("selected_image_bytes")
+    if selected_bytes and len(selected_bytes) > 15 * 1024 * 1024:
+        st.warning("Large mobile photos can fail during upload. If that happens, resize the image or retake it.")
+
+    analyze_clicked = render_analyze_cta(image)
+    if analyze_clicked and image is not None and selected_bytes:
+        try:
+            with st.spinner("Analyzing leaf image..."):
+                st.session_state.prediction = predict_disease(BytesIO(selected_bytes))
+            st.success("Leaf validation passed. Disease prediction completed.")
+        except PredictionError as exc:
+            st.session_state.prediction = None
+            st.error(str(exc))
+        except Exception:
+            st.session_state.prediction = None
+            st.error("Something went wrong while analyzing the image. Please try a clearer leaf photo.")
+
+    if st.session_state.prediction:
+        render_prediction_results(st.session_state.prediction, disease_info)
 
 
 def render_analyze_cta(image: Image.Image | None) -> bool:
@@ -815,6 +845,12 @@ def render_chat_panel() -> None:
             st.rerun()
 
 
+def render_chatbot() -> None:
+    """Backward-compatible chat renderer used by older app.py entry points."""
+    render_chat_fab()
+    render_chat_panel()
+
+
 def main() -> None:
     """Run the redesigned Streamlit frontend."""
     st.set_page_config(
@@ -836,30 +872,8 @@ def main() -> None:
     except Exception:
         disease_info = {}
 
-    image = render_upload_card()
-
-    if source_file := st.session_state.get("selected_image_bytes"):
-        if len(source_file) > 15 * 1024 * 1024:
-            st.warning("Large mobile photos can fail during upload. If that happens, resize the image or retake it.")
-
-    analyze_clicked = render_analyze_cta(image)
-    if analyze_clicked and image is not None and st.session_state.selected_image_bytes:
-        try:
-            with st.spinner("Analyzing leaf image..."):
-                st.session_state.prediction = predict_disease(BytesIO(st.session_state.selected_image_bytes))
-            st.success("Leaf validation passed. Disease prediction completed.")
-        except PredictionError as exc:
-            st.session_state.prediction = None
-            st.error(str(exc))
-        except Exception:
-            st.session_state.prediction = None
-            st.error("Something went wrong while analyzing the image. Please try a clearer leaf photo.")
-
-    if st.session_state.prediction:
-        render_prediction_results(st.session_state.prediction, disease_info)
-
-    render_chat_fab()
-    render_chat_panel()
+    render_upload_section(disease_info)
+    render_chatbot()
 
 
 if __name__ == "__main__":
