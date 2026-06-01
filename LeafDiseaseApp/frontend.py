@@ -1,9 +1,11 @@
 """Frontend UI components and layout for the Leaf Disease App."""
 
+import json
 from io import BytesIO
 from textwrap import dedent
 
 import streamlit as st
+import streamlit.components.v1 as components
 from PIL import Image, UnidentifiedImageError
 
 # Import core logic and helpers from the main application file
@@ -23,11 +25,6 @@ def inject_custom_css() -> None:
     """Apply Bootstrap 5 and custom CSS for floating elements and styling."""
     css = dedent(
         """
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-        <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-
         :root {
             --bg: #f4f7f4;
             --panel: #ffffff;
@@ -56,10 +53,8 @@ def inject_custom_css() -> None:
             color: var(--text);
         }
 
-        /* Prevent Bootstrap from overwriting Streamlit text colors globally */
         p, h1, h2, h3, h4, h5, h6, span, div { color: inherit; }
 
-        /* Override Bootstrap specific classes to respect Dark Mode */
         .card { background-color: var(--panel) !important; border-color: var(--line) !important; color: var(--text) !important; }
         .bg-white, .bg-light { background-color: var(--panel) !important; }
         .text-dark { color: var(--text) !important; }
@@ -67,7 +62,6 @@ def inject_custom_css() -> None:
         .border { border-color: var(--line) !important; }
         .shadow-sm { box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important; }
 
-        /* Floating Chat Launcher Button */
         div[data-testid="stVerticalBlock"]:has(#chat-launcher) {
             position: fixed;
             bottom: 30px;
@@ -87,7 +81,6 @@ def inject_custom_css() -> None:
             transform: translateY(-2px) scale(1.02);
         }
 
-        /* Floating Chat Window */
         div[data-testid="stVerticalBlock"]:has(#chat-window) {
             position: fixed;
             bottom: 30px;
@@ -102,16 +95,28 @@ def inject_custom_css() -> None:
             border: 1px solid var(--line);
         }
 
-        /* Fix Streamlit form styling inside the chat widget */
         div[data-testid="stVerticalBlock"]:has(#chat-window) [data-testid="stForm"] {
             border: none;
             padding: 0;
             margin-bottom: 0;
         }
-        </style>
         """
     ).strip()
-    st.markdown(css, unsafe_allow_html=True)
+
+    injection = f"""
+    <script>
+    (function() {{
+        const styleId = 'leaf-disease-custom-css';
+        const existing = window.parent.document.getElementById(styleId);
+        if (existing) existing.remove();
+        const style = window.parent.document.createElement('style');
+        style.id = styleId;
+        style.innerHTML = {json.dumps(css)};
+        window.parent.document.head.appendChild(style);
+    }})();
+    </script>
+    """
+    components.html(injection, height=0, width=0)
 
 
 def render_page_header() -> None:
