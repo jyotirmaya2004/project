@@ -568,68 +568,110 @@ def render_upload_section(disease_info: dict[str, dict[str, str]]) -> None:
 
 
 def inject_custom_css() -> None:
-    """Apply responsive visual styling."""
-    st.markdown(
-        """
+        """Apply responsive visual styling with light/dark mode and improved contrast."""
+        css = """
         <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
         :root{
             --bg: #f7fbf7;
             --panel: #ffffff;
             --text: #0f1f17;
-            --muted: #66746a;
+            --label: #324836;
+            --muted: #54685f;
             --line: #e6efe6;
             --primary: #1f7a49;
             --primary-600: #16623f;
             --accent: #e08a3a;
             --soft: #f1f8f2;
             --radius: 10px;
+            --focus: 2px solid rgba(31,122,73,0.18);
+        }
+
+        @media (prefers-color-scheme: dark){
+            :root{
+                --bg: #0b1210;
+                --panel: #0f1614;
+                --text: #e6f3ea;
+                --label: #cbe7d0;
+                --muted: #9fb7ad;
+                --line: #122019;
+                --primary: #39b578;
+                --primary-600: #2fa867;
+                --accent: #f5b57a;
+                --soft: #07120d;
+                --focus: 2px solid rgba(57,181,120,0.12);
+            }
         }
 
         html, body, [data-testid="stAppViewContainer"]{ font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; background: var(--bg); color: var(--text); }
-        .main .block-container{ max-width: 1160px; padding: 20px 24px 40px; }
+        .main .block-container{ max-width:1160px; padding:20px 24px 40px; }
 
-        /* Hero */
         .app-hero{ display:flex; gap:20px; align-items:center; justify-content:space-between; padding:22px; border-radius:var(--radius); background: linear-gradient(180deg, rgba(31,122,73,0.06), rgba(224,138,58,0.03)); border:1px solid var(--line); }
-        .app-hero h1{ margin:0; font-size:28px; font-weight:800; }
+        .app-hero h1{ margin:0; font-size:28px; font-weight:800; color:var(--text); }
         .eyebrow{ color:var(--primary); font-weight:700; font-size:12px; text-transform:uppercase; letter-spacing:0.04em; }
         .hero-copy{ margin-top:8px; color:var(--muted); max-width:680px; }
-        .hero-status{ padding:10px 12px; border-radius:8px; background:var(--panel); border:1px solid rgba(31,122,73,0.12); text-align:center; min-width:140px; }
+        .hero-status{ padding:10px 12px; border-radius:8px; background:var(--panel); border:1px solid rgba(31,122,73,0.12); text-align:center; min-width:140px; color:var(--text); }
 
-        /* Panels */
-        .panel-heading h2{ margin:0; font-size:16px; font-weight:700; }
+        .panel-heading h2{ margin:0; font-size:16px; font-weight:700; color:var(--text); }
         .panel-heading p{ margin:6px 0 0; color:var(--muted); font-size:13px; }
 
-        /* Upload area */
         .upload-note, .camera-note{ padding:12px; border-radius:var(--radius); background:var(--panel); border:1px solid var(--line); color:var(--text); }
-        .preview-label{ margin-top:12px; font-weight:700; }
+        .preview-label{ margin-top:12px; font-weight:700; color:var(--text); }
 
-        /* Cards and metrics */
         .validation-card, .prediction-card{ margin-top:10px; padding:12px; border-radius:10px; background:var(--panel); border:1px solid var(--line); box-shadow: 0 6px 18px rgba(12,23,16,0.04); }
         .validation-card{ background:var(--soft); border-left:4px solid var(--primary); }
 
-        [data-testid="stMetric"]{ padding:12px; border-radius:10px; border:1px solid var(--line); background:linear-gradient(180deg, #ffffff, #fbfffb); }
+        [data-testid="stMetric"]{ padding:12px; border-radius:10px; border:1px solid var(--line); background:linear-gradient(180deg, var(--panel), rgba(250,255,250,0.6)); }
         [data-testid="stMetricValue"]{ color:var(--primary-600); font-weight:800; }
 
-        /* Buttons */
-        .stButton > button{ border-radius:10px; padding:10px 14px; font-weight:700; border:1px solid transparent; background:var(--panel); color:var(--text); transition: transform 140ms ease, box-shadow 140ms ease; }
-        .stButton > button[kind="primary"]{ background:var(--primary); color:#fff; box-shadow: 0 8px 20px rgba(31,122,73,0.08); }
-        .stButton > button:hover{ transform: translateY(-2px); box-shadow: 0 12px 30px rgba(12,23,16,0.06); }
+        /* Clear label styles for uploader and camera inputs */
+        [data-testid="stFileUploader"] label,
+        [data-testid="stCameraInput"] label,
+        [data-testid="stFileUploader"] p,
+        [data-testid="stCameraInput"] p,
+        [data-testid="stFileUploader"] small,
+        [data-testid="stCameraInput"] small {
+             color: var(--label) !important;
+             opacity: 1 !important;
+             font-weight:600;
+        }
 
-        /* File and camera inputs */
         [data-testid="stFileUploader"], [data-testid="stCameraInput"]{ border-radius:10px; border:1px dashed #cfe8d6; background:var(--panel); padding:12px; }
 
+        [data-testid="stFileUploader"] button,
+        [data-testid="stCameraInput"] button {
+             min-height:44px;
+             border-radius:10px;
+             border:1px solid var(--primary);
+             background:var(--primary);
+             color:#fff;
+             font-weight:700;
+        }
+
+        [data-testid="stFileUploader"] button * , [data-testid="stCameraInput"] button * { color:#fff !important; }
+
+        .stButton > button{ border-radius:10px; padding:10px 14px; font-weight:700; border:1px solid transparent; background:var(--panel); color:var(--text); transition: transform 140ms ease, box-shadow 140ms ease; }
+        .stButton > button[kind="primary"]{ background:var(--primary); color:#fff; box-shadow: 0 8px 20px rgba(31,122,73,0.08); }
+        .stButton > button:focus{ outline: none; box-shadow: var(--focus); }
+
+        /* Inputs and forms */
+        [data-testid="stTextInput"] input, [data-testid="stTextArea"] textarea { border-radius:8px; border:1px solid var(--line); background:var(--panel); color:var(--text); padding:8px; }
+        [data-testid="stTextInput"] input::placeholder{ color:var(--muted); opacity:1; }
+
         /* Chat */
-        [data-testid="stChatMessage"]{ border-radius:10px; border:1px solid var(--line); background:var(--panel); }
-        [data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-user"]) { background:#f8fbf7; }
+        [data-testid="stChatMessage"]{ border-radius:10px; border:1px solid var(--line); background:var(--panel); color:var(--text); box-shadow: 0 8px 22px rgba(12,23,16,0.04); }
+        [data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-user"]) { background:rgba(241,248,241,0.5); }
+
+        /* Accessibility helpers */
+        a, button { -webkit-tap-highlight-color: rgba(0,0,0,0); }
 
         /* Responsive tweaks */
-        @media (max-width:900px){ .main .block-container{ padding:14px; } .app-hero{ flex-direction:column; align-items:flex-start; } }
-        @media (max-width:520px){ .app-hero h1{ font-size:20px; } }
-        </style>
-        """,
-        unsafe_allow_html=True,
-    )
+        @media (max-width:900px){ .main .block-container{ padding:14px; } .app-hero{ flex-direction:column; align-items:flex-start; } .hero-copy{ max-width:100%; } }
+        @media (max-width:520px){ .app-hero h1{ font-size:20px; } .stButton > button{ width:100%; } }
+
+        </style>"""
+
+        st.markdown(css, unsafe_allow_html=True)
 def main() -> None:
     """Run the Streamlit application."""
     st.set_page_config(
