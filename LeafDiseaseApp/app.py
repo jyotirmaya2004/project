@@ -1,4 +1,5 @@
 import streamlit as st
+from textwrap import dedent
 from frontend.ui import main
 
 st.set_page_config(
@@ -8,31 +9,29 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-def mobile_navbar():
-    st.markdown("""
-    <style>
+def mobile_navbar(active_tab: str):
+    all_active = "active" if active_tab in {"all", "home"} else ""
+    history_active = "active" if active_tab == "history" else ""
+    tips_active = "active" if active_tab == "tips" else ""
+    chat_active = "active" if active_tab == "chat" else ""
 
+    nav_html = (
+        dedent("""
+    <style>
     html{
         scroll-behavior:smooth;
     }
-
-    .mobile-nav{
-        display:none;
+    .main .block-container{
+        padding-bottom:105px;
     }
-
-    @media (max-width:768px){
-
-        .main .block-container{
-            padding-bottom:105px;
-        }
-
-        .mobile-nav{
-            display:flex;
-            position:fixed;
-            bottom:12px;
-            left:50%;
-            transform:translateX(-50%);
-            width:92%;
+    .mobile-nav{
+        display:flex;
+        position:fixed;
+        bottom:12px;
+        left:50%;
+        transform:translateX(-50%);
+        width:92%;
+        max-width:500px;
             height:72px;
             background:rgba(15,23,42,0.95);
             backdrop-filter:blur(12px);
@@ -46,6 +45,10 @@ def mobile_navbar():
 
         .mobile-nav a{
             text-decoration:none;
+            color:inherit;
+            display:flex;
+            align-items:center;
+            justify-content:center;
         }
 
         .nav-item{
@@ -91,49 +94,48 @@ def mobile_navbar():
             text-decoration:none;
         }
 
-    }
-
     </style>
-
     <div class="mobile-nav">
-
-        <a href="#home-section">
-            <div class="nav-item active">
+        <a href="/" target="_self">
+            <div class="nav-item {{all_active}}">
                 <div class="nav-icon">🏠</div>
                 Home
             </div>
         </a>
-
-        <a href="#history-section">
-            <div class="nav-item">
+        <a href="/history" target="_self">
+            <div class="nav-item {{history_active}}">
                 <div class="nav-icon">📊</div>
                 History
             </div>
         </a>
-
         <div class="center-button">
-            <a href="#upload-section" aria-label="Go to upload section">🌿</a>
+            <a href="/" target="_self" aria-label="Go to home page">🌿</a>
         </div>
-
-        <a href="#tips-section">
-            <div class="nav-item">
+        <a href="/tips" target="_self">
+            <div class="nav-item {{tips_active}}">
                 <div class="nav-icon">💡</div>
                 Tips
             </div>
         </a>
-
-        <a href="#chat-section">
-            <div class="nav-item">
+        <a href="/chat" target="_self">
+            <div class="nav-item {{chat_active}}">
                 <div class="nav-icon">🤖</div>
                 Chat
             </div>
         </a>
-
     </div>
-    """, unsafe_allow_html=True)
+    """)
+        .replace("{{all_active}}", all_active)
+        .replace("{{history_active}}", history_active)
+        .replace("{{tips_active}}", tips_active)
+        .replace("{{chat_active}}", chat_active)
+    )
+
+    st.markdown(nav_html, unsafe_allow_html=True)
 
 # Main App UI
-main()
+active_tab = st.query_params.get("tab", "all")
+main(active_tab=active_tab)
 
 # Mobile navbar at bottom
-mobile_navbar()
+mobile_navbar(active_tab)

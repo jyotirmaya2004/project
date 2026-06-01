@@ -224,11 +224,24 @@ def render_chatbot_button():
     """, unsafe_allow_html=True)
 
 
-def main():
+def main(active_tab: str = "all"):
 
     load_css()
 
     render_header()
+
+    if active_tab == "history":
+        render_history_section()
+        return
+
+    if active_tab == "tips":
+        render_tips_section()
+        return
+
+    if active_tab == "chat":
+        st.markdown('<div id="chat-section"></div>', unsafe_allow_html=True)
+        chatbot_ui()
+        return
 
     left, right = st.columns(
         [1,1]
