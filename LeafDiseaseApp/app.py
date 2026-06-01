@@ -26,6 +26,7 @@ from predict import PredictionError, load_class_names, predict_disease
 
 BASE_DIR = Path(__file__).resolve().parent
 DISEASE_INFO_PATH = BASE_DIR / "disease_info.json"
+CHAT_HISTORY_PATH = BASE_DIR / "chat_history.json"
 ALLOWED_EXTENSIONS = {
     "jpg",
     "jpeg",
@@ -304,10 +305,30 @@ def ask_nvidia_assistant(user_message: str, disease_context: dict[str, Any] | No
         return f"The NVIDIA assistant is currently unavailable: {exc}"
 
 
+def load_chat_history() -> list[dict[str, str]]:
+    """Load chat history from a local file to persist across refreshes."""
+    if CHAT_HISTORY_PATH.exists():
+        try:
+            with CHAT_HISTORY_PATH.open("r", encoding="utf-8") as file:
+                return json.load(file)
+        except (json.JSONDecodeError, OSError):
+            pass
+    return []
+
+
+def save_chat_history(messages: list[dict[str, str]]) -> None:
+    """Save chat history to a local file."""
+    try:
+        with CHAT_HISTORY_PATH.open("w", encoding="utf-8") as file:
+            json.dump(messages, file, indent=2, ensure_ascii=False)
+    except OSError:
+        pass
+
+
 def initialize_session_state() -> None:
     """Prepare Streamlit session variables."""
     st.session_state.setdefault("prediction", None)
-    st.session_state.setdefault("chat_messages", [])
+    st.session_state.setdefault("chat_messages", load_chat_history())
     st.session_state.setdefault("selected_image_bytes", None)
     st.session_state.setdefault("selected_image_name", None)
 
@@ -317,6 +338,7 @@ def handle_chat_message(message: str) -> None:
     st.session_state.chat_messages.append({"role": "user", "content": message})
     reply = normalize_display_text(ask_nvidia_assistant(message, st.session_state.prediction))
     st.session_state.chat_messages.append({"role": "assistant", "content": reply})
+    save_chat_history(st.session_state.chat_messages)
 
 
 def main() -> None:

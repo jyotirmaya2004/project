@@ -217,17 +217,6 @@ def render_upload_section(disease_info: dict) -> None:
             except (UnidentifiedImageError, OSError):
                 image, st.session_state.selected_image_bytes = None, None
                 st.warning("Preview expired. Please upload again.")
-        else:
-            st.markdown(
-                """
-                <div class="card shadow-sm border-0 bg-light" style="height: 200px; border: 2px dashed var(--line) !important;">
-                    <div class="card-body d-flex flex-column justify-content-center align-items-center text-muted">
-                        <span style="font-size: 32px;">📸</span>
-                        <span>No image selected yet.</span>
-                    </div>
-                </div>
-                """, unsafe_allow_html=True
-            )
 
         st.write("")
         predict_clicked = st.button("✨ Analyze Leaf", disabled=image is None or not st.session_state.selected_image_bytes, type="primary", use_container_width=True)
@@ -235,8 +224,11 @@ def render_upload_section(disease_info: dict) -> None:
     if predict_clicked and image is not None and st.session_state.selected_image_bytes:
         st.markdown("<hr>", unsafe_allow_html=True)
         try:
-            with st.spinner("Validating leaf image and analyzing disease..."):
+            with st.status("🔍 Analyzing leaf image...", expanded=True) as status:
+                st.write("Validating image format...")
+                st.write("Running AI disease prediction model...")
                 st.session_state.prediction = predict_disease(BytesIO(st.session_state.selected_image_bytes))
+                status.update(label="Analysis complete!", state="complete", expanded=False)
         except PredictionError as exc:
             st.session_state.prediction = None
             st.error(str(exc))
