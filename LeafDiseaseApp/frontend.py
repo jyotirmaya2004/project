@@ -223,8 +223,8 @@ def render_upload_section(disease_info: dict) -> None:
         if st.session_state.selected_image_bytes:
             try:
                 image = Image.open(BytesIO(st.session_state.selected_image_bytes)).convert("RGB")
-                st.image(image, caption="Selected image", use_column_width=True)
-            except (UnidentifiedImageError, OSError):
+                st.image(st.session_state.selected_image_bytes, caption="Selected image", use_container_width=True)
+            except Exception:
                 image, st.session_state.selected_image_bytes = None, None
                 st.warning("Preview expired. Please upload again.")
 
