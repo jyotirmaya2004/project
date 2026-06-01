@@ -1,5 +1,35 @@
 import streamlit as st
 from frontend.styles import load_css
+from frontend.components import (
+    prediction_card,
+    top_predictions_card,
+    symptoms_card,
+    causes_card,
+    treatment_card,
+    prevention_card
+)
+from frontend.chatbot import chatbot_ui
+from frontend.styles import load_css
+
+from frontend.components import (
+    prediction_card,
+    top_predictions_card,
+    symptoms_card,
+    causes_card,
+    treatment_card,
+    prevention_card
+)
+
+from frontend.chatbot import chatbot_ui
+
+from backend.predict import (
+    predict_disease,
+    PredictionError
+)
+
+from backend.disease_info import (
+    get_disease_details
+)
 
 def render_header():
     st.markdown("""
@@ -36,16 +66,86 @@ def render_upload_section():
     return uploaded_file
 
 
-def render_prediction_section():
+def render_prediction_section(uploaded_file):
+
     st.markdown("## 📊 Prediction Result")
 
-    prediction_container = st.container()
+    if uploaded_file is None:
 
-    with prediction_container:
         st.info(
-            "Upload an image and click Analyze to view prediction."
+            "Upload a leaf image to begin."
         )
 
+        return
+
+    if st.button(
+        "🔍 Analyze Leaf",
+        use_container_width=True
+    ):
+
+        try:
+
+            with st.spinner(
+                "Analyzing image..."
+            ):
+
+                result = predict_disease(
+                    uploaded_file
+                )
+
+            prediction_card(
+                result["disease"],
+                result["confidence"]
+            )
+
+            top_predictions = []
+
+            for pred in result[
+                "top_predictions"
+            ]:
+
+                top_predictions.append(
+                    (
+                        pred["disease"],
+                        pred["confidence"]
+                    )
+                )
+
+            top_predictions_card(
+                top_predictions
+            )
+
+            disease_info = (
+                get_disease_details(
+                    result["class_name"]
+                )
+            )
+
+            symptoms_card(
+                disease_info["symptoms"]
+            )
+
+            causes_card(
+                disease_info["causes"]
+            )
+
+            treatment_card(
+                disease_info["treatment"]
+            )
+
+            prevention_card(
+                disease_info["prevention"]
+            )
+
+        except PredictionError as e:
+
+            st.error(str(e))
+
+        except Exception as e:
+
+            st.error(
+                f"Unexpected Error: {e}"
+            )
 
 def render_feature_cards():
     st.markdown("## 🚀 Features")
@@ -96,20 +196,29 @@ def render_chatbot_button():
 
 
 def main():
+
     load_css()
 
     render_header()
 
-    left, right = st.columns([1, 1])
+    left, right = st.columns(
+        [1,1]
+    )
 
     with left:
-        uploaded_file = render_upload_section()
+
+        uploaded_file = (
+            render_upload_section()
+        )
 
     with right:
-        render_prediction_section()
+
+        render_prediction_section(
+            uploaded_file
+        )
 
     st.divider()
 
     render_feature_cards()
 
-    render_chatbot_button()
+    chatbot_ui()
