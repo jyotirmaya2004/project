@@ -351,6 +351,18 @@ def render_panel_header(title: str, subtitle: str | None = None) -> None:
 def render_prediction_results(prediction: dict[str, Any], disease_info: dict[str, dict[str, str]]) -> None:
     """Display model prediction and disease guidance."""
     render_panel_header("Prediction Result", "Most likely class and confidence ranking.")
+    leaf_validation = prediction.get("leaf_validation")
+    if leaf_validation:
+        st.markdown(
+            f"""
+            <div class="validation-card">
+                <strong>Leaf validation passed</strong>
+                <span>{leaf_validation['leaf_confidence']:.2f}% leaf confidence</span>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
     metric_left, metric_right = st.columns(2)
     metric_left.metric("Predicted Disease", prediction["disease"])
     metric_right.metric("Confidence", f"{prediction['confidence']:.2f}%")
@@ -539,12 +551,14 @@ def render_upload_section(disease_info: dict[str, dict[str, str]]) -> None:
 
     if predict_clicked and image is not None and st.session_state.selected_image_bytes:
         try:
-            with st.spinner("Analyzing leaf image..."):
+            with st.spinner("Validating leaf image and analyzing disease..."):
                 st.session_state.prediction = predict_disease(BytesIO(st.session_state.selected_image_bytes))
-            st.success("Prediction completed.")
+            st.success("Leaf validation passed. Disease prediction completed.")
         except PredictionError as exc:
+            st.session_state.prediction = None
             st.error(str(exc))
         except Exception:
+            st.session_state.prediction = None
             st.error("Something went wrong while analyzing the image. Please try another clear leaf photo.")
 
     if st.session_state.prediction:
@@ -735,6 +749,7 @@ def inject_custom_css() -> None:
             letter-spacing: 0.04em;
         }
 
+        .validation-card,
         .prediction-card {
             margin: 0.5rem 0 0;
             padding: 0.9rem 1rem;
@@ -744,6 +759,12 @@ def inject_custom_css() -> None:
             box-shadow: 0 8px 20px rgba(28, 53, 38, 0.05);
         }
 
+        .validation-card {
+            border-color: #bad6c4;
+            background: #f2faf4;
+        }
+
+        .validation-card strong,
         .prediction-card strong {
             display: block;
             color: var(--leaf-ink);
@@ -751,6 +772,7 @@ def inject_custom_css() -> None:
             line-height: 1.35;
         }
 
+        .validation-card span,
         .prediction-card span {
             display: block;
             margin-top: 0.25rem;

@@ -1,12 +1,13 @@
 # Plant Leaf Disease Detection
 
-A production-ready Streamlit web application that detects plant leaf diseases from uploaded images using a TensorFlow MobileNetV2 model. The app also provides disease guidance and an agriculture-only AI assistant powered by the NVIDIA API.
+A production-ready Streamlit web application that first validates whether an uploaded image is a plant leaf, then detects plant leaf diseases using a TensorFlow MobileNetV2 disease model. The app also provides disease guidance and an agriculture-only AI assistant powered by the NVIDIA API.
 
 ## Features
 
 - TensorFlow Keras model loading with process-level caching
+- Two-stage prediction: leaf-vs-non-leaf validation before disease classification
 - JPG, JPEG, PNG, WEBP, BMP, GIF, TIFF, HEIC, and HEIF image upload support
-- MobileNetV2 preprocessing with 224 x 224 image resizing
+- 224 x 224 image resizing for both validation and disease models
 - Top 3 disease predictions with confidence scores
 - Disease knowledge base for symptoms, causes, treatment, and prevention
 - NVIDIA API chatbot with session memory and agriculture topic restriction
@@ -99,24 +100,22 @@ http://localhost:8501
 1. Upload a clear image of a single plant leaf in a common image format such as JPG, PNG, WEBP, BMP, GIF, or TIFF.
 2. On mobile, switch to the camera capture option if gallery uploads are unstable.
 3. Click **Analyze Leaf**.
-4. Review the predicted disease, confidence score, and top 3 predictions.
-5. Read disease symptoms, causes, treatment, and prevention guidance.
-6. Ask the AI assistant agriculture-related questions about plant health, fertilizers, pest control, and farming practices.
+4. The app checks whether the image looks like a leaf.
+5. If leaf validation passes, review the predicted disease, confidence score, and top 3 predictions.
+6. Read disease symptoms, causes, treatment, and prevention guidance.
+7. Ask the AI assistant agriculture-related questions about plant health, fertilizers, pest control, and farming practices.
 
 ## Model Notes
 
 The app expects:
 
 - `model/leaf_disease_model.keras`
+- `model/leaf_vs_non_leaf_model.keras`
 - `model/class_names.json`
 
-Images are resized to `224 x 224` and preprocessed with:
+Images are resized to `224 x 224`.
 
-```python
-tensorflow.keras.applications.mobilenet_v2.preprocess_input
-```
-
-This matches the MobileNetV2 preprocessing used during training.
+The leaf validation model uses `1./255` rescaling and was trained as a binary classifier with `{'leaf': 0, 'non_leaf': 1}`. Because its final layer is `Dense(1, activation='sigmoid')`, lower output values mean leaf and higher output values mean non-leaf. The disease model runs only after the validation model reaches the leaf confidence threshold.
 
 ## Project Screenshots
 
@@ -130,7 +129,7 @@ Add screenshots of the running app to a `screenshots/` folder when documenting a
 ## Troubleshooting
 
 - If TensorFlow fails to install, verify your Python version is supported by your TensorFlow release.
-- If prediction fails, confirm the model file and class names file are present in the `model/` directory.
+- If prediction fails, confirm both model files and the class names file are present in the `model/` directory.
 - If the chatbot does not respond, check that `.env` contains a valid `NVIDIA_API_KEY` and restart Streamlit.
 - If an uploaded file is rejected, confirm it is a valid image file and try again.
 - If phone photos still fail, try the camera capture option or convert HEIC images to JPG if your browser cannot decode them.
