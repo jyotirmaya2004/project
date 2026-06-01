@@ -7,7 +7,6 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="collapsed"
 )
-import streamlit as st
 
 def mobile_navbar():
     st.markdown("""
@@ -43,7 +42,6 @@ def mobile_navbar():
             align-items:center;
             justify-content:center;
             color:#9ca3af;
-            text-decoration:none;
             font-size:11px;
             font-weight:600;
             gap:3px;
@@ -61,11 +59,7 @@ def mobile_navbar():
             width:72px;
             height:72px;
             border-radius:50%;
-            background:linear-gradient(
-                135deg,
-                #52b788,
-                #40916c
-            );
+            background:linear-gradient(135deg,#52b788,#40916c);
             display:flex;
             justify-content:center;
             align-items:center;
@@ -75,14 +69,9 @@ def mobile_navbar():
             box-shadow:0 0 25px rgba(82,183,136,.55);
         }
 
-        .bottom-space{
-            height:90px;
-        }
     }
 
     </style>
-
-    <div class="bottom-space"></div>
 
     <div class="mobile-nav">
 
@@ -113,5 +102,8 @@ def mobile_navbar():
     </div>
     """, unsafe_allow_html=True)
 
-mobile_navbar()
+# Main App UI
 main()
+
+# Mobile navbar at bottom
+mobile_navbar()
