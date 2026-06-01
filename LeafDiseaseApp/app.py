@@ -109,7 +109,7 @@ def mobile_navbar(active_tab: str):
             </div>
         </a>
         <div class="center-button">
-            <a href="/" target="_self" aria-label="Go to home page">🌿</a>
+            <a href="/?tab=home&source=camera" target="_self" aria-label="Take a leaf photo">🌿</a>
         </div>
         <a href="/tips" target="_self">
             <div class="nav-item {{tips_active}}">
