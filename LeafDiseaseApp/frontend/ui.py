@@ -23,6 +23,7 @@ from backend.disease_info import (
 )
 
 def render_header():
+    st.markdown('<div id="home-section"></div>', unsafe_allow_html=True)
     st.markdown("""
     <div style="
         padding:30px;
@@ -40,6 +41,7 @@ def render_header():
 
 
 def render_upload_section():
+    st.markdown('<div id="upload-section"></div>', unsafe_allow_html=True)
     st.markdown("## 📤 Upload Leaf Image")
 
     uploaded_file = st.file_uploader(
@@ -147,6 +149,33 @@ def render_prediction_section(uploaded_file):
             st.error(
                 f"Unexpected Error: {e}"
             )
+
+
+def render_history_section():
+    st.markdown('<div id="history-section"></div>', unsafe_allow_html=True)
+    st.markdown("## 🕘 Prediction History")
+
+    history = st.session_state.get("prediction_history", [])
+    if not history:
+        st.info("No history yet. Analyze a leaf image to see records here.")
+        return
+
+    st.dataframe(history, use_container_width=True)
+
+
+def render_tips_section():
+    st.markdown('<div id="tips-section"></div>', unsafe_allow_html=True)
+    st.markdown("## 💡 Quick Care Tips")
+
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.info("Use clear, bright photos with one leaf in focus.")
+    with col2:
+        st.info("Retake blurry images for better model confidence.")
+    with col3:
+        st.info("Review treatment + prevention before spraying chemicals.")
+
+
 def render_feature_cards():
     st.markdown("## 🚀 Features")
 
@@ -220,5 +249,15 @@ def main():
     st.divider()
 
     render_feature_cards()
+
+    st.divider()
+
+    render_history_section()
+
+    st.divider()
+
+    render_tips_section()
+
+    st.markdown('<div id="chat-section"></div>', unsafe_allow_html=True)
 
     chatbot_ui()

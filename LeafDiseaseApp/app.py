@@ -12,11 +12,19 @@ def mobile_navbar():
     st.markdown("""
     <style>
 
+    html{
+        scroll-behavior:smooth;
+    }
+
     .mobile-nav{
         display:none;
     }
 
     @media (max-width:768px){
+
+        .main .block-container{
+            padding-bottom:105px;
+        }
 
         .mobile-nav{
             display:flex;
@@ -34,6 +42,10 @@ def mobile_navbar():
             align-items:center;
             z-index:99999;
             box-shadow:0 8px 30px rgba(0,0,0,.35);
+        }
+
+        .mobile-nav a{
+            text-decoration:none;
         }
 
         .nav-item{
@@ -69,35 +81,53 @@ def mobile_navbar():
             box-shadow:0 0 25px rgba(82,183,136,.55);
         }
 
+        .center-button a{
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            width:100%;
+            height:100%;
+            color:white;
+            text-decoration:none;
+        }
+
     }
 
     </style>
 
     <div class="mobile-nav">
 
-        <div class="nav-item active">
-            <div class="nav-icon">🏠</div>
-            Home
-        </div>
+        <a href="#home-section">
+            <div class="nav-item active">
+                <div class="nav-icon">🏠</div>
+                Home
+            </div>
+        </a>
 
-        <div class="nav-item">
-            <div class="nav-icon">📊</div>
-            History
-        </div>
+        <a href="#history-section">
+            <div class="nav-item">
+                <div class="nav-icon">📊</div>
+                History
+            </div>
+        </a>
 
         <div class="center-button">
-            🌿
+            <a href="#upload-section" aria-label="Go to upload section">🌿</a>
         </div>
 
-        <div class="nav-item">
-            <div class="nav-icon">💡</div>
-            Tips
-        </div>
+        <a href="#tips-section">
+            <div class="nav-item">
+                <div class="nav-icon">💡</div>
+                Tips
+            </div>
+        </a>
 
-        <div class="nav-item">
-            <div class="nav-icon">👤</div>
-            Profile
-        </div>
+        <a href="#chat-section">
+            <div class="nav-item">
+                <div class="nav-icon">🤖</div>
+                Chat
+            </div>
+        </a>
 
     </div>
     """, unsafe_allow_html=True)
