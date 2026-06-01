@@ -211,6 +211,9 @@ def render_upload_section(disease_info: dict) -> None:
             source_file = st.camera_input("Take a leaf photo")
 
         if source_file:
+            file_size = getattr(source_file, "size", 0) or 0
+            if file_size > 10 * 1024 * 1024:
+                st.warning("⚠️ **Large file detected.** If the app crashes with an 'AxiosError', please crop or resize your photo to a smaller size before uploading.")
             try:
                 image = validate_uploaded_image(source_file)
                 st.session_state.selected_image_bytes = image_to_preview_bytes(image)
@@ -218,12 +221,15 @@ def render_upload_section(disease_info: dict) -> None:
             except ValueError as exc:
                 image, st.session_state.selected_image_bytes = None, None
                 st.error(str(exc))
+            except Exception as exc:
+                image, st.session_state.selected_image_bytes = None, None
+                st.error(f"Failed to process image. Please try a standard JPG/PNG. Error: {exc}")
 
     with col_preview:
         if st.session_state.selected_image_bytes:
             try:
                 image = Image.open(BytesIO(st.session_state.selected_image_bytes)).convert("RGB")
-                st.image(st.session_state.selected_image_bytes, caption="Selected image", use_container_width=True)
+                st.image(image, caption="Selected image", use_container_width=True)
             except Exception:
                 image, st.session_state.selected_image_bytes = None, None
                 st.warning("Preview expired. Please upload again.")
