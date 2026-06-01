@@ -343,21 +343,9 @@ def handle_chat_message(message: str) -> None:
 
 def main() -> None:
     """Run the Streamlit application."""
-    st.set_page_config(
-        page_title="Plant Leaf Disease Detection",
-        page_icon=":seedling:",
-        layout="wide",
-        initial_sidebar_state="collapsed",
-    )
-    initialize_session_state()
-    disease_info = ensure_disease_info()
+    from frontend import main as frontend_main
 
-    from frontend import inject_custom_css, render_chatbot, render_page_header, render_upload_section
-
-    inject_custom_css()
-    render_page_header()
-    render_upload_section(disease_info)
-    render_chatbot()
+    frontend_main()
 
 
 if __name__ == "__main__":
