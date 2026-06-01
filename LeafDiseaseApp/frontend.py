@@ -75,9 +75,9 @@ def inject_custom_css() -> None:
         right: 30px;
         width: 400px;
         max-width: 90vw;
-        background: var(--panel);
+        background-color: var(--panel);
         border-radius: 16px;
-        box-shadow: 0 12px 40px rgba(0,0,0,0.2) !important;
+        box-shadow: 0 12px 40px rgba(0,0,0,0.3) !important;
         z-index: 1050;
         padding: 20px;
         border: 1px solid var(--line);
@@ -288,5 +288,6 @@ def render_chatbot() -> None:
                 submitted = st.form_submit_button("Send", use_container_width=True, type="primary")
 
             if submitted and user_message.strip():
-                handle_chat_message(user_message.strip())
+                with st.spinner("Thinking..."):
+                    handle_chat_message(user_message.strip())
                 st.rerun()

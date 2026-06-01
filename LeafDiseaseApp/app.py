@@ -315,14 +315,7 @@ def initialize_session_state() -> None:
 def handle_chat_message(message: str) -> None:
     """Append a chat message and generate the assistant reply."""
     st.session_state.chat_messages.append({"role": "user", "content": message})
-    with st.chat_message("user"):
-        st.markdown(normalize_display_text(message))
-
-    with st.chat_message("assistant"):
-        with st.spinner("Thinking through the crop-care details..."):
-            reply = normalize_display_text(ask_nvidia_assistant(message, st.session_state.prediction))
-            st.markdown(reply)
-
+    reply = normalize_display_text(ask_nvidia_assistant(message, st.session_state.prediction))
     st.session_state.chat_messages.append({"role": "assistant", "content": reply})
 
 
