@@ -102,7 +102,7 @@ def render_page_header() -> None:
             <div class="card-body d-flex flex-wrap justify-content-between align-items-center p-4">
                 <div class="d-flex align-items-center gap-3">
                     <div class="d-flex justify-content-center align-items-center rounded shadow-sm text-white" style="width:64px; height:64px; font-size:32px; background-color: var(--primary);">
-                        🌱
+                        <i class="fa-solid fa-leaf"></i>
                     </div>
                     <div>
                         <span class="text-uppercase fw-bold" style="color: var(--primary); font-size: 12px; letter-spacing: 1px;">Plant health workspace</span>
@@ -112,8 +112,8 @@ def render_page_header() -> None:
                 </div>
                 <div class="d-flex gap-2 mt-3 mt-md-0">
                     <div class="text-center px-3 py-2 rounded shadow-sm border bg-white d-flex align-items-center justify-content-center" style="border-color: var(--primary) !important; font-size: 20px; min-width: 54px;" title="Current Theme">
-                        <span class="theme-icon-light">☀️</span>
-                        <span class="theme-icon-dark">🌙</span>
+                        <i class="fa-solid fa-sun theme-icon-light text-warning"></i>
+                        <i class="fa-solid fa-moon theme-icon-dark text-info"></i>
                     </div>
                     <div class="text-center px-4 py-2 rounded shadow-sm border bg-white" style="border-color: var(--primary) !important;">
                         <small class="d-block text-muted fw-semibold">Status</small>
@@ -151,7 +151,7 @@ def render_prediction_results(prediction: dict, disease_info: dict) -> None:
             f"""
             <div class="card shadow-sm mb-3 border-0 bg-light">
                 <div class="card-body border-start border-4 rounded d-flex justify-content-between align-items-center py-3" style="border-color: var(--primary) !important;">
-                    <strong class="text-dark">✅ Leaf validation passed</strong>
+                    <strong class="text-dark"><i class="fa-solid fa-circle-check" style="color: var(--primary);"></i> Leaf validation passed</strong>
                     <span class="badge" style="background-color: var(--primary);">{leaf_validation['leaf_confidence']:.2f}% leaf confidence</span>
                 </div>
             </div>
@@ -181,7 +181,7 @@ def render_prediction_results(prediction: dict, disease_info: dict) -> None:
     render_panel_header("Disease Guidance", "Symptoms, causes, treatment, and prevention.")
 
     for title, key in [("Symptoms", "symptoms"), ("Causes", "causes"), ("Treatment", "treatment"), ("Prevention", "prevention")]:
-        with st.expander(f"📌 {title}", expanded=title in {"Symptoms", "Treatment"}):
+        with st.expander(title, expanded=title in {"Symptoms", "Treatment"}):
             st.markdown(f"<div class='p-2'>{normalize_display_text(info[key])}</div>", unsafe_allow_html=True)
 
 
@@ -219,12 +219,12 @@ def render_upload_section(disease_info: dict) -> None:
                 st.warning("Preview expired. Please upload again.")
 
         st.write("")
-        predict_clicked = st.button("✨ Analyze Leaf", disabled=image is None or not st.session_state.selected_image_bytes, type="primary", use_container_width=True)
+        predict_clicked = st.button("Analyze Leaf", disabled=image is None or not st.session_state.selected_image_bytes, type="primary", use_container_width=True)
 
     if predict_clicked and image is not None and st.session_state.selected_image_bytes:
         st.markdown("<hr>", unsafe_allow_html=True)
         try:
-            with st.status("🔍 Analyzing leaf image...", expanded=True) as status:
+            with st.status("Analyzing leaf image...", expanded=True) as status:
                 st.write("Validating image format...")
                 st.write("Running AI disease prediction model...")
                 st.session_state.prediction = predict_disease(BytesIO(st.session_state.selected_image_bytes))
@@ -250,7 +250,7 @@ def render_chatbot() -> None:
         # Render the floating launcher button
         with st.container():
             st.markdown('<div id="chat-launcher"></div>', unsafe_allow_html=True)
-            if st.button("💬 Chat with AI", key="open_chat", type="primary"):
+            if st.button("Chat with AI", key="open_chat", type="primary"):
                 st.session_state.chat_open = True
                 st.rerun()
     else:
@@ -260,9 +260,9 @@ def render_chatbot() -> None:
 
             col1, col2 = st.columns([0.85, 0.15])
             with col1:
-                st.markdown("<h5 class='fw-bold mb-0 mt-2' style='color: var(--primary);'>💬 AI Plant Care</h5>", unsafe_allow_html=True)
+                st.markdown("<h5 class='fw-bold mb-0 mt-2' style='color: var(--primary);'><i class='fa-solid fa-message'></i> AI Plant Care</h5>", unsafe_allow_html=True)
             with col2:
-                if st.button("✖", key="close_chat"):
+                if st.button("Close", key="close_chat"):
                     st.session_state.chat_open = False
                     st.rerun()
 
