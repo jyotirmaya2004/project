@@ -33,6 +33,8 @@ IMAGE_SIZE = (224, 224)
 
 # This matches current UI threshold semantics.
 LEAF_CONFIDENCE_THRESHOLD = 0.5
+LEAF_REVIEW_THRESHOLD = 0.35
+DISEASE_CONFIDENCE_OVERRIDE = 85.0
 
 if register_heif_opener is not None:
     register_heif_opener()
@@ -90,6 +92,66 @@ def _preprocess_for_leaf_validation(image_source: str | Path | bytes | BinaryIO 
     image = image.resize(IMAGE_SIZE)
     arr = tf.keras.utils.img_to_array(image) / 255.0
     return np.expand_dims(arr, axis=0)
+
+
+def _normalize_probabilities(raw_predictions: np.ndarray) -> np.ndarray:
+    predictions = np.asarray(raw_predictions, dtype=np.float64).reshape(-1)
+    if predictions.size == 0 or not np.all(np.isfinite(predictions)):
+        raise PredictionError("Disease model returned invalid prediction values.")
+
+    total = float(np.sum(predictions))
+    if np.min(predictions) >= 0 and 0.98 <= total <= 1.02:
+        return predictions / total
+
+    shifted = predictions - np.max(predictions)
+    exp_values = np.exp(shifted)
+    exp_total = float(np.sum(exp_values))
+    if exp_total <= 0 or not np.isfinite(exp_total):
+        raise PredictionError("Disease model probabilities could not be normalized.")
+
+    return exp_values / exp_total
+
+
+def _predict_disease(base_image: Image.Image, top_k: int) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    try:
+        disease_model = load_disease_model()
+    except ModelLoadError as e:
+        raise PredictionError(str(e)) from e
+
+    class_names = load_class_names()
+
+    # The saved disease model already contains MobileNetV2 preprocessing.
+    # Feed raw 0-255 RGB pixels to match the notebook training pipeline.
+    disease_img = base_image.resize(IMAGE_SIZE)
+    disease_arr = tf.keras.utils.img_to_array(disease_img)
+    disease_input = np.expand_dims(disease_arr, axis=0)
+
+    try:
+        raw_probabilities = np.asarray(disease_model.predict(disease_input, verbose=0)[0])
+    except Exception as e:
+        raise PredictionError("The disease model could not make a prediction for this image.") from e
+
+    probabilities = _normalize_probabilities(raw_probabilities)
+
+    if len(probabilities) != len(class_names):
+        raise PredictionError(
+            "Model output size does not match class_names.json. "
+            "Please verify model artifacts."
+        )
+
+    top_k = max(1, min(top_k, len(class_names)))
+    top_indices = np.argsort(probabilities)[::-1][:top_k]
+
+    top_predictions = [
+        {
+            "class_name": class_names[idx],
+            "disease": format_disease_name(class_names[idx]),
+            "confidence": round(float(probabilities[idx]) * 100, 2),
+        }
+        for idx in top_indices
+    ]
+
+    return top_predictions, top_predictions[0]
 
 
 def predict_two_stage(image_source: str | Path | bytes | BinaryIO | Image.Image, top_k: int = 3) -> dict[str, Any]:
@@ -154,49 +216,25 @@ def predict_two_stage(image_source: str | Path | bytes | BinaryIO | Image.Image,
         "_debug_raw": raw_output,
     }
 
-    if not is_leaf:
+    if leaf_probability < LEAF_REVIEW_THRESHOLD:
         raise PredictionError(
             "This image does not look like a plant leaf. "
             f"Leaf confidence: {leaf_validation['leaf_confidence']:.2f}%"
         )
 
-    try:
-        disease_model = load_disease_model()
-    except ModelLoadError as e:
-        raise PredictionError(str(e)) from e
-
-    class_names = load_class_names()
-
-    # The saved disease model already contains MobileNetV2 preprocessing.
-    # Feed raw 0-255 RGB pixels to match the notebook training pipeline.
-    disease_img = base_image.resize(IMAGE_SIZE)
-    disease_arr = tf.keras.utils.img_to_array(disease_img)
-    disease_input = np.expand_dims(disease_arr, axis=0)
-
-    try:
-        probabilities = np.asarray(disease_model.predict(disease_input, verbose=0)[0])
-    except Exception as e:
-        raise PredictionError("The disease model could not make a prediction for this image.") from e
-
-    if len(probabilities) != len(class_names):
+    top_predictions, best = _predict_disease(base_image, top_k)
+    validation_warning = None
+    if not is_leaf and best["confidence"] < DISEASE_CONFIDENCE_OVERRIDE:
         raise PredictionError(
-            "Model output size does not match class_names.json. "
-            "Please verify model artifacts."
+            "This image has low leaf confidence and the disease model is not confident enough. "
+            "Please upload a clearer leaf photo."
         )
 
-    top_k = max(1, min(top_k, len(class_names)))
-    top_indices = np.argsort(probabilities)[::-1][:top_k]
-
-    top_predictions = [
-        {
-            "class_name": class_names[idx],
-            "disease": format_disease_name(class_names[idx]),
-            "confidence": round(float(probabilities[idx]) * 100, 2),
-        }
-        for idx in top_indices
-    ]
-
-    best = top_predictions[0]
+    if not is_leaf:
+        validation_warning = (
+            "Leaf validation was borderline, but disease classification was highly confident. "
+            "Retake the photo if the result looks wrong."
+        )
 
     # Ensure UI never receives HTML snippets in prediction fields.
     disease_name = escape("" if best["disease"] is None else str(best["disease"]))
@@ -211,4 +249,5 @@ def predict_two_stage(image_source: str | Path | bytes | BinaryIO | Image.Image,
         "disease": disease_name,
         "confidence": best["confidence"],
         "top_predictions": top_predictions,
+        "validation_warning": validation_warning,
     }

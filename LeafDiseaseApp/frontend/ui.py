@@ -82,6 +82,9 @@ def render_prediction_section(image_file):
     if not result:
         return
 
+    if result.get("validation_warning"):
+        st.warning(result["validation_warning"])
+
     prediction_card(result["disease"], result["confidence"])
     top_predictions_card(
         [(pred["disease"], pred["confidence"]) for pred in result["top_predictions"]]
