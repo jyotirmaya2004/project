@@ -26,9 +26,9 @@ def load_css():
             color:var(--leaf-text);
         }
 
-        #MainMenu, footer, header{
+        /* #MainMenu, footer, header{
             visibility:hidden;
-        }
+        } */
 
         h1,h2,h3{
             color:var(--leaf-text);
