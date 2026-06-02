@@ -1,4 +1,3 @@
-import html
 import os
 
 import streamlit as st
@@ -88,19 +87,10 @@ def _chat_with_nvidia() -> str:
 
 
 def _render_message_bubbles():
-    st.html('<div class="chat-log">')
     for message in st.session_state.messages:
         role = "user" if message["role"] == "user" else "assistant"
-        icon = "fa-user" if role == "user" else "fa-seedling"
-        content = html.escape(message["content"])
-        st.html(
-            f"""
-            <div class="chat-bubble {role}">
-                <i class="fa-solid {icon}"></i> {content}
-            </div>
-            """,
-        )
-    st.html("</div>")
+        with st.chat_message(role):
+            st.markdown(message["content"])
 
 
 def chatbot_ui():
