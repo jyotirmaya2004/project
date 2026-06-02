@@ -176,10 +176,13 @@ def predict_two_stage(image_source: str | Path | bytes | BinaryIO | Image.Image,
     best = top_predictions[0]
 
     # Ensure UI never receives HTML snippets in prediction fields.
-    # Only plain text should be returned to the frontend.
-    disease_name = str(best["disease"]).replace("<", "<").replace(">", ">")
+    def _escape_html(s: Any) -> str:
+        s = "" if s is None else str(s)
+        return s.replace("<", "<").replace(">", ">")
+
+    disease_name = _escape_html(best["disease"])
     top_predictions = [
-        {**tp, "disease": str(tp["disease"]).replace("<", "<").replace(">", ">")}
+        {**tp, "disease": _escape_html(tp["disease"])}
         for tp in top_predictions
     ]
 
