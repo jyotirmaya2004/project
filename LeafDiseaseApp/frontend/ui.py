@@ -65,8 +65,11 @@ def render_prediction_section(uploaded_file):
 
     st.markdown("## 📊 Prediction Result")
 
-    with st.expander("🧪 Debug: leaf vs non-leaf output", expanded=False):
-        show_debug = st.checkbox("Show raw leaf validation output", value=False)
+    # Debug controls (do not create unused variables; also ensures Streamlit reruns cleanly)
+    debug_expander = st.expander("🧪 Debug: leaf vs non-leaf output", expanded=False)
+    show_debug = debug_expander.checkbox("Show raw leaf validation output", value=False)
+
+
 
 
     if uploaded_file is None:
