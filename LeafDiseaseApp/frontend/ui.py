@@ -14,9 +14,11 @@ from frontend.components import (
 from frontend.chatbot import chatbot_ui
 
 from backend.predict import (
-    predict_disease,
     PredictionError
 )
+from backend.predict_two_stage import predict_two_stage
+
+
 
 from backend.disease_info import (
     get_disease_details
@@ -63,6 +65,10 @@ def render_prediction_section(uploaded_file):
 
     st.markdown("## 📊 Prediction Result")
 
+    with st.expander("🧪 Debug: leaf vs non-leaf output", expanded=False):
+        show_debug = st.checkbox("Show raw leaf validation output", value=False)
+
+
     if uploaded_file is None:
 
         st.info(
@@ -82,9 +88,11 @@ def render_prediction_section(uploaded_file):
                 "Analyzing image..."
             ):
 
-                result = predict_disease(
-                    uploaded_file
+                result = predict_two_stage(
+                    uploaded_file,
+                    top_k=3,
                 )
+
 
             # Save prediction history
             if "prediction_history" not in st.session_state:
