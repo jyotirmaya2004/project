@@ -175,10 +175,18 @@ def predict_two_stage(image_source: str | Path | bytes | BinaryIO | Image.Image,
 
     best = top_predictions[0]
 
+    # Ensure UI never receives HTML snippets in prediction fields.
+    # Only plain text should be returned to the frontend.
+    disease_name = str(best["disease"]).replace("<", "<").replace(">", ">")
+    top_predictions = [
+        {**tp, "disease": str(tp["disease"]).replace("<", "<").replace(">", ">")}
+        for tp in top_predictions
+    ]
+
     return {
         "leaf_validation": leaf_validation,
         "class_name": best["class_name"],
-        "disease": best["disease"],
+        "disease": disease_name,
         "confidence": best["confidence"],
         "top_predictions": top_predictions,
     }
