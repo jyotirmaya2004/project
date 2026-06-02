@@ -88,29 +88,28 @@ def _chat_with_nvidia() -> str:
 
 
 def _render_message_bubbles():
-    st.markdown('<div class="chat-log">', unsafe_allow_html=True)
+    st.html('<div class="chat-log">')
     for message in st.session_state.messages:
         role = "user" if message["role"] == "user" else "assistant"
         icon = "fa-user" if role == "user" else "fa-seedling"
         content = html.escape(message["content"])
-        st.markdown(
+        st.html(
             f"""
             <div class="chat-bubble {role}">
                 <i class="fa-solid {icon}"></i> {content}
             </div>
             """,
-            unsafe_allow_html=True,
         )
-    st.markdown("</div>", unsafe_allow_html=True)
+    st.html("</div>")
 
 
 def chatbot_ui():
     initialize_chat()
 
-    st.markdown('<div class="chat-shell">', unsafe_allow_html=True)
+    st.html('<div class="chat-shell">')
 
     if not st.session_state.chat_open:
-        st.markdown(
+        st.html(
             """
             <div class="chat-card">
                 <div class="chat-title">
@@ -120,16 +119,15 @@ def chatbot_ui():
                 <p class="chat-launch-copy">Ask about disease symptoms, treatment, pests, or crop care.</p>
             </div>
             """,
-            unsafe_allow_html=True,
         )
         if st.button("Open plant chat", key="open_chat", use_container_width=True):
             st.session_state.chat_open = True
             st.rerun()
 
-        st.markdown("</div>", unsafe_allow_html=True)
+        st.html("</div>")
         return
 
-    st.markdown(
+    st.html(
         """
         <div class="chat-card">
             <div class="chat-header">
@@ -139,7 +137,6 @@ def chatbot_ui():
                 </div>
             </div>
         """,
-        unsafe_allow_html=True,
     )
 
     col_close, col_clear = st.columns([1, 1])
@@ -174,4 +171,4 @@ def chatbot_ui():
         st.session_state.messages.append({"role": "assistant", "content": response})
         st.rerun()
 
-    st.markdown("</div></div>", unsafe_allow_html=True)
+    st.html("</div></div>")
