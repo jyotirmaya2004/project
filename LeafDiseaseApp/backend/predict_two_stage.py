@@ -167,11 +167,10 @@ def predict_two_stage(image_source: str | Path | bytes | BinaryIO | Image.Image,
 
     class_names = load_class_names()
 
-    # MobileNetV2 expects input scaled to [-1, 1], not [0, 1].
-    # We preprocess base_image directly to avoid stream pointer exhaustion.
+    # The saved disease model already contains MobileNetV2 preprocessing.
+    # Feed raw 0-255 RGB pixels to match the notebook training pipeline.
     disease_img = base_image.resize(IMAGE_SIZE)
     disease_arr = tf.keras.utils.img_to_array(disease_img)
-    disease_arr = tf.keras.applications.mobilenet_v2.preprocess_input(disease_arr)
     disease_input = np.expand_dims(disease_arr, axis=0)
 
     try:
