@@ -158,10 +158,27 @@ def load_css():
             font-size:14px;
             line-height:1.45;
             border:1px solid rgba(255,255,255,0.08);
-            white-space:pre-wrap;
         word-break: break-word;
         overflow-wrap: break-word;
         }
+
+    .chat-bubble p {
+        margin-bottom: 8px;
+    }
+
+    .chat-bubble p:last-child {
+        margin-bottom: 0;
+    }
+
+    .chat-bubble pre {
+        background: rgba(0, 0, 0, 0.25);
+        padding: 10px;
+        border-radius: 8px;
+        overflow-x: auto;
+        white-space: pre-wrap; /* Only apply pre-wrap to actual code blocks */
+        margin-top: 8px;
+        margin-bottom: 8px;
+    }
 
         .chat-bubble.assistant{
             background:rgba(255,255,255,0.07);
