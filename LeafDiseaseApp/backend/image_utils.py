@@ -15,6 +15,9 @@ def load_image(image_file):
     """
 
     try:
+        if hasattr(image_file, "seek"):
+            image_file.seek(0)
+
         image = Image.open(image_file)
 
         if image.mode != "RGB":

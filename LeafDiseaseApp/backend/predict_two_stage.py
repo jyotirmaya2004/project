@@ -9,6 +9,7 @@ This module defines a stable output contract used by the Streamlit UI.
 from __future__ import annotations
 
 import json
+from html import escape
 from functools import lru_cache
 from pathlib import Path
 from typing import Any, BinaryIO
@@ -17,7 +18,7 @@ import numpy as np
 import tensorflow as tf
 from PIL import Image, UnidentifiedImageError
 
-from backend.model_loader import load_disease_model, load_leaf_model
+from backend.model_loader import ModelLoadError, load_disease_model, load_leaf_model
 from backend.image_utils import preprocess_image
 
 
@@ -62,6 +63,8 @@ def _open_image(image_source: str | Path | bytes | BinaryIO | Image.Image) -> Im
         if isinstance(image_source, Image.Image):
             image = image_source.copy()
         else:
+            if hasattr(image_source, "seek"):
+                image_source.seek(0)
             image = Image.open(image_source)
         if getattr(image, "is_animated", False):
             image.seek(0)
@@ -92,7 +95,10 @@ def predict_two_stage(image_source: str | Path | bytes | BinaryIO | Image.Image,
       }
     """
 
-    leaf_model = load_leaf_model()
+    try:
+        leaf_model = load_leaf_model()
+    except ModelLoadError as e:
+        raise PredictionError(str(e)) from e
 
     leaf_input = _preprocess_for_leaf_validation(image_source)
 
@@ -143,7 +149,11 @@ def predict_two_stage(image_source: str | Path | bytes | BinaryIO | Image.Image,
             f"Leaf confidence: {leaf_validation['leaf_confidence']:.2f}%"
         )
 
-    disease_model = load_disease_model()
+    try:
+        disease_model = load_disease_model()
+    except ModelLoadError as e:
+        raise PredictionError(str(e)) from e
+
     class_names = load_class_names()
 
     # Reuse existing preprocess for disease model: it returns (image, image_array)
@@ -176,13 +186,9 @@ def predict_two_stage(image_source: str | Path | bytes | BinaryIO | Image.Image,
     best = top_predictions[0]
 
     # Ensure UI never receives HTML snippets in prediction fields.
-    def _escape_html(s: Any) -> str:
-        s = "" if s is None else str(s)
-        return s.replace("<", "<").replace(">", ">")
-
-    disease_name = _escape_html(best["disease"])
+    disease_name = escape("" if best["disease"] is None else str(best["disease"]))
     top_predictions = [
-        {**tp, "disease": _escape_html(tp["disease"])}
+        {**tp, "disease": escape("" if tp["disease"] is None else str(tp["disease"]))}
         for tp in top_predictions
     ]
 

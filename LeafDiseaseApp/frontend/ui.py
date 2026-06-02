@@ -13,10 +13,7 @@ from frontend.components import (
 
 from frontend.chatbot import chatbot_ui
 
-from backend.predict import (
-    PredictionError
-)
-from backend.predict_two_stage import predict_two_stage
+from backend.predict_two_stage import PredictionError, predict_two_stage
 
 
 
@@ -68,12 +65,6 @@ def render_prediction_section(uploaded_file):
         "Show raw leaf validation output",
         value=False
     )
-
-    # If you want to render raw validation details, show_debug can be wired later.
-    # Kept as a no-op to avoid execution errors during reruns.
-
-
-
 
     if uploaded_file is None:
 
@@ -133,6 +124,9 @@ def render_prediction_section(uploaded_file):
             top_predictions_card(
                 top_predictions
             )
+
+            if show_debug:
+                st.json(result["leaf_validation"])
 
             disease_info = get_disease_details(
                 result["class_name"]

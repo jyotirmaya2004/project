@@ -18,12 +18,23 @@ A production-ready Streamlit web application that first validates whether an upl
 
 ```text
 LeafDiseaseApp/
+├── app.py
+├── backend/
+│   ├── disease_info.py
+│   ├── image_utils.py
+│   ├── model_loader.py
+│   └── predict_two_stage.py
+├── frontend/
+│   ├── chatbot.py
+│   ├── components.py
+│   ├── styles.py
+│   └── ui.py
 ├── model/
 │   ├── leaf_disease_model.keras
+│   ├── leaf_vs_non_leaf_model.keras
 │   └── class_names.json
-├── test_images/
-├── app.py
-├── predict.py
+├── pages/
+├── test/
 ├── disease_info.json
 ├── requirements.txt
 ├── .env.example
