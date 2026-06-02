@@ -1,167 +1,99 @@
 import streamlit as st
 
+from backend.disease_info import get_disease_details
+from backend.predict_two_stage import PredictionError, predict_two_stage
+from frontend.chatbot import chatbot_ui
+from frontend.components import (
+    causes_card,
+    prediction_card,
+    prevention_card,
+    symptoms_card,
+    top_predictions_card,
+    treatment_card,
+)
 from frontend.styles import load_css
 
-from frontend.components import (
-    prediction_card,
-    top_predictions_card,
-    symptoms_card,
-    causes_card,
-    treatment_card,
-    prevention_card
-)
-
-from frontend.chatbot import chatbot_ui
-
-from backend.predict_two_stage import PredictionError, predict_two_stage
-
-
-
-from backend.disease_info import get_disease_details
 
 def render_header():
-    st.markdown('<div id="home-section"></div>', unsafe_allow_html=True)
-    st.markdown("""
-    <div style="
-        padding:30px;
-        border-radius:20px;
-        background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
-        color:white;
-        text-align:center;
-        margin-bottom:20px;
-    ">
-        <h1>🌿 LeafGuard AI</h1>
-        <h3>Smart Leaf Disease Detection System</h3>
-        <p>Upload a leaf image and get instant AI-powered disease analysis.</p>
-    </div>
-    """, unsafe_allow_html=True)
+    st.title("LeafGuard AI")
+    st.caption("Upload or capture a leaf image and get instant disease analysis.")
 
 
 def render_upload_section():
-    st.markdown('<div id="upload-section"></div>', unsafe_allow_html=True)
-    st.markdown("## 📤 Upload Leaf Image")
+    st.subheader("Leaf Image")
 
-    uploaded_file = st.file_uploader(
-        "Choose a leaf image",
-        type=["jpg", "jpeg", "png"]
+    default_source = 1 if st.query_params.get("source") == "camera" else 0
+    source_choice = st.radio(
+        "Image source",
+        ["Upload from device", "Use camera"],
+        index=default_source,
+        horizontal=True,
     )
 
-    if uploaded_file:
-        st.image(
-            uploaded_file,
-            caption="Uploaded Leaf"
+    if source_choice == "Use camera":
+        image_file = st.camera_input("Take a clear leaf photo")
+    else:
+        image_file = st.file_uploader(
+            "Choose a leaf image",
+            type=["jpg", "jpeg", "png", "webp", "bmp", "gif", "tiff", "heic", "heif"],
         )
 
-    return uploaded_file
+    if image_file:
+        st.image(image_file, caption="Selected leaf image", use_container_width=True)
+
+    return image_file
 
 
-def render_prediction_section(uploaded_file):
+def render_prediction_section(image_file):
+    st.subheader("Prediction Result")
 
-    st.markdown("## 📊 Prediction Result")
+    with st.expander("Debug: leaf vs non-leaf output", expanded=False):
+        show_debug = st.checkbox("Show raw leaf validation output", value=False)
 
-    # Debug controls
-    debug_expander = st.expander("🧪 Debug: leaf vs non-leaf output", expanded=False)
-    show_debug = debug_expander.checkbox(
-        "Show raw leaf validation output",
-        value=False
-    )
-
-    if uploaded_file is None:
-
-        st.info(
-            "Upload a leaf image to begin."
-        )
-
+    if image_file is None:
+        st.info("Upload or capture a leaf image to begin.")
         return
 
-    if st.button(
-        "🔍 Analyze Leaf",
-        use_container_width=True
-    ):
-
+    if st.button("Analyze Leaf", use_container_width=True, type="primary"):
         try:
+            with st.spinner("Analyzing image..."):
+                result = predict_two_stage(image_file, top_k=3)
 
-            with st.spinner(
-                "Analyzing image..."
-            ):
-
-                result = predict_two_stage(
-                    uploaded_file,
-                    top_k=3,
-                )
-
-
-            # Save prediction history
-            if "prediction_history" not in st.session_state:
-
-                st.session_state.prediction_history = []
-
-            st.session_state.prediction_history.append({
-
-                "Disease":
-                    result["disease"],
-
-                "Confidence":
-                    result["confidence"]
-            })
-
-            prediction_card(
-                result["disease"],
-                result["confidence"]
+            st.session_state.prediction = result
+            st.session_state.setdefault("prediction_history", []).append(
+                {
+                    "Disease": result["disease"],
+                    "Confidence": result["confidence"],
+                }
             )
+        except PredictionError as exc:
+            st.session_state.prediction = None
+            st.error(str(exc))
+        except Exception as exc:
+            st.session_state.prediction = None
+            st.error(f"Unexpected error: {exc}")
 
-            top_predictions = []
+    result = st.session_state.get("prediction")
+    if not result:
+        return
 
-            for pred in result["top_predictions"]:
+    prediction_card(result["disease"], result["confidence"])
+    top_predictions_card(
+        [(pred["disease"], pred["confidence"]) for pred in result["top_predictions"]]
+    )
 
-                top_predictions.append(
-                    (
-                        pred["disease"],
-                        pred["confidence"]
-                    )
-                )
+    if show_debug:
+        st.json(result["leaf_validation"])
 
-            top_predictions_card(
-                top_predictions
-            )
-
-            if show_debug:
-                st.json(result["leaf_validation"])
-
-            disease_info = get_disease_details(
-                result["class_name"]
-            )
-
-            symptoms_card(
-                disease_info["symptoms"]
-            )
-
-            causes_card(
-                disease_info["causes"]
-            )
-
-            treatment_card(
-                disease_info["treatment"]
-            )
-
-            prevention_card(
-                disease_info["prevention"]
-            )
-
-        except PredictionError as e:
-
-            st.error(str(e))
-
-        except Exception as e:
-
-            st.error(
-                f"Unexpected Error: {e}"
-            )
+    disease_info = get_disease_details(result["class_name"])
+    symptoms_card(disease_info["symptoms"])
+    causes_card(disease_info["causes"])
+    treatment_card(disease_info["treatment"])
+    prevention_card(disease_info["prevention"])
 
 
 def render_history_section():
-    st.markdown('<div id="history-section"></div>', unsafe_allow_html=True)
-    st.markdown("## 🕘 Prediction History")
+    st.subheader("Prediction History")
 
     history = st.session_state.get("prediction_history", [])
     if not history:
@@ -172,8 +104,7 @@ def render_history_section():
 
 
 def render_tips_section():
-    st.markdown('<div id="tips-section"></div>', unsafe_allow_html=True)
-    st.markdown("## 💡 Quick Care Tips")
+    st.subheader("Quick Care Tips")
 
     col1, col2, col3 = st.columns(3)
     with col1:
@@ -181,61 +112,21 @@ def render_tips_section():
     with col2:
         st.info("Retake blurry images for better model confidence.")
     with col3:
-        st.info("Review treatment + prevention before spraying chemicals.")
+        st.info("Review treatment and prevention before spraying chemicals.")
 
 
 def render_feature_cards():
-    st.markdown("## 🚀 Features")
+    st.subheader("Features")
 
     col1, col2, col3, col4 = st.columns(4)
-
-    with col1:
-        st.metric("Accuracy", "98%")
-
-    with col2:
-        st.metric("Prediction", "<2 sec")
-
-    with col3:
-        st.metric("Diseases", "38+")
-
-    with col4:
-        st.metric("Plants", "15+")
-
-
-def render_chatbot_button():
-
-    st.markdown("""
-    <style>
-
-    .floating-chat{
-        position:fixed;
-        bottom:20px;
-        right:20px;
-        width:65px;
-        height:65px;
-        border-radius:50%;
-        background:#00cc66;
-        color:white;
-        text-align:center;
-        line-height:65px;
-        font-size:30px;
-        font-weight:bold;
-        box-shadow:0px 4px 15px rgba(0,0,0,0.3);
-        z-index:999;
-    }
-
-    </style>
-
-    <div class="floating-chat">
-        🤖
-    </div>
-    """, unsafe_allow_html=True)
+    col1.metric("Accuracy", "98%")
+    col2.metric("Prediction", "<2 sec")
+    col3.metric("Diseases", "38+")
+    col4.metric("Plants", "15+")
 
 
 def main(active_tab: str = "all"):
-
     load_css()
-
     render_header()
 
     if active_tab == "history":
@@ -247,38 +138,23 @@ def main(active_tab: str = "all"):
         return
 
     if active_tab == "chat":
-        st.markdown('<div id="chat-section"></div>', unsafe_allow_html=True)
         chatbot_ui()
         return
 
-    left, right = st.columns(
-        [1,1]
-    )
-
+    left, right = st.columns([1, 1])
     with left:
-
-        uploaded_file = (
-            render_upload_section()
-        )
-
+        image_file = render_upload_section()
     with right:
-
-        render_prediction_section(
-            uploaded_file
-        )
+        render_prediction_section(image_file)
 
     st.divider()
-
     render_feature_cards()
 
     st.divider()
-
     render_history_section()
 
     st.divider()
-
     render_tips_section()
 
-    st.markdown('<div id="chat-section"></div>', unsafe_allow_html=True)
-
+    st.divider()
     chatbot_ui()
