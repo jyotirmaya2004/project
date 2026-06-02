@@ -19,7 +19,6 @@ import tensorflow as tf
 from PIL import Image, UnidentifiedImageError
 
 from backend.model_loader import ModelLoadError, load_disease_model, load_leaf_model
-from backend.image_utils import preprocess_image
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -100,7 +99,8 @@ def predict_two_stage(image_source: str | Path | bytes | BinaryIO | Image.Image,
     except ModelLoadError as e:
         raise PredictionError(str(e)) from e
 
-    leaf_input = _preprocess_for_leaf_validation(image_source)
+    base_image = _open_image(image_source)
+    leaf_input = _preprocess_for_leaf_validation(base_image)
 
     try:
         raw = np.asarray(leaf_model.predict(leaf_input, verbose=0)[0])
@@ -156,12 +156,15 @@ def predict_two_stage(image_source: str | Path | bytes | BinaryIO | Image.Image,
 
     class_names = load_class_names()
 
-    # Reuse existing preprocess for disease model: it returns (image, image_array)
-    # where image_array is already normalized to 0..1.
-    _img, image_array = preprocess_image(image_source)
+    # MobileNetV2 expects input scaled to [-1, 1], not [0, 1].
+    # We preprocess base_image directly to avoid stream pointer exhaustion.
+    disease_img = base_image.resize(IMAGE_SIZE)
+    disease_arr = tf.keras.utils.img_to_array(disease_img)
+    disease_arr = tf.keras.applications.mobilenet_v2.preprocess_input(disease_arr)
+    disease_input = np.expand_dims(disease_arr, axis=0)
 
     try:
-        probabilities = np.asarray(disease_model.predict(image_array, verbose=0)[0])
+        probabilities = np.asarray(disease_model.predict(disease_input, verbose=0)[0])
     except Exception as e:
         raise PredictionError("The disease model could not make a prediction for this image.") from e
 
@@ -199,4 +202,3 @@ def predict_two_stage(image_source: str | Path | bytes | BinaryIO | Image.Image,
         "confidence": best["confidence"],
         "top_predictions": top_predictions,
     }
-
