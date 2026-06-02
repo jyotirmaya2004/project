@@ -180,6 +180,23 @@ def load_css():
         margin-bottom: 8px;
     }
 
+    .chat-bubble table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 8px;
+        margin-bottom: 8px;
+    }
+
+    .chat-bubble th, .chat-bubble td {
+        border: 1px solid var(--leaf-border);
+        padding: 8px;
+        text-align: left;
+    }
+
+    .chat-bubble th {
+        background: rgba(255, 255, 255, 0.05);
+    }
+
         .chat-bubble.assistant{
             background:rgba(255,255,255,0.07);
             color:white;
