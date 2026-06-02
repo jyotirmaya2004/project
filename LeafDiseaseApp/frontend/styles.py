@@ -105,21 +105,10 @@ def load_css():
         }
 
         .chat-shell{
-            position:fixed;
-            right:22px;
-            bottom:22px;
-            width:380px;
-            max-width:calc(100vw - 28px);
-            z-index:9999;
+        width: 100%;
         }
 
         div[data-testid="stVerticalBlock"]:has(.chat-shell){
-            position:fixed;
-            right:22px;
-            bottom:22px;
-            width:380px !important;
-            max-width:calc(100vw - 28px);
-            z-index:9999;
             background:rgba(8,28,21,0.97);
             border:1px solid rgba(82,183,136,0.35);
             border-radius:18px;
