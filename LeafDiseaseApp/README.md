@@ -21,7 +21,6 @@ LeafDiseaseApp/
 ├── app.py
 ├── backend/
 │   ├── disease_info.py
-│   ├── image_utils.py
 │   ├── model_loader.py
 │   └── predict_two_stage.py
 ├── frontend/

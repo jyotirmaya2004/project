@@ -26,10 +26,6 @@ def load_css():
             color:var(--leaf-text);
         }
 
-        /* #MainMenu, footer, header{
-            visibility:hidden;
-        } */
-
         h1,h2,h3{
             color:var(--leaf-text);
             letter-spacing:0;
@@ -66,6 +62,38 @@ def load_css():
 
         .section-title i{
             color:var(--leaf-primary);
+        }
+
+        .leaf-panel{
+            background:var(--leaf-panel);
+            border:1px solid var(--leaf-border);
+            border-radius:16px;
+            padding:18px;
+            margin-bottom:16px;
+        }
+
+        .leaf-panel h2,
+        .leaf-panel h3,
+        .leaf-panel p,
+        .leaf-panel li{
+            color:var(--leaf-text);
+        }
+
+        .leaf-panel p,
+        .leaf-panel li{
+            color:var(--leaf-muted);
+            font-size:15px;
+            line-height:1.55;
+        }
+
+        .leaf-panel ul{
+            margin-bottom:0;
+        }
+
+        div[data-testid="stDataFrame"]{
+            border:1px solid var(--leaf-border);
+            border-radius:14px;
+            overflow:hidden;
         }
 
         section[data-testid="stFileUploader"],

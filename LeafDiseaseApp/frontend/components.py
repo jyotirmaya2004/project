@@ -1,12 +1,27 @@
 import streamlit as st
 
 
+def page_header(title: str, subtitle: str, icon: str = "fa-leaf") -> None:
+    st.html(
+        f"""
+        <div class="leaf-hero">
+            <h1><i class="fa-solid {icon}"></i> {title}</h1>
+            <p>{subtitle}</p>
+        </div>
+        """,
+    )
+
+
+def section_title(title: str, icon: str) -> None:
+    st.html(
+        f'<h3 class="section-title"><i class="fa-solid {icon}"></i> {title}</h3>',
+    )
+
+
 def prediction_card(disease, confidence):
     confidence = float(confidence)
 
-    st.html(
-        '<h3 class="section-title"><i class="fa-solid fa-virus"></i> Predicted Disease</h3>',
-    )
+    section_title("Predicted Disease", "fa-virus")
     st.metric(
         label=str(disease),
         value=f"{confidence:.2f}% confidence",
@@ -23,9 +38,7 @@ def prediction_card(disease, confidence):
 
 
 def top_predictions_card(predictions):
-    st.html(
-        '<h3 class="section-title"><i class="fa-solid fa-ranking-star"></i> Top Predictions</h3>',
-    )
+    section_title("Top Predictions", "fa-ranking-star")
 
     for disease, score in predictions:
         left, right = st.columns([3, 1])

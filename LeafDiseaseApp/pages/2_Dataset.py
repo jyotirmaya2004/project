@@ -1,52 +1,67 @@
 import streamlit as st
 
+from frontend.components import page_header, section_title
+from frontend.styles import load_css
+
+
 st.set_page_config(
     page_title="Dataset Information",
-    page_icon="📚",
-    layout="wide"
+    page_icon=":books:",
+    layout="wide",
 )
 
-st.title("📚 Dataset Information")
+load_css()
+page_header(
+    "Dataset Information",
+    "Model training data, supported crops, and disease categories.",
+    "fa-database",
+)
 
-st.markdown("""
-## PlantVillage Dataset
+section_title("PlantVillage Dataset", "fa-seedling")
 
-This project uses the PlantVillage dataset.
+col_summary, col_crops = st.columns([1, 1])
+with col_summary:
+    st.html(
+        """
+        <div class="leaf-panel">
+            <h3>Dataset Summary</h3>
+            <ul>
+                <li>Total classes: 38+</li>
+                <li>Model image size: 224 x 224</li>
+                <li>Purpose: plant disease identification from leaf images</li>
+            </ul>
+        </div>
+        """,
+    )
 
-### Total Classes
+with col_crops:
+    st.html(
+        """
+        <div class="leaf-panel">
+            <h3>Supported Crops</h3>
+            <ul>
+                <li>Apple</li>
+                <li>Corn</li>
+                <li>Grape</li>
+                <li>Peach</li>
+                <li>Pepper</li>
+                <li>Potato</li>
+                <li>Strawberry</li>
+                <li>Tomato</li>
+            </ul>
+        </div>
+        """,
+    )
 
-38+
-
-### Image Size
-
-224 × 224
-
-### Supported Crops
-
-- Apple
-- Corn
-- Grape
-- Peach
-- Pepper
-- Potato
-- Strawberry
-- Tomato
-
-### Disease Categories
-
-- Healthy
-- Bacterial Spot
-- Early Blight
-- Late Blight
-- Leaf Mold
-- Rust
-- Powdery Mildew
-- Scab
-- Leaf Scorch
-
-and many more.
-
-### Dataset Purpose
-
-The dataset is used to train the deep learning model for plant disease identification.
-""")
+st.html(
+    """
+    <div class="leaf-panel">
+        <h3>Disease Categories</h3>
+        <p>
+            The dataset includes healthy leaves and common disease categories such as
+            bacterial spot, early blight, late blight, leaf mold, rust, powdery mildew,
+            scab, and leaf scorch.
+        </p>
+    </div>
+    """,
+)

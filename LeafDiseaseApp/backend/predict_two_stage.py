@@ -9,14 +9,20 @@ This module defines a stable output contract used by the Streamlit UI.
 from __future__ import annotations
 
 import json
-from html import escape
 from functools import lru_cache
+from html import escape
+from io import BytesIO
 from pathlib import Path
 from typing import Any, BinaryIO
 
 import numpy as np
 import tensorflow as tf
 from PIL import Image, UnidentifiedImageError
+
+try:
+    from pillow_heif import register_heif_opener
+except ImportError:
+    register_heif_opener = None
 
 from backend.model_loader import ModelLoadError, load_disease_model, load_leaf_model
 
@@ -27,6 +33,9 @@ IMAGE_SIZE = (224, 224)
 
 # This matches current UI threshold semantics.
 LEAF_CONFIDENCE_THRESHOLD = 0.5
+
+if register_heif_opener is not None:
+    register_heif_opener()
 
 
 class PredictionError(Exception):
@@ -61,6 +70,8 @@ def _open_image(image_source: str | Path | bytes | BinaryIO | Image.Image) -> Im
     try:
         if isinstance(image_source, Image.Image):
             image = image_source.copy()
+        elif isinstance(image_source, bytes):
+            image = Image.open(BytesIO(image_source))
         else:
             if hasattr(image_source, "seek"):
                 image_source.seek(0)

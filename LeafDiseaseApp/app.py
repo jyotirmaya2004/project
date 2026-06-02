@@ -7,7 +7,7 @@ import streamlit as st
 
 st.set_page_config(
     page_title="LeafGuard AI",
-    page_icon="🌿",
+    page_icon=":seedling:",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
