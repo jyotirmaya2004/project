@@ -39,7 +39,7 @@ def render_upload_section():
         )
 
     if image_file:
-        st.image(image_file, caption="Selected leaf image", use_container_width=True)
+        st.image(image_file, caption="Selected leaf image", use_column_width=True)
 
     return image_file
 
