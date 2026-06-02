@@ -20,9 +20,7 @@ from backend.predict_two_stage import predict_two_stage
 
 
 
-from backend.disease_info import (
-    get_disease_details
-)
+from backend.disease_info import get_disease_details
 
 def render_header():
     st.markdown('<div id="home-section"></div>', unsafe_allow_html=True)
@@ -54,8 +52,7 @@ def render_upload_section():
     if uploaded_file:
         st.image(
             uploaded_file,
-            caption="Uploaded Leaf",
-            use_container_width=True
+            caption="Uploaded Leaf"
         )
 
     return uploaded_file
@@ -65,9 +62,15 @@ def render_prediction_section(uploaded_file):
 
     st.markdown("## 📊 Prediction Result")
 
-    # Debug controls (do not create unused variables; also ensures Streamlit reruns cleanly)
+    # Debug controls
     debug_expander = st.expander("🧪 Debug: leaf vs non-leaf output", expanded=False)
-    show_debug = debug_expander.checkbox("Show raw leaf validation output", value=False)
+    show_debug = debug_expander.checkbox(
+        "Show raw leaf validation output",
+        value=False
+    )
+
+    # If you want to render raw validation details, show_debug can be wired later.
+    # Kept as a no-op to avoid execution errors during reruns.
 
 
 
