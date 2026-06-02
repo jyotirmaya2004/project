@@ -106,14 +106,12 @@ def load_css():
 
         .chat-shell{
         width: 100%;
-        }
-
-        div[data-testid="stVerticalBlock"]:has(.chat-shell){
             background:rgba(8,28,21,0.97);
             border:1px solid rgba(82,183,136,0.35);
             border-radius:18px;
             box-shadow:0 22px 65px rgba(0,0,0,0.45);
             padding:14px;
+        box-sizing: border-box;
         }
 
         .chat-card{
@@ -161,6 +159,8 @@ def load_css():
             line-height:1.45;
             border:1px solid rgba(255,255,255,0.08);
             white-space:pre-wrap;
+        word-break: break-word;
+        overflow-wrap: break-word;
         }
 
         .chat-bubble.assistant{
