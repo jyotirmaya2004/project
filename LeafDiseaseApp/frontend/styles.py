@@ -195,4 +195,5 @@ def load_css():
         }
         </style>
         """,
+
     )
