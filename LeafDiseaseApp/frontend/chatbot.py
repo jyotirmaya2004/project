@@ -1,3 +1,4 @@
+import html
 import os
 
 import streamlit as st
@@ -30,13 +31,6 @@ def _get_int_env(name: str, default: int) -> int:
         return default
 
 
-def initialize_chat():
-    load_dotenv()
-
-    if "messages" not in st.session_state:
-        reset_chat()
-
-
 def reset_chat():
     st.session_state.messages = [
         {
@@ -44,6 +38,16 @@ def reset_chat():
             "content": "Hello! Ask me about leaf diseases, crop care, pests, fertilizers, or treatment steps.",
         }
     ]
+
+
+def initialize_chat():
+    load_dotenv()
+
+    if "messages" not in st.session_state:
+        reset_chat()
+
+    if "chat_open" not in st.session_state:
+        st.session_state.chat_open = False
 
 
 def _build_client() -> OpenAI | None:
@@ -57,12 +61,11 @@ def _build_client() -> OpenAI | None:
     )
 
 
-def _chat_with_nvidia(user_prompt: str) -> str:
+def _chat_with_nvidia() -> str:
     client = _build_client()
     if client is None:
         return "NVIDIA_API_KEY is missing. Add it to your .env file and restart Streamlit."
 
-    model = os.getenv("NVIDIA_MODEL", DEFAULT_MODEL)
     messages = [{"role": "system", "content": SYSTEM_PROMPT}]
     messages.extend(
         {
@@ -72,8 +75,9 @@ def _chat_with_nvidia(user_prompt: str) -> str:
         for message in st.session_state.messages
         if message["role"] in {"user", "assistant"}
     )
+
     response = client.chat.completions.create(
-        model=model,
+        model=os.getenv("NVIDIA_MODEL", DEFAULT_MODEL),
         messages=messages,
         temperature=_get_float_env("NVIDIA_TEMPERATURE", 0.6),
         top_p=_get_float_env("NVIDIA_TOP_P", 0.95),
@@ -83,36 +87,91 @@ def _chat_with_nvidia(user_prompt: str) -> str:
     return response.choices[0].message.content or "I could not generate a response."
 
 
+def _render_message_bubbles():
+    st.markdown('<div class="chat-log">', unsafe_allow_html=True)
+    for message in st.session_state.messages:
+        role = "user" if message["role"] == "user" else "assistant"
+        icon = "fa-user" if role == "user" else "fa-seedling"
+        content = html.escape(message["content"])
+        st.markdown(
+            f"""
+            <div class="chat-bubble {role}">
+                <i class="fa-solid {icon}"></i> {content}
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+    st.markdown("</div>", unsafe_allow_html=True)
+
+
 def chatbot_ui():
     initialize_chat()
 
-    st.subheader("LeafGuard AI Assistant")
+    st.markdown('<div class="chat-shell">', unsafe_allow_html=True)
 
-    col1, col2 = st.columns([1, 1])
-    with col2:
-        if st.button("Clear chat", use_container_width=True):
+    if not st.session_state.chat_open:
+        st.markdown(
+            """
+            <div class="chat-card">
+                <div class="chat-title">
+                    <i class="fa-solid fa-comments"></i>
+                    LeafGuard Assistant
+                </div>
+                <p class="chat-launch-copy">Ask about disease symptoms, treatment, pests, or crop care.</p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+        if st.button("Open plant chat", key="open_chat", use_container_width=True):
+            st.session_state.chat_open = True
+            st.rerun()
+
+        st.markdown("</div>", unsafe_allow_html=True)
+        return
+
+    st.markdown(
+        """
+        <div class="chat-card">
+            <div class="chat-header">
+                <div class="chat-title">
+                    <i class="fa-solid fa-comments"></i>
+                    LeafGuard Assistant
+                </div>
+            </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    col_close, col_clear = st.columns([1, 1])
+    with col_close:
+        if st.button("Close", key="close_chat", use_container_width=True):
+            st.session_state.chat_open = False
+            st.rerun()
+    with col_clear:
+        if st.button("Clear", key="clear_chat", use_container_width=True):
             reset_chat()
             st.rerun()
 
-    for message in st.session_state.messages:
-        with st.chat_message(message["role"]):
-            st.write(message["content"])
+    _render_message_bubbles()
 
-    user_prompt = st.chat_input("Ask about plant diseases or crop care...")
-    if not user_prompt:
-        return
+    with st.form("floating_chat_form", clear_on_submit=True):
+        prompt = st.text_input(
+            "Message",
+            placeholder="Ask about leaf disease treatment...",
+            label_visibility="collapsed",
+        )
+        submitted = st.form_submit_button("Send", use_container_width=True)
 
-    st.session_state.messages.append({"role": "user", "content": user_prompt})
-    with st.chat_message("user"):
-        st.write(user_prompt)
+    if submitted and prompt.strip():
+        st.session_state.messages.append({"role": "user", "content": prompt.strip()})
 
-    with st.chat_message("assistant"):
         with st.spinner("Thinking..."):
             try:
-                response = _chat_with_nvidia(user_prompt)
+                response = _chat_with_nvidia()
             except Exception as exc:
                 response = f"Chat API error: {exc}"
 
-            st.write(response)
+        st.session_state.messages.append({"role": "assistant", "content": response})
+        st.rerun()
 
-    st.session_state.messages.append({"role": "assistant", "content": response})
+    st.markdown("</div></div>", unsafe_allow_html=True)

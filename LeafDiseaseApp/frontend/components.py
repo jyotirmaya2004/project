@@ -4,7 +4,10 @@ import streamlit as st
 def prediction_card(disease, confidence):
     confidence = float(confidence)
 
-    st.subheader("Predicted Disease")
+    st.markdown(
+        '<h3 class="section-title"><i class="fa-solid fa-virus"></i> Predicted Disease</h3>',
+        unsafe_allow_html=True,
+    )
     st.metric(
         label=str(disease),
         value=f"{confidence:.2f}% confidence",
@@ -21,7 +24,10 @@ def prediction_card(disease, confidence):
 
 
 def top_predictions_card(predictions):
-    st.subheader("Top Predictions")
+    st.markdown(
+        '<h3 class="section-title"><i class="fa-solid fa-ranking-star"></i> Top Predictions</h3>',
+        unsafe_allow_html=True,
+    )
 
     for disease, score in predictions:
         left, right = st.columns([3, 1])

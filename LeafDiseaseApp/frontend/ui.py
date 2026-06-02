@@ -15,12 +15,22 @@ from frontend.styles import load_css
 
 
 def render_header():
-    st.title("LeafGuard AI")
-    st.caption("Upload or capture a leaf image and get instant disease analysis.")
+    st.markdown(
+        """
+        <div class="leaf-hero">
+            <h1><i class="fa-solid fa-leaf"></i> LeafGuard AI</h1>
+            <p>Upload or capture a leaf image and get instant disease analysis.</p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
 
 def render_upload_section():
-    st.subheader("Leaf Image")
+    st.markdown(
+        '<h3 class="section-title"><i class="fa-solid fa-camera"></i> Leaf Image</h3>',
+        unsafe_allow_html=True,
+    )
 
     default_source = 1 if st.query_params.get("source") == "camera" else 0
     source_choice = st.radio(
@@ -45,7 +55,10 @@ def render_upload_section():
 
 
 def render_prediction_section(image_file):
-    st.subheader("Prediction Result")
+    st.markdown(
+        '<h3 class="section-title"><i class="fa-solid fa-chart-simple"></i> Prediction Result</h3>',
+        unsafe_allow_html=True,
+    )
 
     with st.expander("Debug: leaf vs non-leaf output", expanded=False):
         show_debug = st.checkbox("Show raw leaf validation output", value=False)
@@ -93,7 +106,10 @@ def render_prediction_section(image_file):
 
 
 def render_history_section():
-    st.subheader("Prediction History")
+    st.markdown(
+        '<h3 class="section-title"><i class="fa-solid fa-clock-rotate-left"></i> Prediction History</h3>',
+        unsafe_allow_html=True,
+    )
 
     history = st.session_state.get("prediction_history", [])
     if not history:
@@ -104,7 +120,10 @@ def render_history_section():
 
 
 def render_tips_section():
-    st.subheader("Quick Care Tips")
+    st.markdown(
+        '<h3 class="section-title"><i class="fa-solid fa-lightbulb"></i> Quick Care Tips</h3>',
+        unsafe_allow_html=True,
+    )
 
     col1, col2, col3 = st.columns(3)
     with col1:
@@ -116,7 +135,10 @@ def render_tips_section():
 
 
 def render_feature_cards():
-    st.subheader("Features")
+    st.markdown(
+        '<h3 class="section-title"><i class="fa-solid fa-seedling"></i> Features</h3>',
+        unsafe_allow_html=True,
+    )
 
     col1, col2, col3, col4 = st.columns(4)
     col1.metric("Accuracy", "98%")

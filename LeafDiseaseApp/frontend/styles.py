@@ -2,113 +2,198 @@ import streamlit as st
 
 
 def load_css():
+    st.markdown(
+        """
+        <link rel="stylesheet"
+              href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+        <style>
+        :root{
+            --leaf-bg:#081c15;
+            --leaf-panel:rgba(255,255,255,0.07);
+            --leaf-panel-strong:rgba(255,255,255,0.12);
+            --leaf-border:rgba(255,255,255,0.14);
+            --leaf-primary:#52b788;
+            --leaf-primary-dark:#2d6a4f;
+            --leaf-accent:#ffd166;
+            --leaf-text:#f8fafc;
+            --leaf-muted:#cbd5e1;
+        }
 
-    st.markdown("""
-    <style>
+        .stApp{
+            background:
+                radial-gradient(circle at 18% 0%, rgba(82,183,136,0.22), transparent 30%),
+                linear-gradient(135deg, #06140f 0%, #0b2b1f 48%, #1b4332 100%);
+            color:var(--leaf-text);
+        }
 
-    /* Main App */
-    .stApp{
-        background: linear-gradient(
-            135deg,
-            #081c15,
-            #0b2b1f,
-            #1b4332
-        );
-        color:white;
-    }
+        #MainMenu, footer, header{
+            visibility:hidden;
+        }
 
-    /* Remove Streamlit Menu */
-    #MainMenu{
-        visibility:hidden;
-    }
+        h1,h2,h3{
+            color:var(--leaf-text);
+            letter-spacing:0;
+        }
 
-    footer{
-        visibility:hidden;
-    }
+        .leaf-hero{
+            border:1px solid var(--leaf-border);
+            background:linear-gradient(135deg, rgba(82,183,136,0.20), rgba(255,255,255,0.06));
+            padding:24px;
+            border-radius:18px;
+            margin-bottom:22px;
+            box-shadow:0 18px 45px rgba(0,0,0,0.22);
+        }
 
-    header{
-        visibility:hidden;
-    }
+        .leaf-hero h1{
+            margin:0;
+            font-size:40px;
+            line-height:1.1;
+        }
 
-    /* Cards */
-    .glass-card{
-        background:rgba(255,255,255,0.05);
-        backdrop-filter:blur(15px);
-        border:1px solid rgba(255,255,255,0.1);
-        border-radius:20px;
-        padding:20px;
-        margin-bottom:20px;
-    }
+        .leaf-hero p{
+            color:var(--leaf-muted);
+            margin:8px 0 0;
+            font-size:16px;
+        }
 
-    /* Titles */
-    h1,h2,h3{
-        color:white;
-    }
+        .section-title{
+            display:flex;
+            align-items:center;
+            gap:10px;
+            color:var(--leaf-text);
+            margin:8px 0 14px;
+        }
 
-    /* File Uploader */
-    section[data-testid="stFileUploader"]{
-        border-radius:15px;
-        border:2px dashed #52b788;
-        background:rgba(255,255,255,0.03);
-    }
+        .section-title i{
+            color:var(--leaf-primary);
+        }
 
-    /* Buttons */
-    .stButton button{
+        section[data-testid="stFileUploader"],
+        div[data-testid="stCameraInput"]{
+            border-radius:16px;
+            border:2px dashed var(--leaf-primary);
+            background:rgba(255,255,255,0.04);
+            padding:8px;
+        }
 
-        width:100%;
-        height:55px;
+        .stButton button{
+            border:none;
+            border-radius:14px;
+            background:linear-gradient(135deg, var(--leaf-primary), var(--leaf-primary-dark));
+            color:white;
+            font-weight:700;
+            min-height:46px;
+            transition:transform 0.18s ease, box-shadow 0.18s ease;
+        }
 
-        border:none;
-        border-radius:15px;
+        .stButton button:hover{
+            transform:translateY(-1px);
+            box-shadow:0 10px 24px rgba(82,183,136,0.28);
+        }
 
-        background:linear-gradient(
-            135deg,
-            #52b788,
-            #2d6a4f
-        );
+        div[data-testid="metric-container"]{
+            background:var(--leaf-panel);
+            border-radius:14px;
+            padding:14px;
+            border:1px solid var(--leaf-border);
+        }
 
-        color:white;
-        font-size:18px;
-        font-weight:bold;
+        div[data-testid="stExpander"]{
+            background:rgba(255,255,255,0.04);
+            border:1px solid var(--leaf-border);
+            border-radius:14px;
+        }
 
-        transition:0.3s;
-    }
+        .chat-shell{
+            position:fixed;
+            right:22px;
+            bottom:22px;
+            width:380px;
+            max-width:calc(100vw - 28px);
+            z-index:9999;
+        }
 
-    .stButton button:hover{
+        div[data-testid="stVerticalBlock"]:has(.chat-shell){
+            position:fixed;
+            right:22px;
+            bottom:22px;
+            width:380px !important;
+            max-width:calc(100vw - 28px);
+            z-index:9999;
+            background:rgba(8,28,21,0.97);
+            border:1px solid rgba(82,183,136,0.35);
+            border-radius:18px;
+            box-shadow:0 22px 65px rgba(0,0,0,0.45);
+            padding:14px;
+        }
 
-        transform:translateY(-2px);
+        .chat-card{
+            margin-bottom:8px;
+        }
 
-        box-shadow:
-        0px 5px 20px rgba(82,183,136,0.4);
-    }
+        .chat-header{
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:12px;
+            margin-bottom:10px;
+        }
 
-    /* Metrics */
-    div[data-testid="metric-container"]{
+        .chat-title{
+            display:flex;
+            align-items:center;
+            gap:10px;
+            font-weight:800;
+            color:white;
+        }
 
-        background:rgba(255,255,255,0.05);
+        .chat-title i{
+            color:var(--leaf-accent);
+        }
 
-        border-radius:15px;
+        .chat-launch-copy{
+            margin:0 0 10px;
+            color:var(--leaf-muted);
+            font-size:13px;
+        }
 
-        padding:15px;
+        .chat-log{
+            max-height:320px;
+            overflow-y:auto;
+            padding-right:4px;
+            margin-bottom:10px;
+        }
 
-        border:1px solid rgba(255,255,255,0.08);
-    }
+        .chat-bubble{
+            padding:10px 12px;
+            border-radius:14px;
+            margin-bottom:8px;
+            font-size:14px;
+            line-height:1.45;
+            border:1px solid rgba(255,255,255,0.08);
+            white-space:pre-wrap;
+        }
 
-    /* Sidebar */
-    section[data-testid="stSidebar"]{
-        background:#081c15;
-    }
+        .chat-bubble.assistant{
+            background:rgba(255,255,255,0.07);
+            color:white;
+        }
 
-    /* Scrollbar */
-    ::-webkit-scrollbar{
-        width:8px;
-    }
+        .chat-bubble.user{
+            background:rgba(82,183,136,0.22);
+            color:white;
+            margin-left:34px;
+        }
 
-    ::-webkit-scrollbar-thumb{
-        background:#52b788;
-        border-radius:10px;
-    }
+        ::-webkit-scrollbar{
+            width:8px;
+        }
 
-    </style>
-    """,
-    unsafe_allow_html=True)
+        ::-webkit-scrollbar-thumb{
+            background:var(--leaf-primary);
+            border-radius:10px;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
