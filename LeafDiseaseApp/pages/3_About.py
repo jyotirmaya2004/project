@@ -90,11 +90,21 @@ st.html(
 )
 
 section_title("Academic Details", "fa-graduation-cap")
+
 st.html(
     """
     <div class="leaf-panel">
-        <p>Team members and college information can be added here.</p>
-        <p>Academic year: 2025 - 2026</p>
+        <h4>Project Team Members</h4>
+        <ul>
+            <li>Jyotirmaya Behera (3146/24)</li>
+            <li>Diptesh Ranjan Pradhan (3141/24)</li>
+            <li>Bibekananda Sahoo (3136/24)</li>
+            <li>Pritam Kumar Behera (3159/24)</li>
+            <li>Laxman Kumar Sahoo (3148/24)</li>
+        </ul>
+
+        <h4>Academic Information</h4>
+        <p><strong>Academic Year:</strong> 2025 - 2026</p>
     </div>
-    """,
+    """
 )
