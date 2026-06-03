@@ -1,8 +1,0 @@
-- [x] Inspect and confirm prediction wiring in `app.py` (which function UI calls)
-- [x] Implement a single unified two-stage predictor in `backend/predict_two_stage.py`
-- [x] Fix leaf-confidence mapping to match actual leaf-vs-non-leaf model output semantics
-- [x] Ensure `frontend/ui.py` calls only the unified predictor and expects the same keys
-- [x] Add optional debug toggle in the UI to display raw leaf model output and computed probabilities
-- [ ] Polish UI: improve result section layout, top predictions rendering, and card consistency
-- [ ] Run Streamlit locally and test with images from `test/`
-- [x] Update README project structure for the modular app layout
