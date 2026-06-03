@@ -18,7 +18,7 @@ from frontend.styles import load_css
 
 def render_header():
     page_header(
-        "LeafGuard AI",
+        "AgroVision AI",
         "Upload or capture a leaf image and get instant disease analysis.",
         "fa-leaf",
     )
