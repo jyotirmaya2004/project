@@ -4,28 +4,58 @@ import streamlit as st
 def load_css():
     st.html(
         """
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
         <style>
-        @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css');
-
+    @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css');
         :root{
-            --leaf-bg:#081c15;
-            --leaf-panel:rgba(255,255,255,0.07);
-            --leaf-panel-strong:rgba(255,255,255,0.12);
-            --leaf-border:rgba(255,255,255,0.14);
-            --leaf-primary:#52b788;
-            --leaf-primary-dark:#2d6a4f;
-            --leaf-accent:#ffd166;
-            --leaf-text:#f8fafc;
-            --leaf-muted:#cbd5e1;
-            --leaf-shadow: 0 22px 65px rgba(0,0,0,0.45);
+            --leaf-bg: #0f172a;
+            --leaf-panel: rgba(30, 41, 59, 0.65);
+            --leaf-panel-strong: rgba(30, 41, 59, 0.95);
+            --leaf-border: rgba(16, 185, 129, 0.25);
+            --leaf-primary: #10b981;
+            --leaf-primary-dark: #059669;
+            --leaf-accent: #fbbf24;
+            --leaf-text: #f8fafc;
+            --leaf-muted: #94a3b8;
+            --leaf-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
 
 
-        .stApp{
-            background:
-                radial-gradient(circle at 18% 0%, rgba(82,183,136,0.22), transparent 30%),
-                linear-gradient(135deg, #06140f 0%, #0b2b1f 48%, #1b4332 100%);
-            color:var(--leaf-text);
+        /* Animated Background */
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .stApp {
+            background: linear-gradient(135deg, #020617, #0f172a, #064e3b, #022c22);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            color: var(--leaf-text);
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Overlay fixed radial gradients so they don't shift, or animate them differently */
+        .stApp::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(circle at 15% 15%, rgba(16,185,129,0.12), transparent 45%),
+                        radial-gradient(circle at 85% 85%, rgba(5,150,105,0.15), transparent 45%);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        @keyframes contentFadeIn {
+            from { opacity: 0; top: 12px; }
+            to { opacity: 1; top: 0px; }
+        }
+
+        .block-container {
+            position: relative;
+            z-index: 1;
+            animation: contentFadeIn 0.4s ease-out forwards;
         }
 
         h1,h2,h3{
@@ -33,25 +63,97 @@ def load_css():
             letter-spacing:0;
         }
 
+        /* --- Text Selection Styling --- */
+        ::selection {
+            background-color: rgba(16, 185, 129, 0.4);
+            color: var(--leaf-text);
+        }
+        ::-moz-selection {
+            background-color: rgba(16, 185, 129, 0.4);
+            color: var(--leaf-text);
+        }
+
+        /* Placeholder styling */
+        .empty-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            background: var(--leaf-panel);
+            border: 2px dashed var(--leaf-border);
+            border-radius: 16px;
+            text-align: center;
+            color: var(--leaf-muted);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            margin-top: 10px;
+        }
+        .empty-placeholder i {
+            font-size: 48px;
+            color: var(--leaf-primary);
+            margin-bottom: 16px;
+            opacity: 0.8;
+        }
+        .empty-placeholder h4 {
+            color: var(--leaf-text);
+            margin-bottom: 8px;
+            margin-top: 0;
+        }
+        .empty-placeholder p {
+            margin: 0;
+            font-size: 15px;
+        }
+
+        /* --- Image Preview Styling --- */
+        div[data-testid="stImage"] {
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid var(--leaf-border);
+            background: rgba(255, 255, 255, 0.02);
+            padding: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        div[data-testid="stImage"] img {
+            max-height: 350px !important;
+            object-fit: contain !important;
+            border-radius: 8px;
+        }
+
+        div[data-testid="stImageCaption"] {
+            color: var(--leaf-accent);
+            font-weight: 600;
+            margin-top: 8px;
+            font-size: 14px;
+        }
+
         .leaf-hero{
             border:1px solid var(--leaf-border);
-            background:linear-gradient(135deg, rgba(82,183,136,0.20), rgba(255,255,255,0.06));
-            padding:24px;
-            border-radius:18px;
-            margin-bottom:22px;
-            box-shadow:0 18px 45px rgba(0,0,0,0.22);
+            background:linear-gradient(135deg, rgba(30,41,59,0.5), rgba(15,23,42,0.8));
+            padding:48px 24px;
+            border-radius:24px;
+            margin-bottom:32px;
+            box-shadow:var(--leaf-shadow);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            text-align: center;
         }
 
         .leaf-hero h1{
             margin:0;
-            font-size:40px;
-            line-height:1.1;
+            font-size:46px;
+            line-height:1.2;
+            font-weight: 800;
+            background: -webkit-linear-gradient(45deg, var(--leaf-primary), var(--leaf-accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         .leaf-hero p{
             color:var(--leaf-muted);
-            margin:8px 0 0;
-            font-size:16px;
+            margin:12px 0 0;
+            font-size:18px;
         }
 
         .section-title{
@@ -69,9 +171,12 @@ def load_css():
         .leaf-panel{
             background:var(--leaf-panel);
             border:1px solid var(--leaf-border);
-            border-radius:16px;
+            border-top: 3px solid var(--leaf-primary);
+            border-radius:18px;
             padding:18px;
             margin-bottom:16px;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
         }
 
         .leaf-panel h2,
@@ -92,13 +197,100 @@ def load_css():
             margin-bottom:0;
         }
 
+        /* --- Features Grid Animation --- */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 24px;
+            margin-top: 10px;
+        }
+
+        .feature-card {
+            background: linear-gradient(135deg, rgba(30,41,59,0.5), rgba(15,23,42,0.8));
+            border: 1px solid var(--leaf-border);
+            border-top: 3px solid var(--leaf-primary);
+            border-radius: 18px;
+            padding: 28px 16px;
+            text-align: center;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: var(--leaf-shadow);
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 40px -10px rgba(16, 185, 129, 0.3);
+            border-color: var(--leaf-primary);
+        }
+
+        .feature-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 16px;
+            background: rgba(16, 185, 129, 0.15);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: var(--leaf-primary);
+            transition: all 0.4s ease;
+        }
+
+        .feature-card:hover .feature-icon {
+            background: var(--leaf-primary);
+            color: white;
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .feature-value {
+            font-size: 42px;
+            font-weight: 800;
+            color: var(--leaf-text);
+            margin-bottom: 6px;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .feature-value-prefix, .feature-value-suffix {
+            font-size: 24px;
+            color: var(--leaf-accent);
+            font-weight: 700;
+            margin: 0 4px;
+        }
+
+        .feature-label {
+            color: var(--leaf-muted);
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        @media (max-width: 992px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .features-grid {
+                grid-template-columns: repeat(1, 1fr);
+            }
+        }
+
         div[data-testid="stDataFrame"]{
             border:1px solid var(--leaf-border);
             border-radius:14px;
             overflow:hidden;
         }
 
-        section[data-testid="stFileUploader"],
+        /* File Uploader and Camera Input Styling */
         div[data-testid="stCameraInput"]{
             border-radius:16px;
             border:2px dashed var(--leaf-primary);
@@ -106,19 +298,171 @@ def load_css():
             padding:8px;
         }
 
-        .stButton button{
-            border:none;
-            border-radius:14px;
-            background:linear-gradient(135deg, var(--leaf-primary), var(--leaf-primary-dark));
-            color:white;
-            font-weight:700;
-            min-height:46px;
-            transition:transform 0.18s ease, box-shadow 0.18s ease;
+        section[data-testid="stFileUploader"] {
+            background: transparent;
+            border: none;
+            padding: 0;
         }
 
-        .stButton button:hover{
-            transform:translateY(-1px);
-            box-shadow:0 10px 24px rgba(82,183,136,0.28);
+        /* Style the internal dropzone to look like a modern upload panel */
+        div[data-testid="stFileUploaderDropzone"] {
+            border-radius: 16px;
+            border: 2px dashed var(--leaf-primary);
+            background: rgba(255, 255, 255, 0.04);
+            padding: 32px 16px;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        div[data-testid="stFileUploaderDropzone"]:hover {
+            background: rgba(82, 183, 136, 0.1);
+            border-color: var(--leaf-accent);
+        }
+
+        /* Hide Streamlit's default cloud SVG and drag-and-drop text */
+        div[data-testid="stFileUploaderDropzone"] svg,
+        div[data-testid="stFileUploaderDropzoneInstructions"] {
+            display: none;
+        }
+
+        /* Inject a custom FontAwesome cloud icon */
+        div[data-testid="stFileUploaderDropzone"]::before {
+            content: "\\f0ee"; /* fa-cloud-arrow-up */
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            font-size: 42px;
+            color: var(--leaf-primary);
+            margin-bottom: 16px;
+        }
+
+        /* Make the 'Browse files' button match standard app buttons */
+        div[data-testid="stFileUploaderDropzone"] button {
+            border: none;
+            border-radius: 30px;
+            background: linear-gradient(135deg, var(--leaf-primary), var(--leaf-primary-dark), var(--leaf-primary));
+            background-size: 200% auto;
+            color: white;
+            font-weight: 700;
+            padding: 8px 24px;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        div[data-testid="stFileUploaderDropzone"] button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(82, 183, 136, 0.3);
+            background-position: right center;
+        }
+
+        div[data-testid="stFileUploaderDropzone"] button:active {
+            transform: translateY(1px);
+            box-shadow: 0 4px 10px rgba(82, 183, 136, 0.2);
+        }
+
+        .stButton button,
+        div[data-testid="stDownloadButton"] button {
+            border:none;
+            border-radius:30px;
+            background:linear-gradient(135deg, var(--leaf-primary), var(--leaf-primary-dark), var(--leaf-primary));
+            background-size: 200% auto;
+            color:white;
+            font-weight:700;
+            min-height: 48px;
+            padding: 12px 24px;
+            font-size: 16px;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        .stButton button:hover,
+        div[data-testid="stDownloadButton"] button:hover {
+            transform:translateY(-2px);
+            box-shadow:0 12px 28px rgba(16, 185, 129, 0.4);
+            background-position: right center;
+        }
+
+        .stButton button:active,
+        div[data-testid="stDownloadButton"] button:active {
+            transform:translateY(1px);
+            box-shadow:0 4px 12px rgba(82,183,136,0.2);
+        }
+
+        /* --- Primary 'Analyze' Button Customization --- */
+        .analyze-btn-spacer {
+            height: 16px;
+        }
+
+        div[data-testid="stButton"] button[kind="primary"] {
+            max-width: 320px;
+            margin: 0 auto;
+            background: linear-gradient(135deg, var(--leaf-primary), var(--leaf-primary-dark), var(--leaf-primary));
+            background-size: 200% auto;
+            color: white !important;
+            font-size: 18px;
+            font-weight: 800;
+            padding: 14px 32px;
+            min-height: 56px;
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
+        }
+
+        div[data-testid="stButton"] button[kind="primary"]:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(16, 185, 129, 0.45);
+            background-position: right center;
+        }
+
+        div[data-testid="stButton"] button[kind="primary"]::before {
+            content: "\\f610"; /* fa-microscope */
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            margin-right: 12px;
+            font-size: 20px;
+        }
+
+        /* Strip margins from internal p-tags Streamlit adds to prevent uncentering */
+        .stButton button p,
+        div[data-testid="stDownloadButton"] button p {
+            margin: 0;
+        }
+
+        /* Add FontAwesome icon to standard download buttons */
+        div[data-testid="stDownloadButton"] button::before {
+            content: "\\f019";
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            margin-right: 8px;
+        }
+
+        /* --- Animated Progress Bar Styling (File Uploads & Predictions) --- */
+        @keyframes progressFlow {
+            0% { background-position: 200% center; }
+            100% { background-position: -200% center; }
+        }
+
+        div[data-testid="stProgressBar"] > div {
+            background-color: rgba(255, 255, 255, 0.08) !important;
+            border-radius: 8px !important;
+        }
+
+        div[data-testid="stProgressBar"] > div > div {
+            background: linear-gradient(90deg, var(--leaf-primary-dark), var(--leaf-primary), var(--leaf-accent), var(--leaf-primary), var(--leaf-primary-dark)) !important;
+            background-size: 200% auto !important;
+            animation: progressFlow 2s linear infinite !important;
+            border-radius: 8px !important;
+        }
+
+        /* Mobile Responsive adjustments for buttons */
+        @media (max-width: 768px) {
+            .stButton button,
+            div[data-testid="stDownloadButton"] button {
+                font-size: 15px;
+                padding: 10px 18px;
+                min-height: 44px;
+            }
         }
 
         div[data-testid="metric-container"]{
@@ -126,26 +470,32 @@ def load_css():
             border-radius:14px;
             padding:14px;
             border:1px solid var(--leaf-border);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
         }
 
         div[data-testid="stExpander"]{
             background:rgba(255,255,255,0.04);
             border:1px solid var(--leaf-border);
             border-radius:14px;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
         }
 
         .chat-shell{
-        width: 100%;
-            background:rgba(8,28,21,0.97);
+            width: 100%;
+            background:rgba(8,28,21,0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             border:1px solid rgba(82,183,136,0.35);
             border-radius:18px;
             box-shadow:0 22px 65px rgba(0,0,0,0.45);
             padding:14px;
-        box-sizing: border-box;
+            box-sizing: border-box;
         }
 
         /* --- Floating chatbot UI --- */
-        div[data-testid="stVerticalBlock"]:has(> div.element-container .chat-fab-marker) {
+        div[data-testid="stVerticalBlock"]:has(> div[data-testid="stElementContainer"] .chat-fab-marker) {
             position: fixed;
             right: 18px;
             bottom: 18px;
@@ -159,7 +509,7 @@ def load_css():
             display: none;
         }
 
-        div[data-testid="stVerticalBlock"]:has(> div.element-container .chat-fab-marker) button {
+        div[data-testid="stVerticalBlock"]:has(> div[data-testid="stElementContainer"] .chat-fab-marker) button {
             width: 56px !important;
             height: 56px !important;
             min-height: 56px !important;
@@ -175,16 +525,16 @@ def load_css():
             position: relative !important;
         }
 
-        div[data-testid="stVerticalBlock"]:has(> div.element-container .chat-fab-marker) button:hover {
+        div[data-testid="stVerticalBlock"]:has(> div[data-testid="stElementContainer"] .chat-fab-marker) button:hover {
             transform: translateY(-2px) !important;
             box-shadow: 0 10px 24px rgba(82,183,136,0.4) !important;
         }
 
-        div[data-testid="stVerticalBlock"]:has(> div.element-container .chat-fab-marker) button p {
+        div[data-testid="stVerticalBlock"]:has(> div[data-testid="stElementContainer"] .chat-fab-marker) button p {
             display: none !important;
         }
 
-        div[data-testid="stVerticalBlock"]:has(> div.element-container .chat-fab-marker) button::after {
+        div[data-testid="stVerticalBlock"]:has(> div[data-testid="stElementContainer"] .chat-fab-marker) button::after {
             content: "\\f544";
             font-family: "Font Awesome 6 Free";
             font-weight: 900;
@@ -196,7 +546,7 @@ def load_css():
             transform: translate(-50%, -50%) !important;
         }
 
-        div[data-testid="stVerticalBlock"]:has(> div.element-container .chat-floating-panel-marker) {
+        div[data-testid="stVerticalBlock"]:has(> div[data-testid="stElementContainer"] .chat-floating-panel-marker) {
             position: fixed;
             right: 18px;
             bottom: 86px;
@@ -204,14 +554,16 @@ def load_css():
             max-height: 80vh;
             overflow-y: auto;
             z-index: 10000;
-            background: rgba(8,28,21,0.98);
+            background: rgba(8,28,21,0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             border: 1px solid rgba(82,183,136,0.35);
             border-radius: 18px;
             box-shadow: var(--leaf-shadow);
             padding: 16px;
         }
 
-        div[data-testid="stVerticalBlock"]:has(> div.element-container .chat-floating-panel-marker) div[data-testid="stForm"] {
+        div[data-testid="stVerticalBlock"]:has(> div[data-testid="stElementContainer"] .chat-floating-panel-marker) div[data-testid="stForm"] {
             border: none;
             padding: 0;
         }
@@ -272,7 +624,8 @@ def load_css():
         div[data-testid="stColumn"]:has(.chat-btn-download-marker) button p,
         div[data-testid="stColumn"]:has(.chat-btn-clear-marker) button p,
         div[data-testid="stColumn"]:has(.chat-btn-close-marker) button p,
-        div[data-testid="stColumn"]:has(.chat-btn-download-marker) button svg {
+        div[data-testid="stColumn"]:has(.chat-btn-download-marker) button svg,
+        div[data-testid="stColumn"]:has(.chat-btn-download-marker) button::before {
             display: none !important;
         }
 
@@ -367,12 +720,12 @@ def load_css():
         }
 
         /* Hide Streamlit default form spacing inside panel for nicer look */
-        div[data-testid="stVerticalBlock"]:has(> div.element-container .chat-floating-panel-marker) .stTextInput {
+        div[data-testid="stVerticalBlock"]:has(> div[data-testid="stElementContainer"] .chat-floating-panel-marker) .stTextInput {
             margin-bottom: 0 !important;
             padding-bottom: 0 !important;
         }
 
-        div[data-testid="stVerticalBlock"]:has(> div.element-container .chat-floating-panel-marker) .stTextInput input {
+        div[data-testid="stVerticalBlock"]:has(> div[data-testid="stElementContainer"] .chat-floating-panel-marker) .stTextInput input {
             background: rgba(255,255,255,0.04) !important;
             border: 1px solid rgba(82,183,136,0.35) !important;
             color: var(--leaf-text) !important;
@@ -424,7 +777,7 @@ def load_css():
             display: none;
         }
 
-        div[data-testid="stVerticalBlock"]:has(> div.element-container .chat-floating-panel-marker) div[data-testid="stChatMessage"] {
+        div[data-testid="stVerticalBlock"]:has(> div[data-testid="stElementContainer"] .chat-floating-panel-marker) div[data-testid="stChatMessage"] {
             border-radius: 16px;
             padding: 8px 12px;
             margin-bottom: 12px;
@@ -435,7 +788,7 @@ def load_css():
             overflow-wrap: break-word;
         }
 
-        div[data-testid="stVerticalBlock"]:has(> div.element-container .chat-floating-panel-marker) div[data-testid="stChatMessage"]:has(.user-msg-marker) {
+        div[data-testid="stVerticalBlock"]:has(> div[data-testid="stElementContainer"] .chat-floating-panel-marker) div[data-testid="stChatMessage"]:has(.user-msg-marker) {
             background-color: rgba(82, 183, 136, 0.15) !important;
             border-color: rgba(82, 183, 136, 0.35) !important;
             margin-left: auto !important;
@@ -443,7 +796,7 @@ def load_css():
             border-bottom-right-radius: 4px !important;
         }
 
-        div[data-testid="stVerticalBlock"]:has(> div.element-container .chat-floating-panel-marker) div[data-testid="stChatMessage"]:has(.assistant-msg-marker) {
+        div[data-testid="stVerticalBlock"]:has(> div[data-testid="stElementContainer"] .chat-floating-panel-marker) div[data-testid="stChatMessage"]:has(.assistant-msg-marker) {
             background-color: rgba(255, 255, 255, 0.05) !important;
             border-color: rgba(255, 255, 255, 0.12) !important;
             margin-right: auto !important;
@@ -451,7 +804,7 @@ def load_css():
         }
 
         /* --- FontAwesome Chat Avatars --- */
-        div[data-testid="stVerticalBlock"]:has(> div.element-container .chat-floating-panel-marker) div[data-testid="stChatMessageAvatar"] {
+        div[data-testid="stVerticalBlock"]:has(> div[data-testid="stElementContainer"] .chat-floating-panel-marker) div[data-testid="stChatMessageAvatar"] {
             background-color: rgba(255,255,255,0.05) !important;
             color: transparent !important; /* Hide original emoji */
             position: relative !important;
@@ -461,11 +814,11 @@ def load_css():
             border-radius: 50% !important;
         }
 
-        div[data-testid="stVerticalBlock"]:has(> div.element-container .chat-floating-panel-marker) div[data-testid="stChatMessageAvatar"] svg {
+        div[data-testid="stVerticalBlock"]:has(> div[data-testid="stElementContainer"] .chat-floating-panel-marker) div[data-testid="stChatMessageAvatar"] svg {
             display: none !important; /* Hide Streamlit native SVG if present */
         }
 
-        div[data-testid="stVerticalBlock"]:has(> div.element-container .chat-floating-panel-marker) div[data-testid="stChatMessage"]:has(.user-msg-marker) div[data-testid="stChatMessageAvatar"]::after {
+        div[data-testid="stVerticalBlock"]:has(> div[data-testid="stElementContainer"] .chat-floating-panel-marker) div[data-testid="stChatMessage"]:has(.user-msg-marker) div[data-testid="stChatMessageAvatar"]::after {
             content: "\\f007"; /* fa-user */
             font-family: "Font Awesome 6 Free";
             font-weight: 900;
@@ -474,7 +827,7 @@ def load_css():
             position: absolute;
         }
 
-        div[data-testid="stVerticalBlock"]:has(> div.element-container .chat-floating-panel-marker) div[data-testid="stChatMessage"]:has(.assistant-msg-marker) div[data-testid="stChatMessageAvatar"]::after {
+        div[data-testid="stVerticalBlock"]:has(> div[data-testid="stElementContainer"] .chat-floating-panel-marker) div[data-testid="stChatMessage"]:has(.assistant-msg-marker) div[data-testid="stChatMessageAvatar"]::after {
             content: "\\f544"; /* fa-robot */
             font-family: "Font Awesome 6 Free";
             font-weight: 900;
@@ -484,7 +837,7 @@ def load_css():
         }
 
         /* --- Chat Table Formatting & Overflow Fix --- */
-        div[data-testid="stVerticalBlock"]:has(> div.element-container .chat-floating-panel-marker) div[data-testid="stChatMessage"] table {
+        div[data-testid="stVerticalBlock"]:has(> div[data-testid="stElementContainer"] .chat-floating-panel-marker) div[data-testid="stChatMessage"] table {
             display: block !important;
             overflow-x: auto !important;
             border-collapse: collapse !important;
@@ -492,13 +845,13 @@ def load_css():
             font-size: 13.5px !important;
         }
 
-        div[data-testid="stVerticalBlock"]:has(> div.element-container .chat-floating-panel-marker) div[data-testid="stChatMessage"] th,
-        div[data-testid="stVerticalBlock"]:has(> div.element-container .chat-floating-panel-marker) div[data-testid="stChatMessage"] td {
+        div[data-testid="stVerticalBlock"]:has(> div[data-testid="stElementContainer"] .chat-floating-panel-marker) div[data-testid="stChatMessage"] th,
+        div[data-testid="stVerticalBlock"]:has(> div[data-testid="stElementContainer"] .chat-floating-panel-marker) div[data-testid="stChatMessage"] td {
             border: 1px solid rgba(255, 255, 255, 0.15) !important;
             padding: 6px 12px !important;
         }
 
-        div[data-testid="stVerticalBlock"]:has(> div.element-container .chat-floating-panel-marker) div[data-testid="stChatMessage"] th {
+        div[data-testid="stVerticalBlock"]:has(> div[data-testid="stElementContainer"] .chat-floating-panel-marker) div[data-testid="stChatMessage"] th {
             background: rgba(255, 255, 255, 0.08) !important;
             font-weight: 600 !important;
         }
@@ -548,14 +901,115 @@ def load_css():
             background: rgba(82,183,136,0.15) !important;
         }
 
-        ::-webkit-scrollbar{
-            width:8px;
+        /* --- Global Scrollbar Styling --- */
+        ::-webkit-scrollbar {
+            width: 14px;
+            height: 14px;
         }
 
-        ::-webkit-scrollbar-thumb{
-            background:var(--leaf-primary);
-            border-radius:10px;
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 10px;
         }
+
+        ::-webkit-scrollbar-thumb {
+            background-color: var(--leaf-primary-dark);
+            border-radius: 10px;
+            border: 4px solid transparent;
+            background-clip: padding-box;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background-color: var(--leaf-primary);
+        }
+
+        ::-webkit-scrollbar-corner {
+            background: transparent;
+        }
+
+        /* Firefox cross-browser support */
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: var(--leaf-primary-dark) rgba(255, 255, 255, 0.02);
+        }
+
+        /* --- Attractive Sidebar Styling --- */
+        section[data-testid="stSidebar"] {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-right: 1px solid var(--leaf-border);
+        }
+
+        /* Sidebar Header (App Name/Logo area) */
+        div[data-testid="stSidebarNav"]::before {
+            content: "\\f4d8  AgroVision AI";
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            display: block;
+            color: var(--leaf-primary);
+            font-size: 22px;
+            padding: 32px 24px 16px;
+            margin-bottom: 16px;
+            border-bottom: 1px solid var(--leaf-border);
+            text-align: center;
+            letter-spacing: 0.5px;
+        }
+
+        /* Link Container */
+        div[data-testid="stSidebarNav"] ul {
+            padding-top: 8px;
+        }
+
+        /* Individual Links */
+        a[data-testid="stSidebarNavLink"] {
+            border-radius: 12px;
+            margin: 4px 16px;
+            padding: 12px 16px;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            color: var(--leaf-text) !important;
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+            background: transparent;
+            text-decoration: none !important;
+        }
+
+        /* Hover State */
+        a[data-testid="stSidebarNavLink"]:hover {
+            background: rgba(16, 185, 129, 0.15);
+            transform: translateX(4px);
+        }
+
+        /* Active State */
+        a[data-testid="stSidebarNavLink"][aria-current="page"] {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(5, 150, 105, 0.25));
+            border-left: 4px solid var(--leaf-primary);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        /* Hide Native Icons (Emojis or SVGs) */
+        span[data-testid="stSidebarNavLinkIcon"] { display: none !important; }
+        a[data-testid="stSidebarNavLink"] svg { display: none !important; }
+
+        /* FontAwesome Icon Base */
+        a[data-testid="stSidebarNavLink"]::before {
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            margin-right: 14px;
+            font-size: 18px;
+            color: var(--leaf-primary);
+            width: 24px;
+            text-align: center;
+            display: inline-block;
+        }
+
+        /* Specific Icons based on order (1: Home, 2: History, 3: Dataset, 4: About) */
+        div[data-testid="stSidebarNav"] ul li:nth-child(1) a::before { content: "\\f015"; } /* fa-home */
+        div[data-testid="stSidebarNav"] ul li:nth-child(2) a::before { content: "\\f1da"; } /* fa-clock-rotate-left */
+        div[data-testid="stSidebarNav"] ul li:nth-child(3) a::before { content: "\\f1c0"; } /* fa-database */
+        div[data-testid="stSidebarNav"] ul li:nth-child(4) a::before { content: "\\f05a"; } /* fa-circle-info */
+
         </style>
         """,
 

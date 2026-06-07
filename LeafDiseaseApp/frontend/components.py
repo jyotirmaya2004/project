@@ -18,6 +18,18 @@ def section_title(title: str, icon: str) -> None:
     )
 
 
+def empty_placeholder(icon: str, title: str, description: str = "") -> None:
+    st.html(
+        f"""
+        <div class="empty-placeholder">
+            <i class="fa-solid {icon}"></i>
+            <h4>{title}</h4>
+            <p>{description}</p>
+        </div>
+        """
+    )
+
+
 def prediction_card(disease, confidence):
     confidence = float(confidence)
 
@@ -47,20 +59,20 @@ def top_predictions_card(predictions):
 
 
 def symptoms_card(text):
-    with st.expander("Symptoms", expanded=True):
+    with st.expander("🩺 Symptoms", expanded=True):
         st.write(text)
 
 
 def causes_card(text):
-    with st.expander("Causes"):
+    with st.expander("🦠 Causes"):
         st.write(text)
 
 
 def treatment_card(text):
-    with st.expander("Treatment"):
+    with st.expander("💊 Treatment"):
         st.write(text)
 
 
 def prevention_card(text):
-    with st.expander("Prevention"):
+    with st.expander("🛡️ Prevention"):
         st.write(text)

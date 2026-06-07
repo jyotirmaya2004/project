@@ -2,6 +2,7 @@ import streamlit as st
 
 from frontend.components import page_header, section_title
 from frontend.styles import load_css
+from frontend.chatbot import chatbot_ui
 
 
 st.set_page_config(
@@ -65,3 +66,6 @@ st.html(
     </div>
     """,
 )
+
+# Render floating chatbot globally
+chatbot_ui()

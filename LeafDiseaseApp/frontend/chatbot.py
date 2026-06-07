@@ -147,9 +147,8 @@ def _generate_followups(messages) -> list[str]:
 def _render_message_bubbles():
     for message in st.session_state.messages:
         role = "user" if message["role"] == "user" else "assistant"
-        avatar = "🧑‍🌾" if role == "user" else "🌱"
 
-        with st.chat_message(role, avatar=avatar):
+        with st.chat_message(role):
             if role == "user":
                 st.markdown('<div class="user-msg-marker"></div>', unsafe_allow_html=True)
             else:
@@ -402,12 +401,12 @@ def chatbot_ui():
 
             with messages_container:
                 # Render the user's message immediately
-                with st.chat_message("user", avatar="🧑‍🌾"):
+                with st.chat_message("user"):
                     st.markdown('<div class="user-msg-marker"></div>', unsafe_allow_html=True)
                     st.markdown(final_prompt)
 
                 # Render the assistant's response via stream
-                with st.chat_message("assistant", avatar="🌱"):
+                with st.chat_message("assistant"):
                     st.markdown('<div class="assistant-msg-marker"></div>', unsafe_allow_html=True)
 
                     loader_placeholder = st.empty()

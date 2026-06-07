@@ -12,6 +12,7 @@ from backend.predict_two_stage import PredictionError, predict_two_stage
 from frontend.chatbot import chatbot_ui
 from frontend.components import (
     causes_card,
+    empty_placeholder,
     page_header,
     prediction_card,
     prevention_card,
@@ -46,26 +47,36 @@ def render_header():
 
 
 def render_upload_section():
-    section_title("Leaf Image", "fa-camera")
+    section_title("Image Input", "fa-cloud-arrow-up")
 
-    default_source = 1 if st.query_params.get("source") == "camera" else 0
-    source_choice = st.radio(
-        "Image source",
-        ["Upload from device", "Use camera"],
-        index=default_source,
-        horizontal=True,
-    )
+    col_input, col_preview = st.columns([1.3, 1], gap="large")
 
-    if source_choice == "Use camera":
-        image_file = st.camera_input("Take a clear leaf photo")
-    else:
-        image_file = st.file_uploader(
-            "Choose a leaf image",
-            type=["jpg", "jpeg", "png", "webp", "bmp", "gif", "tiff", "heic", "heif"],
+    with col_input:
+        st.subheader("Choose Input Method")
+        default_source = 1 if st.query_params.get("source") == "camera" else 0
+        source_choice = st.radio(
+            "Select Input Method",
+            ["Upload from device", "Use camera"],
+            index=default_source,
+            horizontal=True,
+            label_visibility="collapsed"
         )
 
-    if image_file:
-        st.image(image_file, caption="Selected leaf image", use_container_width=True)
+        if source_choice == "Use camera":
+            image_file = st.camera_input("Take a clear leaf photo", label_visibility="collapsed")
+        else:
+            image_file = st.file_uploader(
+                "Choose a leaf image",
+                type=["jpg", "jpeg", "png", "webp", "bmp", "gif", "tiff", "heic", "heif"],
+                label_visibility="collapsed"
+            )
+
+    with col_preview:
+        st.subheader("Image Preview")
+        if image_file:
+            st.image(image_file, caption="Ready for analysis", use_container_width=True)
+        else:
+            empty_placeholder("fa-image", "No Image Selected", "Your selected image will appear here.")
 
     return image_file
 
@@ -265,16 +276,19 @@ def _generate_history_pdf(history_data):
 
 
 def render_prediction_section(image_file):
-    section_title("Prediction Result", "fa-chart-simple")
+    section_title("Diagnosis Dashboard", "fa-chart-pie")
 
     with st.expander("Debug: leaf vs non-leaf output", expanded=False):
         show_debug = st.checkbox("Show raw leaf validation output", value=False)
 
     if image_file is None:
-        st.info("Upload or capture a leaf image to begin.")
+        empty_placeholder("fa-microscope", "Awaiting Image", "Please upload or capture an image above to start analysis.")
         return
 
-    if st.button("Analyze Leaf", use_container_width=True, type="primary"):
+    st.html('<div class="analyze-btn-spacer"></div>')
+    analyze_clicked = st.button("Analyze Leaf", type="primary", use_container_width=True)
+
+    if analyze_clicked:
         try:
             with st.spinner("Analyzing image..."):
                 result = predict_two_stage(image_file, top_k=3)
@@ -302,22 +316,32 @@ def render_prediction_section(image_file):
     if not result:
         return
 
+    st.success("Analysis Complete!")
+
     if result.get("validation_warning"):
         st.warning(result["validation_warning"])
 
-    prediction_card(result["disease"], result["confidence"])
-    top_predictions_card(
-        [(pred["disease"], pred["confidence"]) for pred in result["top_predictions"]]
-    )
+    # Dashboard Row 1
+    col_diag, col_top = st.columns([1.2, 1])
+    with col_diag:
+        prediction_card(result["disease"], result["confidence"])
+    with col_top:
+        top_predictions_card([(pred["disease"], pred["confidence"]) for pred in result["top_predictions"]])
 
     if show_debug:
         st.json(result["leaf_validation"])
 
+    st.html("<br>")
+    section_title("Disease Information", "fa-book-medical")
     disease_info = get_disease_details(result["class_name"])
-    symptoms_card(disease_info["symptoms"])
-    causes_card(disease_info["causes"])
-    treatment_card(disease_info["treatment"])
-    prevention_card(disease_info["prevention"])
+
+    col_info1, col_info2 = st.columns(2)
+    with col_info1:
+        symptoms_card(disease_info["symptoms"])
+        causes_card(disease_info["causes"])
+    with col_info2:
+        treatment_card(disease_info["treatment"])
+        prevention_card(disease_info["prevention"])
 
     st.html("<br>")
     section_title("Diagnosis Report", "fa-file-pdf")
@@ -329,11 +353,10 @@ def render_prediction_section(image_file):
     if pdf_bytes:
         safe_name = re.sub(r'[^a-zA-Z0-9]+', '_', result['disease']).strip('_').lower()
         st.download_button(
-            label="📥 Download Full Report Card",
+            label="Download Full Report Card",
             data=pdf_bytes,
             file_name=f"agrovision_report_{safe_name}.pdf",
             mime="application/pdf",
-            use_container_width=True,
         )
     else:
         st.warning("ReportLab is required to generate PDF reports. Please run `pip install reportlab`.")
@@ -353,11 +376,10 @@ def render_history_section():
     pdf_bytes = _generate_history_pdf(history)
     if pdf_bytes:
         st.download_button(
-            label="📥 Download History PDF",
+            label="Download History PDF",
             data=pdf_bytes,
             file_name="agrovision_ai_history.pdf",
             mime="application/pdf",
-            use_container_width=True,
         )
 
 
@@ -399,11 +421,9 @@ def main(active_tab: str = "all"):
         chatbot_ui()
         return
 
-    left, right = st.columns([1, 1])
-    with left:
-        image_file = render_upload_section()
-    with right:
-        render_prediction_section(image_file)
+    image_file = render_upload_section()
+    st.divider()
+    render_prediction_section(image_file)
 
     st.divider()
     render_feature_cards()

@@ -4,6 +4,7 @@ import streamlit as st
 from frontend.components import page_header, section_title
 from frontend.styles import load_css
 from frontend.ui import load_history, _generate_history_pdf
+from frontend.chatbot import chatbot_ui
 
 
 st.set_page_config(
@@ -34,17 +35,18 @@ else:
     if pdf_bytes:
         with col1:
             st.download_button(
-                label="📥 Download History PDF",
+                label="Download History PDF",
                 data=pdf_bytes,
                 file_name="agrovision_ai_history.pdf",
                 mime="application/pdf",
-                use_container_width=True,
             )
     with col2:
         st.download_button(
-            "📥 Download CSV",
+            "Download CSV",
             df.to_csv(index=False),
             file_name="prediction_history.csv",
             mime="text/csv",
-            use_container_width=True,
         )
+
+# Render floating chatbot globally
+chatbot_ui()
