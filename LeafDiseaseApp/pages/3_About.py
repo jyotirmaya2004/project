@@ -13,7 +13,7 @@ st.set_page_config(
 
 load_css()
 page_header(
-    "About LeafGuard AI",
+    "About AgroVision AI",
     "An AI-powered plant leaf disease detection system with practical crop-care guidance.",
     "fa-circle-info",
 )
@@ -23,7 +23,7 @@ st.html(
     """
     <div class="glass-card" style="padding: 24px; margin-bottom: 24px;">
         <p style="color: var(--leaf-muted); font-size: 16px; margin: 0;">
-            LeafGuard AI uses a two-stage deep learning workflow. It first checks
+            AgroVision AI uses a two-stage deep learning workflow. It first checks
             whether the uploaded image looks like a plant leaf, then predicts the
             most likely disease and shows symptoms, causes, treatment, and prevention
             guidance from the disease knowledge base.

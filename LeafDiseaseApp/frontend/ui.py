@@ -465,13 +465,10 @@ def main(active_tab: str = "all"):
         return
 
     image_file = render_upload_section()
-    st.divider()
     render_prediction_section(image_file)
 
-    st.divider()
     render_history_section()
 
-    st.divider()
     render_tips_section()
 
     render_footer()

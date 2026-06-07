@@ -24,13 +24,6 @@ def landing_hero() -> None:
                         <span><i class="fa-solid fa-check"></i> 38+ Diseases</span>
                         <span><i class="fa-solid fa-check"></i> 15+ Plants</span>
                     </div>
-
-                    <div class="hero-stats-grid">
-                        <div class="stat-glass-card"><div class="hero-stat-val">98%</div><div class="hero-stat-label">Accuracy</div></div>
-                        <div class="stat-glass-card"><div class="hero-stat-val">38+</div><div class="hero-stat-label">Diseases</div></div>
-                        <div class="stat-glass-card"><div class="hero-stat-val">15+</div><div class="hero-stat-label">Plants</div></div>
-                        <div class="stat-glass-card"><div class="hero-stat-val">2s</div><div class="hero-stat-label">Prediction</div></div>
-                    </div>
                 </div>
 
                 <!-- Right Column: Animated AI Preview -->
