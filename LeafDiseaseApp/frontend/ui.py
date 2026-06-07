@@ -13,7 +13,7 @@ from backend.predict_two_stage import PredictionError, predict_two_stage
 from frontend.chatbot import chatbot_ui
 from frontend.components import (
     empty_placeholder,
-    page_header,
+    landing_hero,
     prediction_card,
     section_title,
     top_predictions_card,
@@ -36,11 +36,7 @@ def save_history(history):
         json.dump(history, f)
 
 def render_header():
-    page_header(
-        "AgroVision AI",
-        "Upload or capture a leaf image and get instant disease analysis.",
-        "fa-leaf",
-    )
+    landing_hero()
 
 
 def render_upload_section():

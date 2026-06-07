@@ -1,37 +1,35 @@
 import streamlit as st
 
 
-def page_header(title: str, subtitle: str, icon: str = "fa-leaf") -> None:
+def landing_hero() -> None:
     st.html(
-        f"""
+        """
         <div class="saas-hero-wrapper">
-            <div class="hero-glow-1"></div>
-            <div class="hero-glow-2"></div>
 
             <div class="saas-hero-grid">
                 <!-- Left Column: Content & CTAs -->
                 <div class="hero-left">
-                    <div class="hero-logo"><i class="fa-solid {icon}"></i> {title}</div>
-                    <h1 class="hero-title-main">Detect Plant Diseases Before They Spread</h1>
-                    <p class="hero-subtitle-main">Upload a leaf image and receive instant AI-powered disease detection, confidence analysis, treatment recommendations, and preventive care guidance.</p>
+                    <div class="hero-logo"><i class="fa-solid fa-leaf"></i> AgroVision AI</div>
+                    <h1 class="hero-title-main">AI-Powered Plant Disease Detection</h1>
+                    <p class="hero-subtitle-main">Upload a leaf image and receive instant disease diagnosis, confidence analysis, treatment recommendations, and prevention strategies.</p>
 
                     <div class="hero-cta-group">
                         <a href="#diagnosis-section" class="hero-btn-primary" style="text-decoration: none;"><i class="fa-solid fa-rocket"></i> Start Diagnosis</a>
-                        <button class="hero-btn-secondary"><i class="fa-solid fa-play"></i> Watch Demo</button>
+                        <button class="hero-btn-secondary"><i class="fa-solid fa-play"></i> View Demo</button>
                     </div>
 
                     <div class="hero-trust">
                         <span><i class="fa-solid fa-check"></i> 98% Model Accuracy</span>
-                        <span><i class="fa-solid fa-check"></i> Real-Time Detection</span>
-                        <span><i class="fa-solid fa-check"></i> Treatment Plans</span>
-                        <span><i class="fa-solid fa-check"></i> 15+ Crops</span>
+                        <span><i class="fa-solid fa-check"></i> &lt;2s Detection</span>
+                        <span><i class="fa-solid fa-check"></i> 38+ Diseases</span>
+                        <span><i class="fa-solid fa-check"></i> 15+ Plants</span>
                     </div>
 
                     <div class="hero-stats-grid">
                         <div class="stat-glass-card"><div class="hero-stat-val">98%</div><div class="hero-stat-label">Accuracy</div></div>
-                        <div class="stat-glass-card"><div class="hero-stat-val">&lt;2s</div><div class="hero-stat-label">Detection Time</div></div>
-                        <div class="stat-glass-card"><div class="hero-stat-val">15+</div><div class="hero-stat-label">Plant Species</div></div>
-                        <div class="stat-glass-card"><div class="hero-stat-val">38+</div><div class="hero-stat-label">Disease Classes</div></div>
+                        <div class="stat-glass-card"><div class="hero-stat-val">38+</div><div class="hero-stat-label">Diseases</div></div>
+                        <div class="stat-glass-card"><div class="hero-stat-val">15+</div><div class="hero-stat-label">Plants</div></div>
+                        <div class="stat-glass-card"><div class="hero-stat-val">2s</div><div class="hero-stat-label">Prediction</div></div>
                     </div>
                 </div>
 
@@ -65,6 +63,20 @@ def page_header(title: str, subtitle: str, icon: str = "fa-leaf") -> None:
             </div>
         </div>
         """,
+    )
+
+
+def page_header(title: str, subtitle: str, icon: str = "fa-leaf") -> None:
+    st.html(
+        f"""
+        <div class="glass-card" style="padding: 40px 24px; text-align: center; margin-bottom: 32px; margin-top: 16px; border-top: 3px solid var(--leaf-primary);">
+            <div style="display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; border-radius: 50%; background: rgba(34, 197, 94, 0.1); color: var(--leaf-primary); font-size: 28px; margin-bottom: 16px;">
+                <i class="fa-solid {icon}"></i>
+            </div>
+            <h1 style="margin: 0 0 12px 0; font-family: 'Poppins', sans-serif; font-size: 42px !important; color: var(--leaf-text);">{title}</h1>
+            <p style="margin: 0; color: var(--leaf-muted); font-size: 18px; max-width: 600px; margin-left: auto; margin-right: auto;">{subtitle}</p>
+        </div>
+        """
     )
 
 

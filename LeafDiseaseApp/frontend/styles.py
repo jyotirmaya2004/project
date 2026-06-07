@@ -6,6 +6,34 @@ def load_css():
         """
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+        <!-- 5-Layer Premium Animated Background -->
+        <div class="global-bg-container">
+            <!-- Layer 1: Moving Gradient Mesh (handled by .stApp base) -->
+
+            <!-- Layer 2: Floating Green Glow Orbs -->
+            <div class="bg-layer orbs">
+                <div class="orb orb-1"></div>
+                <div class="orb orb-2"></div>
+                <div class="orb orb-3"></div>
+            </div>
+
+            <!-- Layer 3: AI Neural Network -->
+            <div class="bg-layer neural"></div>
+
+            <!-- Layer 4: Agriculture Theme (Floating Leaves) -->
+            <div class="bg-layer nature">
+                <i class="fa-solid fa-leaf float-leaf l1"></i>
+                <i class="fa-solid fa-leaf float-leaf l2"></i>
+                <i class="fa-solid fa-leaf float-leaf l3"></i>
+                <i class="fa-solid fa-leaf float-leaf l4"></i>
+                <i class="fa-solid fa-seedling float-leaf l5"></i>
+            </div>
+
+            <!-- Layer 5: Glass Overlay -->
+            <div class="bg-layer overlay"></div>
+        </div>
+
         <style>
         @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css');
         :root{
@@ -19,13 +47,108 @@ def load_css():
             --leaf-text: #f8fafc;
             --leaf-muted: #94a3b8;
             --leaf-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+
+            /* Typography System */
+            --h1-size: 72px;
+            --h2-size: 48px;
+            --h3-size: 32px;
+            --body-size: 18px;
+        }
+
+        /* Responsive Typography Breakpoints */
+        @media (max-width: 1024px) {
+            :root {
+                --h1-size: 56px;
+                --h2-size: 40px;
+                --h3-size: 28px;
+            }
+        }
+        @media (max-width: 768px) {
+            :root {
+                --h1-size: 36px;
+                --h2-size: 28px;
+                --h3-size: 22px;
+                --body-size: 16px;
+            }
         }
 
         /* Enable smooth scrolling for anchor links */
         html, body, .stApp {
             scroll-behavior: smooth;
+            font-size: var(--body-size);
         }
 
+        /* --- Global 5-Layer Background CSS --- */
+        .global-bg-container {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        .bg-layer {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            width: 100%; height: 100%;
+        }
+
+        /* Layer 2: Floating Orbs */
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.4;
+            animation: floatOrb 20s infinite ease-in-out alternate;
+        }
+        .orb-1 { width: 40vw; height: 40vw; background: #22c55e; top: -10%; left: -10%; animation-delay: 0s; }
+        .orb-2 { width: 35vw; height: 35vw; background: #10b981; bottom: -10%; right: -5%; animation-delay: -5s; }
+        .orb-3 { width: 25vw; height: 25vw; background: #34d399; top: 40%; left: 60%; animation-delay: -10s; opacity: 0.2; }
+
+        @keyframes floatOrb {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(5%, 10%) scale(1.1); }
+            100% { transform: translate(-5%, 5%) scale(0.9); }
+        }
+
+        /* Layer 3: Neural Network Pattern */
+        .bg-layer.neural {
+            background-image: radial-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
+                              radial-gradient(rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-position: 0 0, 25px 25px;
+            background-size: 50px 50px;
+            opacity: 0.15;
+            animation: panNetwork 60s linear infinite;
+        }
+        @keyframes panNetwork {
+            from { background-position: 0 0, 25px 25px; }
+            to { background-position: 500px 500px, 525px 525px; }
+        }
+
+        /* Layer 4: Floating Agriculture Elements */
+        .float-leaf {
+            position: absolute;
+            color: rgba(34, 197, 94, 0.08);
+            animation: floatUp 25s linear infinite;
+        }
+        .l1 { left: 15%; font-size: 40px; animation-duration: 20s; animation-delay: 0s; }
+        .l2 { left: 45%; font-size: 24px; animation-duration: 28s; animation-delay: -10s; }
+        .l3 { left: 80%; font-size: 55px; animation-duration: 35s; animation-delay: -5s; }
+        .l4 { left: 25%; font-size: 30px; animation-duration: 22s; animation-delay: -15s; }
+        .l5 { left: 65%; font-size: 45px; animation-duration: 30s; animation-delay: -20s; }
+
+        @keyframes floatUp {
+            0% { bottom: -10%; transform: translateX(0) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { bottom: 110%; transform: translateX(100px) rotate(360deg); opacity: 0; }
+        }
+
+        /* Layer 5: Glass Overlay */
+        .bg-layer.overlay {
+            backdrop-filter: blur(60px);
+            -webkit-backdrop-filter: blur(60px);
+            background: rgba(2, 6, 23, 0.4);
+        }
 
         /* Animated Background */
         @keyframes gradientShift {
@@ -40,17 +163,6 @@ def load_css():
             animation: gradientShift 15s ease infinite;
             color: var(--leaf-text);
             font-family: 'Inter', sans-serif;
-        }
-
-        /* Overlay fixed radial gradients so they don't shift, or animate them differently */
-        .stApp::before {
-            content: "";
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: radial-gradient(circle at 15% 0%, rgba(34, 197, 94, 0.15), transparent 50%),
-                        radial-gradient(circle at 85% 100%, rgba(16, 185, 129, 0.1), transparent 50%);
-            z-index: 0;
-            pointer-events: none;
         }
 
         @keyframes contentFadeIn {
@@ -68,6 +180,15 @@ def load_css():
             color:var(--leaf-text);
             letter-spacing:0;
             font-family: 'Poppins', sans-serif;
+        }
+
+        h1 { font-size: var(--h1-size) !important; line-height: 1.1; }
+        h2 { font-size: var(--h2-size) !important; line-height: 1.2; }
+        h3 { font-size: var(--h3-size) !important; line-height: 1.3; }
+
+        /* Streamlit main block container constraints */
+        .block-container {
+            max-width: 1400px !important;
         }
 
         /* --- Text Selection Styling --- */
@@ -137,13 +258,18 @@ def load_css():
 
         /* --- Modern Glassmorphism Cards --- */
         .glass-card {
-            background: rgba(15, 23, 42, 0.4);
+            background: rgba(255, 255, 255, 0.03);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 16px;
             box-shadow: var(--leaf-shadow);
             transition: all 0.3s ease;
+        }
+        .glass-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(34, 197, 94, 0.15);
+            border-color: rgba(34, 197, 94, 0.3);
         }
 
         /* --- Modern Tabs Customization --- */
@@ -201,7 +327,7 @@ def load_css():
         /* --- Premium Hero Section --- */
         .saas-hero-wrapper {
             position: relative;
-            min-height: 85vh;
+            min-height: 90vh;
             display: flex;
             align-items: center;
             padding: 40px 10px;
@@ -209,28 +335,10 @@ def load_css():
             overflow: visible;
         }
 
-        .hero-glow-1, .hero-glow-2 {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(80px);
-            z-index: 0;
-            pointer-events: none;
-        }
-        .hero-glow-1 {
-            top: 0%; left: -10%;
-            width: 400px; height: 400px;
-            background: rgba(34, 197, 94, 0.15);
-        }
-        .hero-glow-2 {
-            bottom: -10%; right: -5%;
-            width: 500px; height: 500px;
-            background: rgba(16, 185, 129, 0.12);
-        }
-
         .saas-hero-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 60px;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 40px;
             align-items: center;
             z-index: 2;
             position: relative;
@@ -254,18 +362,18 @@ def load_css():
 
         .hero-title-main {
             font-family: 'Poppins', sans-serif;
-            font-size: clamp(42px, 5vw, 68px);
+            font-size: var(--h1-size);
             font-weight: 800;
             margin: 0;
-            background: linear-gradient(90deg, #ffffff, #22c55e);
+            background: linear-gradient(135deg, #ffffff 30%, var(--leaf-primary) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             line-height: 1.1;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
         }
 
         .hero-subtitle-main {
-            font-size: clamp(16px, 1.5vw, 22px);
+            font-size: var(--body-size);
             color: var(--leaf-muted);
             max-width: 600px;
             margin-bottom: 40px;
@@ -496,9 +604,15 @@ def load_css():
         /* --- Responsive Design for Hero --- */
         @media (max-width: 1024px) {
             .saas-hero-grid {
+                grid-template-columns: 1.2fr 1fr;
+                gap: 30px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .saas-hero-grid {
                 grid-template-columns: 1fr;
                 text-align: center;
-                gap: 40px;
             }
             .hero-logo { margin: 0 auto 32px; display: inline-flex; }
             .hero-subtitle-main { margin: 0 auto 40px; }
@@ -515,16 +629,10 @@ def load_css():
             .fc-3 { right: 10px; }
         }
 
-        @media (max-width: 600px) {
+        @media (max-width: 480px) {
             .saas-hero-wrapper {
                 padding: 20px 0;
                 min-height: auto;
-            }
-            .hero-title-main {
-                font-size: 32px;
-            }
-            .hero-subtitle-main {
-                font-size: 15px;
             }
             .hero-cta-group {
                 flex-direction: column;

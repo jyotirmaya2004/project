@@ -1,7 +1,7 @@
 import pandas as pd
 import streamlit as st
 
-from frontend.components import page_header, section_title
+from frontend.components import page_header, section_title, empty_placeholder
 from frontend.styles import load_css
 from frontend.ui import load_history, _generate_history_pdf
 from frontend.chatbot import chatbot_ui
@@ -24,7 +24,7 @@ history = load_history()
 
 section_title("Session Records", "fa-table")
 if not history:
-    st.info("No predictions available yet. Analyze a leaf from the Home page first.")
+    empty_placeholder("fa-folder-open", "No History Found", "Analyze a leaf from the Home page first to see records here.")
 else:
     df = pd.DataFrame(history)
     st.dataframe(df, use_container_width=True)
