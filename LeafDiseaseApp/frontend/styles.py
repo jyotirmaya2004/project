@@ -193,9 +193,11 @@ def load_css():
         h3 { font-size: var(--h3-size) !important; line-height: 1.3; }
 
         /* Streamlit main block container constraints */
-        .block-container {
+        .block-container,
+        [data-testid="stAppViewBlockContainer"] {
             max-width: 1400px !important;
             padding-top: 2rem !important;
+            padding-bottom: 0 !important;
         }
 
         /* --- Text Selection Styling --- */
