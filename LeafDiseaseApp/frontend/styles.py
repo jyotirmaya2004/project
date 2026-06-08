@@ -78,6 +78,11 @@ def load_css():
             font-size: var(--body-size);
         }
 
+        /* --- Hide Streamlit Default Top Bar --- */
+        header[data-testid="stHeader"] {
+            display: none !important;
+        }
+
         /* --- Global 5-Layer Background CSS --- */
         .global-bg-container {
             position: fixed;
@@ -189,6 +194,7 @@ def load_css():
         /* Streamlit main block container constraints */
         .block-container {
             max-width: 1400px !important;
+            padding-top: 2rem !important;
         }
 
         /* --- Text Selection Styling --- */
@@ -1421,11 +1427,13 @@ def load_css():
             display: inline-block;
         }
 
-        /* Specific Icons based on order (1: Home, 2: History, 3: Dataset, 4: About) */
+        /* Specific Icons based on order */
         div[data-testid="stSidebarNav"] ul li:nth-child(1) a::before { content: "\\f015"; } /* fa-home */
         div[data-testid="stSidebarNav"] ul li:nth-child(2) a::before { content: "\\f1da"; } /* fa-clock-rotate-left */
         div[data-testid="stSidebarNav"] ul li:nth-child(3) a::before { content: "\\f1c0"; } /* fa-database */
         div[data-testid="stSidebarNav"] ul li:nth-child(4) a::before { content: "\\f05a"; } /* fa-circle-info */
+        div[data-testid="stSidebarNav"] ul li:nth-child(5) a::before { content: "\\f3ed"; } /* fa-shield-halved for Admin */
+        div[data-testid="stSidebarNav"] ul li:nth-child(6) a::before { content: "\\f007"; } /* fa-user for Profile */
 
         /* --- Sidebar Action Buttons (Logout) --- */
         section[data-testid="stSidebar"] .stButton button {

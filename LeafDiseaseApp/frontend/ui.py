@@ -352,8 +352,10 @@ def _generate_history_pdf(history_data):
         from reportlab.lib.pagesizes import letter
         from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
         from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
+        from reportlab.platypus import Image as RLImage
         from reportlab.lib import colors
         from reportlab.lib.units import inch
+        import httpx
     except ImportError:
         return None
 
@@ -377,6 +379,7 @@ def _generate_history_pdf(history_data):
 
     if history_data:
         table_data = [[
+            Paragraph("<b>Image</b>", styles["Normal"]),
             Paragraph("<b>Date/Time</b>", styles["Normal"]),
             Paragraph("<b>Disease</b>", styles["Normal"]),
             Paragraph("<b>Confidence</b>", styles["Normal"])
@@ -385,19 +388,49 @@ def _generate_history_pdf(history_data):
             dt = item.get("Timestamp", "N/A")
             disease = item.get("Disease", "Unknown")
             conf = f"{item.get('Confidence', 0)}%"
+
+            img_element = Paragraph("No Image", styles["Normal"])
+            img_url = item.get("Image_URL")
+            if img_url:
+                try:
+                    resp = httpx.get(img_url, timeout=5.0)
+                    if resp.status_code == 200:
+                        img_io = io.BytesIO(resp.content)
+                        pil_img = PILImage.open(img_io)
+
+                        if pil_img.mode in ('RGBA', 'LA') or (pil_img.mode == 'P' and 'transparency' in pil_img.info):
+                            alpha = pil_img.convert('RGBA').split()[-1]
+                            bg = PILImage.new("RGB", pil_img.size, (255, 255, 255))
+                            bg.paste(pil_img, mask=alpha)
+                            pil_img = bg
+                        else:
+                            pil_img = pil_img.convert('RGB')
+
+                        clean_img_io = io.BytesIO()
+                        pil_img.save(clean_img_io, format='JPEG')
+                        clean_img_io.seek(0)
+
+                        img_width, img_height = pil_img.size
+                        max_size = 0.9 * inch
+                        ratio = min(max_size / img_width, max_size / img_height)
+                        img_element = RLImage(clean_img_io, width=img_width * ratio, height=img_height * ratio)
+                except Exception:
+                    pass
+
             table_data.append([
+                img_element,
                 Paragraph(dt, styles["Normal"]),
                 Paragraph(disease, styles["Normal"]),
                 Paragraph(conf, styles["Normal"])
             ])
 
-        t = Table(table_data, colWidths=[2.2*inch, 3.5*inch, 1.3*inch])
+        t = Table(table_data, colWidths=[1.2*inch, 1.8*inch, 2.7*inch, 1.3*inch])
         t.setStyle(TableStyle([
             ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#eaf4f0')),
             ('ALIGN', (0,0), (-1,-1), 'LEFT'),
-            ('BOTTOMPADDING', (0,0), (-1,0), 12),
+            ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+            ('BOTTOMPADDING', (0,0), (-1,0), 8),
             ('GRID', (0,0), (-1,-1), 1, colors.HexColor('#cbd5e1')),
-            ('VALIGN', (0,0), (-1,-1), 'TOP'),
             ('PADDING', (0,0), (-1,-1), 8),
         ]))
         story.append(t)
