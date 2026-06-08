@@ -3,7 +3,7 @@ import streamlit as st
 
 from frontend.components import page_header, section_title, empty_placeholder
 from frontend.styles import load_css
-from frontend.ui import load_history, save_history, _generate_history_pdf
+from frontend.ui import load_history, clear_history, _generate_history_pdf
 from frontend.chatbot import chatbot_ui
 
 
@@ -57,7 +57,7 @@ else:
         )
     with col3:
         if st.button("Clear History", use_container_width=True):
-            save_history([])
+            clear_history()
             st.rerun()
 
 # Render floating chatbot globally

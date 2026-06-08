@@ -53,7 +53,7 @@ def load_history():
         st.warning(f"Could not load history from Supabase: {e}")
     return []
 
-def save_history(history):
+def append_history(item):
     username = get_hashed_ip()
     try:
         from supabase import create_client
@@ -61,20 +61,28 @@ def save_history(history):
         supabase_key = os.getenv("SUPABASE_KEY")
         if supabase_key:
             supabase = create_client(supabase_url, supabase_key)
-            # Clear current user's history to mirror the previous overwriting behavior
-            supabase.table("user_history").delete().eq("username", username).execute()
-
-            if history:
-                records = [{
-                    "username": username,
-                    "timestamp": item["Timestamp"],
-                    "disease": item["Disease"],
-                    "confidence": item["Confidence"],
-                    "image_url": item.get("Image_URL")
-                } for item in history]
-                supabase.table("user_history").insert(records).execute()
+            record = {
+                "username": username,
+                "timestamp": item["Timestamp"],
+                "disease": item["Disease"],
+                "confidence": item["Confidence"],
+                "image_url": item.get("Image_URL")
+            }
+            supabase.table("user_history").insert(record).execute()
     except Exception as e:
         st.warning(f"Could not save history to Supabase: {e}")
+
+def clear_history():
+    username = get_hashed_ip()
+    try:
+        from supabase import create_client
+        supabase_url = os.getenv("SUPABASE_URL", "https://dloxbfflvfcciczfibxh.supabase.co")
+        supabase_key = os.getenv("SUPABASE_KEY")
+        if supabase_key:
+            supabase = create_client(supabase_url, supabase_key)
+            supabase.table("user_history").delete().eq("username", username).execute()
+    except Exception as e:
+        st.warning(f"Could not clear history: {e}")
 
 def render_header():
     landing_hero()
@@ -368,17 +376,15 @@ def render_prediction_section(image_file):
 
                 st.session_state.prediction = result
 
-                history = load_history()
-                history.append(
-                    {
-                        "Timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                        "Disease": result["disease"],
-                        "Confidence": result["confidence"],
-                        "Image_URL": image_url,
-                    }
-                )
-                save_history(history)
-                st.session_state.prediction_history = history
+                new_record = {
+                    "Timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                    "Disease": result["disease"],
+                    "Confidence": result["confidence"],
+                    "Image_URL": image_url,
+                }
+                append_history(new_record)
+
+                st.session_state.prediction_history = load_history()
                 status.update(label="Analysis Complete", state="complete", expanded=False)
             except PredictionError as exc:
                 st.session_state.prediction = None
@@ -496,7 +502,7 @@ def render_history_section():
             )
     with col2:
         if st.button("Clear History", key="clear_history_home", use_container_width=True):
-            save_history([])
+            clear_history()
             st.session_state.prediction_history = []
             st.rerun()
 
