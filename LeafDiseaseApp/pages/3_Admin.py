@@ -38,9 +38,7 @@ if not st.session_state.get("admin_authenticated", False):
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         st.html('<h4 style="margin-top: 0; margin-bottom: 16px; color: var(--leaf-text); font-family: \'Poppins\', sans-serif;"><i class="fa-solid fa-key" style="color: #ef4444; margin-right: 8px;"></i> Admin Authentication</h4>')
-        pw_type_admin = "default" if st.session_state.get("admin_show_pw") else "password"
-        pwd = st.text_input("Admin Password", type=pw_type_admin, placeholder="Enter admin password", label_visibility="collapsed", key="admin_pass")
-        st.toggle("Show Password", key="admin_show_pw")
+        pwd = st.text_input("Admin Password", type="password", placeholder="Enter admin password", label_visibility="collapsed", key="admin_pass")
 
         st.markdown('<div class="admin-unlock-marker"></div>', unsafe_allow_html=True)
         if st.button("Unlock Dashboard", type="primary", use_container_width=True):

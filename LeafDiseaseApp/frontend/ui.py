@@ -45,9 +45,7 @@ def require_username():
             with tab_login:
                 st.html('<h4 style="margin-top: 0; margin-bottom: 16px; color: var(--leaf-text); font-family: \'Poppins\', sans-serif;"><i class="fa-solid fa-right-to-bracket" style="color: var(--leaf-primary); margin-right: 8px;"></i> Welcome Back</h4>')
                 username = st.text_input("Username", placeholder="Enter your username", label_visibility="collapsed", key="log_user")
-                pw_type_log = "default" if st.session_state.get("log_show_pw") else "password"
-                password = st.text_input("Password", placeholder="Enter your password", type=pw_type_log, label_visibility="collapsed", key="log_pass")
-                st.toggle("Show Password", key="log_show_pw")
+                password = st.text_input("Password", placeholder="Enter your password", type="password", label_visibility="collapsed", key="log_pass")
                 st.markdown('<div class="login-btn-marker"></div>', unsafe_allow_html=True)
                 if st.button("Login", type="primary", use_container_width=True):
                     if username.strip() and password.strip():
@@ -81,10 +79,8 @@ def require_username():
                 avatar_emoji = selected_avatar.split(" ")[0]
 
                 new_username = st.text_input("Choose a Username", placeholder="e.g. JohnFarmer", label_visibility="collapsed", key="reg_user")
-                pw_type_reg = "default" if st.session_state.get("reg_show_pw") else "password"
-                new_password = st.text_input("Choose a Password", placeholder="Enter a secure password", type=pw_type_reg, label_visibility="collapsed", key="reg_pass")
-                confirm_password = st.text_input("Confirm Password", placeholder="Re-enter your password", type=pw_type_reg, label_visibility="collapsed", key="reg_confirm")
-                st.toggle("Show Passwords", key="reg_show_pw")
+                new_password = st.text_input("Choose a Password", placeholder="Enter a secure password", type="password", label_visibility="collapsed", key="reg_pass")
+                confirm_password = st.text_input("Confirm Password", placeholder="Re-enter your password", type="password", label_visibility="collapsed", key="reg_confirm")
 
                 passwords_match = False
                 if new_password or confirm_password:

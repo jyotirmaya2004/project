@@ -1542,25 +1542,6 @@ def load_css():
             width: 22px;
         }
 
-        /* --- Show Password Toggle Styling --- */
-        div[data-testid="stToggle"] label p::before {
-            content: "\\f070"; /* fa-eye-slash */
-            font-family: "Font Awesome 6 Free";
-            font-weight: 900;
-            margin-right: 8px;
-            color: var(--leaf-muted);
-            transition: color 0.3s ease;
-        }
-
-        div[data-testid="stToggle"]:has(input:checked) label p::before {
-            content: "\\f06e"; /* fa-eye */
-            color: var(--leaf-primary);
-        }
-
-        div[data-testid="stToggle"]:has(input:checked) label p {
-            color: var(--leaf-text);
-        }
-
         </style>
         """,
 
