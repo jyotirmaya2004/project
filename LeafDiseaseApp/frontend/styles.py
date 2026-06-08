@@ -80,7 +80,7 @@ def load_css():
         }
 
         /* --- Streamlit Chrome --- */
-        #MainMenu, footer {
+        #MainMenu, header, footer {
             display: none !important;
         }
 
@@ -169,6 +169,22 @@ def load_css():
             animation: gradientShift 15s ease infinite;
             color: var(--leaf-text);
             font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 0 !important;
+            padding-bottom: 0 !important;
+        }
+
+        main, section.main {
+            flex: 1;
+            margin-bottom: 0 !important;
+            padding-bottom: 0 !important;
+        }
+
+        [data-testid="stAppViewContainer"] {
+            margin-bottom: 0 !important;
+            padding-bottom: 0 !important;
         }
 
         @keyframes contentFadeIn {
@@ -180,6 +196,17 @@ def load_css():
             position: relative;
             z-index: 1;
             animation: contentFadeIn 0.4s ease-out forwards;
+            margin-bottom: 0 !important;
+            padding-bottom: 0 !important;
+        }
+
+        .main .block-container {
+            padding-bottom: 0 !important;
+        }
+
+        [data-testid="stVerticalBlock"] > div:last-child {
+            margin-bottom: 0 !important;
+            padding-bottom: 0 !important;
         }
 
         h1,h2,h3{
@@ -198,6 +225,7 @@ def load_css():
             max-width: 1400px !important;
             padding-top: 2rem !important;
             padding-bottom: 0 !important;
+            margin-bottom: 0 !important;
         }
 
         /* --- Text Selection Styling --- */
@@ -1578,7 +1606,7 @@ def load_css():
             width: 100vw;
             margin-left: calc(50% - 50vw);
             margin-right: calc(50% - 50vw);
-            margin-top: 80px;
+            margin-top: auto;
             padding: 60px 20px 20px;
             background: rgba(10, 15, 28, 0.85);
             backdrop-filter: blur(24px);
