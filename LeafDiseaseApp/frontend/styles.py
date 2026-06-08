@@ -100,7 +100,7 @@ def load_css():
             background: rgba(15, 23, 42, 0.8) !important;
             border: 1px solid rgba(34, 197, 94, 0.5) !important;
             border-radius: 12px !important;
-            margin: 0 !important;
+            margin: 16px !important;
             width: 50px !important;
             height: 50px !important;
             display: flex !important;
@@ -110,9 +110,7 @@ def load_css():
             -webkit-backdrop-filter: blur(12px) !important;
             transition: all 0.3s ease !important;
             z-index: 2147483647 !important;
-            position: fixed !important;
-            top: 20px !important;
-            left: 20px !important;
+            position: relative !important;
             color: var(--leaf-primary) !important;
             box-shadow: 0 4px 12px rgba(0,0,0,0.5) !important;
             visibility: visible !important;
@@ -1491,11 +1489,22 @@ def load_css():
         }
 
         /* --- Attractive Sidebar Styling --- */
+        @media (min-width: 769px) {
+            section[data-testid="stSidebar"] {
+                transform: translateX(0px) !important;
+                visibility: visible !important;
+                width: 320px !important;
+                min-width: 320px !important;
+            }
+        }
+
         section[data-testid="stSidebar"] {
-            background: rgba(15, 23, 42, 0.95);
+            background: rgba(15, 23, 42, 0.95) !important;
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            border-right: 1px solid var(--leaf-border);
+            border-right: 1px solid rgba(34, 197, 94, 0.2) !important;
+            position: relative !important;
+            z-index: 1000 !important;
         }
 
         /* Sidebar Header (App Name/Logo area) */
