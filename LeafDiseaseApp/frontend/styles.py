@@ -109,10 +109,8 @@ def load_css():
             backdrop-filter: blur(12px) !important;
             -webkit-backdrop-filter: blur(12px) !important;
             transition: all 0.3s ease !important;
-            z-index: 9999999 !important;
             z-index: 2147483647 !important;
             position: fixed !important;
-            top: 200px !important;
             top: 20px !important;
             left: 20px !important;
             color: var(--leaf-primary) !important;
