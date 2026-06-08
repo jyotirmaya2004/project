@@ -331,7 +331,7 @@ def chatbot_ui():
                 pdf_filename = f"agrovision_ai_{safe_name}_transcript.pdf"
 
             if pdf_bytes:
-                if st.download_button(
+                st.download_button(
                     label="Download",
                     data=pdf_bytes,
                     file_name=pdf_filename,
@@ -339,8 +339,7 @@ def chatbot_ui():
                     key="download_chat",
                     help="Download chat as PDF",
                     use_container_width=False,
-                ):
-                    st.markdown('<div class="success-msg-anim"><i class="fa-solid fa-circle-check"></i> Transcript downloaded!</div>', unsafe_allow_html=True)
+                )
             else:
                 st.download_button(
                     label="Download",
