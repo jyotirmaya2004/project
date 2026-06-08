@@ -95,6 +95,7 @@ def load_css():
         /* Style the hamburger menu button */
         [data-testid="stSidebarNavCollapseButton"],
         [data-testid="collapsedControl"],
+        button[kind="header"],
         [data-testid="stSidebarCollapsedControl"] {
             background: rgba(15, 23, 42, 0.8) !important;
             border: 1px solid rgba(34, 197, 94, 0.5) !important;
@@ -109,8 +110,10 @@ def load_css():
             -webkit-backdrop-filter: blur(12px) !important;
             transition: all 0.3s ease !important;
             z-index: 9999999 !important;
+            z-index: 2147483647 !important;
             position: fixed !important;
             top: 200px !important;
+            top: 20px !important;
             left: 20px !important;
             color: var(--leaf-primary) !important;
             box-shadow: 0 4px 12px rgba(0,0,0,0.5) !important;
@@ -120,6 +123,7 @@ def load_css():
 
         [data-testid="stSidebarNavCollapseButton"]:hover,
         [data-testid="collapsedControl"]:hover,
+        button[kind="header"]:hover,
         [data-testid="stSidebarCollapsedControl"]:hover {
             background: rgba(34, 197, 94, 0.2) !important;
             border-color: var(--leaf-primary) !important;
@@ -129,10 +133,12 @@ def load_css():
         /* Hide the default Streamlit SVG hamburger icon and inject Font Awesome */
         [data-testid="stSidebarNavCollapseButton"] svg,
         [data-testid="collapsedControl"] svg,
+        button[kind="header"] svg,
         [data-testid="stSidebarCollapsedControl"] svg { display: none !important; }
 
         [data-testid="stSidebarNavCollapseButton"]::before,
         [data-testid="collapsedControl"]::before,
+        button[kind="header"]::before,
         [data-testid="stSidebarCollapsedControl"]::before {
             content: "\\f0c9"; /* fa-bars */
             font-family: "Font Awesome 6 Free";
