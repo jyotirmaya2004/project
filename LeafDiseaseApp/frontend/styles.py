@@ -85,9 +85,12 @@ def load_css():
             overflow: visible !important;
         }
 
-        /* Hide the right-side header elements (Deploy button, GitHub icon, etc.) */
-        header[data-testid="stHeader"] > div:last-child,
+        /* Hide Streamlit chrome without removing the sidebar toggle host. */
+        #MainMenu,
+        footer,
         .stAppDeployButton,
+        [data-testid="stDecoration"],
+        [data-testid="stStatusWidget"],
         [data-testid="stToolbar"] {
             display: none !important;
         }
@@ -95,7 +98,6 @@ def load_css():
         /* Style the hamburger menu button */
         [data-testid="stSidebarNavCollapseButton"],
         [data-testid="collapsedControl"],
-        button[kind="header"],
         [data-testid="stSidebarCollapsedControl"] {
             background: rgba(15, 23, 42, 0.8) !important;
             border: 1px solid rgba(34, 197, 94, 0.5) !important;
@@ -122,7 +124,6 @@ def load_css():
 
         [data-testid="stSidebarNavCollapseButton"]:hover,
         [data-testid="collapsedControl"]:hover,
-        button[kind="header"]:hover,
         [data-testid="stSidebarCollapsedControl"]:hover {
             background: rgba(34, 197, 94, 0.2) !important;
             border-color: var(--leaf-primary) !important;
@@ -132,12 +133,10 @@ def load_css():
         /* Hide the default Streamlit SVG hamburger icon and inject Font Awesome */
         [data-testid="stSidebarNavCollapseButton"] svg,
         [data-testid="collapsedControl"] svg,
-        button[kind="header"] svg,
         [data-testid="stSidebarCollapsedControl"] svg { display: none !important; }
 
         [data-testid="stSidebarNavCollapseButton"]::before,
         [data-testid="collapsedControl"]::before,
-        button[kind="header"]::before,
         [data-testid="stSidebarCollapsedControl"]::before {
             content: "\\f0c9"; /* fa-bars */
             font-family: "Font Awesome 6 Free";
@@ -1494,7 +1493,6 @@ def load_css():
         /* --- Attractive Sidebar Styling --- */
         @media (min-width: 769px) {
             section[data-testid="stSidebar"] {
-                transform: translateX(0px) !important;
                 visibility: visible !important;
                 width: 320px !important;
                 min-width: 320px !important;
@@ -1506,7 +1504,6 @@ def load_css():
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border-right: 1px solid rgba(34, 197, 94, 0.2) !important;
-            position: relative !important;
             z-index: 1000 !important;
             z-index: 999999 !important;
         }
