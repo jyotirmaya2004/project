@@ -78,72 +78,9 @@ def load_css():
             font-size: var(--body-size);
         }
 
-        /* --- Streamlit Chrome + Sidebar Toggle --- */
-        header[data-testid="stHeader"] {
-            background: transparent !important;
-            box-shadow: none !important;
-            height: 0 !important;
-            min-height: 0 !important;
-            overflow: visible !important;
-            pointer-events: none !important;
-            z-index: 2147483640 !important;
-        }
-
-        #MainMenu,
-        footer,
-        .stAppDeployButton,
-        [data-testid="stDecoration"],
-        [data-testid="stStatusWidget"],
-        [data-testid="stToolbar"] {
+        /* --- Streamlit Chrome --- */
+        #MainMenu, footer {
             display: none !important;
-        }
-
-        [data-testid="stSidebarCollapsedControl"],
-        [data-testid="collapsedControl"],
-        [data-testid="stSidebarNavCollapseButton"] {
-            align-items: center !important;
-            background: rgba(15, 23, 42, 0.92) !important;
-            border: 1px solid rgba(34, 197, 94, 0.55) !important;
-            border-radius: 12px !important;
-            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35) !important;
-            color: var(--leaf-primary) !important;
-            display: flex !important;
-            height: 46px !important;
-            justify-content: center !important;
-            left: 18px !important;
-            margin: 0 !important;
-            opacity: 1 !important;
-            pointer-events: auto !important;
-            position: fixed !important;
-            top: 18px !important;
-            visibility: visible !important;
-            width: 46px !important;
-            z-index: 2147483647 !important;
-        }
-
-        [data-testid="stSidebarCollapsedControl"]:hover,
-        [data-testid="collapsedControl"]:hover,
-        [data-testid="stSidebarNavCollapseButton"]:hover {
-            background: rgba(34, 197, 94, 0.18) !important;
-            border-color: var(--leaf-primary) !important;
-        }
-
-        [data-testid="stSidebarCollapsedControl"] svg,
-        [data-testid="collapsedControl"] svg,
-        [data-testid="stSidebarNavCollapseButton"] svg {
-            display: none !important;
-        }
-
-        [data-testid="stSidebarCollapsedControl"]::before,
-        [data-testid="collapsedControl"]::before,
-        [data-testid="stSidebarNavCollapseButton"]::before {
-            color: var(--leaf-primary) !important;
-            content: "\\f0c9";
-            display: block !important;
-            font-family: "Font Awesome 6 Free";
-            font-size: 20px;
-            font-weight: 900;
-            line-height: 1;
         }
 
         /* --- Global 5-Layer Background CSS --- */
@@ -1459,34 +1396,16 @@ def load_css():
             scrollbar-color: var(--leaf-primary-dark) rgba(255, 255, 255, 0.02);
         }
 
-        /* --- Sidebar: rebuilt from scratch --- */
+        /* --- Sidebar --- */
         section[data-testid="stSidebar"] {
             background: rgba(15, 23, 42, 0.96) !important;
             border-right: 1px solid rgba(34, 197, 94, 0.24) !important;
             box-shadow: 18px 0 46px rgba(0, 0, 0, 0.34) !important;
-            color: var(--leaf-text) !important;
-            overflow: visible !important;
-            visibility: visible !important;
-            z-index: 2147483000 !important;
         }
 
         section[data-testid="stSidebar"] > div {
             background: transparent !important;
             padding-top: 12px !important;
-        }
-
-        @media (min-width: 769px) {
-            section[data-testid="stSidebar"] {
-                min-width: 320px !important;
-                width: 320px !important;
-            }
-        }
-
-        @media (max-width: 768px) {
-            section[data-testid="stSidebar"] {
-                max-width: min(86vw, 320px) !important;
-                width: min(86vw, 320px) !important;
-            }
         }
 
         button[data-testid="stSidebarCollapseButton"] {
