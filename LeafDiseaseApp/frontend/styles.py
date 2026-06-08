@@ -85,12 +85,15 @@ def load_css():
         }
 
         /* Hide the right-side header elements (Deploy button, GitHub icon, etc.) */
-        header[data-testid="stHeader"] > div:last-child {
+        header[data-testid="stHeader"] > div:last-child,
+        .stAppDeployButton,
+        [data-testid="stToolbar"] {
             display: none !important;
         }
 
         /* Style the hamburger menu button */
-        header[data-testid="stHeader"] > div:first-child button {
+        [data-testid="collapsedControl"],
+        [data-testid="stSidebarCollapsedControl"] {
             background: rgba(15, 23, 42, 0.6) !important;
             border: 1px solid rgba(34, 197, 94, 0.3) !important;
             border-radius: 12px !important;
@@ -103,22 +106,59 @@ def load_css():
             backdrop-filter: blur(12px) !important;
             -webkit-backdrop-filter: blur(12px) !important;
             transition: all 0.3s ease !important;
+            z-index: 999999 !important;
+            color: var(--leaf-primary) !important;
         }
 
-        header[data-testid="stHeader"] > div:first-child button:hover {
+        [data-testid="collapsedControl"]:hover,
+        [data-testid="stSidebarCollapsedControl"]:hover {
             background: rgba(34, 197, 94, 0.15) !important;
             border-color: var(--leaf-primary) !important;
             transform: scale(1.05) !important;
         }
 
         /* Hide the default Streamlit SVG hamburger icon and inject Font Awesome */
-        header[data-testid="stHeader"] > div:first-child button svg { display: none !important; }
-        header[data-testid="stHeader"] > div:first-child button::before {
+        [data-testid="collapsedControl"] svg,
+        [data-testid="stSidebarCollapsedControl"] svg { display: none !important; }
+
+        [data-testid="collapsedControl"]::before,
+        [data-testid="stSidebarCollapsedControl"]::before {
             content: "\\f0c9"; /* fa-bars */
             font-family: "Font Awesome 6 Free";
             font-weight: 900;
             font-size: 22px;
             color: var(--leaf-primary) !important;
+        }
+
+        /* --- Style the Sidebar Close Button --- */
+        button[data-testid="stSidebarCollapseButton"] {
+            background: rgba(15, 23, 42, 0.6) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            border-radius: 10px !important;
+            transition: all 0.3s ease !important;
+        }
+
+        button[data-testid="stSidebarCollapseButton"]:hover {
+            background: rgba(239, 68, 68, 0.15) !important;
+            border-color: rgba(239, 68, 68, 0.3) !important;
+            transform: scale(1.05) !important;
+        }
+
+        button[data-testid="stSidebarCollapseButton"] svg {
+            display: none !important;
+        }
+
+        button[data-testid="stSidebarCollapseButton"]::before {
+            content: "\\f00d"; /* fa-xmark */
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            font-size: 18px;
+            color: var(--leaf-muted) !important;
+            transition: color 0.3s ease !important;
+        }
+
+        button[data-testid="stSidebarCollapseButton"]:hover::before {
+            color: #ef4444 !important;
         }
 
         /* --- Global 5-Layer Background CSS --- */
