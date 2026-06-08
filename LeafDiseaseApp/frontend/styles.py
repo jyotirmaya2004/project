@@ -92,12 +92,11 @@ def load_css():
         }
 
         /* Style the hamburger menu button */
-        [data-testid="collapsedControl"],
-        [data-testid="stSidebarCollapsedControl"] {
+        header[data-testid="stHeader"] button {
             background: rgba(15, 23, 42, 0.6) !important;
             border: 1px solid rgba(34, 197, 94, 0.3) !important;
             border-radius: 12px !important;
-            margin: 16px !important;
+            margin: 0 !important;
             width: 48px !important;
             height: 48px !important;
             display: flex !important;
@@ -107,22 +106,21 @@ def load_css():
             -webkit-backdrop-filter: blur(12px) !important;
             transition: all 0.3s ease !important;
             z-index: 999999 !important;
-            color: var(--leaf-primary) !important;
+            position: fixed !important;
+            top: 20px !important;
+            left: 20px !important;
         }
 
-        [data-testid="collapsedControl"]:hover,
-        [data-testid="stSidebarCollapsedControl"]:hover {
+        header[data-testid="stHeader"] button:hover {
             background: rgba(34, 197, 94, 0.15) !important;
             border-color: var(--leaf-primary) !important;
             transform: scale(1.05) !important;
         }
 
         /* Hide the default Streamlit SVG hamburger icon and inject Font Awesome */
-        [data-testid="collapsedControl"] svg,
-        [data-testid="stSidebarCollapsedControl"] svg { display: none !important; }
+        header[data-testid="stHeader"] button svg { display: none !important; }
 
-        [data-testid="collapsedControl"]::before,
-        [data-testid="stSidebarCollapsedControl"]::before {
+        header[data-testid="stHeader"] button::before {
             content: "\\f0c9"; /* fa-bars */
             font-family: "Font Awesome 6 Free";
             font-weight: 900;
