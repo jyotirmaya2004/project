@@ -79,6 +79,18 @@ def load_css():
             overflow-x: hidden;
         }
 
+        /* Nuke all default HTML/Body spacing */
+        html, body {
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        /* Remove Streamlit's hidden bottom toolbar container that reserves empty space */
+        [data-testid="stBottom"],
+        [data-testid="stBottomBlockContainer"] {
+            display: none !important;
+        }
+
         /* --- Streamlit Chrome --- */
         #MainMenu, footer {
             display: none !important;
@@ -176,7 +188,7 @@ def load_css():
             padding-bottom: 0 !important;
         }
 
-        main, section.main {
+        main, section.main, section[data-testid="stMain"] {
             flex: 1;
             margin-bottom: 0 !important;
             padding-bottom: 0 !important;
@@ -1607,6 +1619,7 @@ def load_css():
             margin-left: calc(50% - 50vw);
             margin-right: calc(50% - 50vw);
             margin-top: auto;
+            margin-bottom: 0 !important;
             padding: 60px 20px 20px;
             background: rgba(10, 15, 28, 0.85);
             backdrop-filter: blur(24px);
