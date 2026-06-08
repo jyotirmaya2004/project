@@ -1542,6 +1542,21 @@ def load_css():
             width: 22px;
         }
 
+        /* --- Auto-hiding Success Message --- */
+        @keyframes autoFadeOut {
+            0% { opacity: 1; transform: translateY(0); }
+            85% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-10px); }
+        }
+        .success-msg-anim {
+            color: #22c55e;
+            font-size: 14px;
+            margin-top: 8px;
+            font-weight: 600;
+            animation: autoFadeOut 3.2s forwards;
+            pointer-events: none;
+        }
+
         </style>
         """,
 
