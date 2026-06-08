@@ -93,6 +93,7 @@ def load_css():
         }
 
         /* Style the hamburger menu button */
+        [data-testid="stSidebarNavCollapseButton"],
         [data-testid="collapsedControl"],
         [data-testid="stSidebarCollapsedControl"] {
             background: rgba(15, 23, 42, 0.8) !important;
@@ -109,7 +110,7 @@ def load_css():
             transition: all 0.3s ease !important;
             z-index: 9999999 !important;
             position: fixed !important;
-            top: 76px !important;
+            top: 20px !important;
             left: 20px !important;
             color: var(--leaf-primary) !important;
             box-shadow: 0 4px 12px rgba(0,0,0,0.5) !important;
@@ -117,6 +118,7 @@ def load_css():
             opacity: 1 !important;
         }
 
+        [data-testid="stSidebarNavCollapseButton"]:hover,
         [data-testid="collapsedControl"]:hover,
         [data-testid="stSidebarCollapsedControl"]:hover {
             background: rgba(34, 197, 94, 0.2) !important;
@@ -125,9 +127,11 @@ def load_css():
         }
 
         /* Hide the default Streamlit SVG hamburger icon and inject Font Awesome */
+        [data-testid="stSidebarNavCollapseButton"] svg,
         [data-testid="collapsedControl"] svg,
         [data-testid="stSidebarCollapsedControl"] svg { display: none !important; }
 
+        [data-testid="stSidebarNavCollapseButton"]::before,
         [data-testid="collapsedControl"]::before,
         [data-testid="stSidebarCollapsedControl"]::before {
             content: "\\f0c9"; /* fa-bars */
