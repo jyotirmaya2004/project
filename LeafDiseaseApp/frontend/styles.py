@@ -78,14 +78,17 @@ def load_css():
             font-size: var(--body-size);
         }
 
-        /* --- Custom Streamlit Top Bar & Sidebar Toggle --- */
+        /* --- Streamlit Chrome + Sidebar Toggle --- */
         header[data-testid="stHeader"] {
             background: transparent !important;
             box-shadow: none !important;
+            height: 0 !important;
+            min-height: 0 !important;
             overflow: visible !important;
+            pointer-events: none !important;
+            z-index: 2147483640 !important;
         }
 
-        /* Hide Streamlit chrome without removing the sidebar toggle host. */
         #MainMenu,
         footer,
         .stAppDeployButton,
@@ -95,86 +98,52 @@ def load_css():
             display: none !important;
         }
 
-        /* Style the hamburger menu button */
-        [data-testid="stSidebarNavCollapseButton"],
+        [data-testid="stSidebarCollapsedControl"],
         [data-testid="collapsedControl"],
-        [data-testid="stSidebarCollapsedControl"] {
-            background: rgba(15, 23, 42, 0.8) !important;
-            border: 1px solid rgba(34, 197, 94, 0.5) !important;
-            border-radius: 12px !important;
-            margin: 16px !important;
-            width: 50px !important;
-            height: 50px !important;
-            display: flex !important;
+        [data-testid="stSidebarNavCollapseButton"] {
             align-items: center !important;
+            background: rgba(15, 23, 42, 0.92) !important;
+            border: 1px solid rgba(34, 197, 94, 0.55) !important;
+            border-radius: 12px !important;
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35) !important;
+            color: var(--leaf-primary) !important;
+            display: flex !important;
+            height: 46px !important;
             justify-content: center !important;
-            backdrop-filter: blur(12px) !important;
-            -webkit-backdrop-filter: blur(12px) !important;
-            transition: all 0.3s ease !important;
-            z-index: 2147483647 !important;
-            position: relative !important;
-            position: fixed !important;
-            top: 16px !important;
-            left: 16px !important;
-            color: var(--leaf-primary) !important;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.5) !important;
-            visibility: visible !important;
+            left: 18px !important;
+            margin: 0 !important;
             opacity: 1 !important;
+            pointer-events: auto !important;
+            position: fixed !important;
+            top: 18px !important;
+            visibility: visible !important;
+            width: 46px !important;
+            z-index: 2147483647 !important;
         }
 
-        [data-testid="stSidebarNavCollapseButton"]:hover,
+        [data-testid="stSidebarCollapsedControl"]:hover,
         [data-testid="collapsedControl"]:hover,
-        [data-testid="stSidebarCollapsedControl"]:hover {
-            background: rgba(34, 197, 94, 0.2) !important;
+        [data-testid="stSidebarNavCollapseButton"]:hover {
+            background: rgba(34, 197, 94, 0.18) !important;
             border-color: var(--leaf-primary) !important;
-            transform: scale(1.05) !important;
         }
 
-        /* Hide the default Streamlit SVG hamburger icon and inject Font Awesome */
-        [data-testid="stSidebarNavCollapseButton"] svg,
+        [data-testid="stSidebarCollapsedControl"] svg,
         [data-testid="collapsedControl"] svg,
-        [data-testid="stSidebarCollapsedControl"] svg { display: none !important; }
-
-        [data-testid="stSidebarNavCollapseButton"]::before,
-        [data-testid="collapsedControl"]::before,
-        [data-testid="stSidebarCollapsedControl"]::before {
-            content: "\\f0c9"; /* fa-bars */
-            font-family: "Font Awesome 6 Free";
-            font-weight: 900;
-            font-size: 22px;
-            color: var(--leaf-primary) !important;
-            display: block !important;
-        }
-
-        /* --- Style the Sidebar Close Button --- */
-        button[data-testid="stSidebarCollapseButton"] {
-            background: rgba(15, 23, 42, 0.6) !important;
-            border: 1px solid rgba(255, 255, 255, 0.1) !important;
-            border-radius: 10px !important;
-            transition: all 0.3s ease !important;
-        }
-
-        button[data-testid="stSidebarCollapseButton"]:hover {
-            background: rgba(239, 68, 68, 0.15) !important;
-            border-color: rgba(239, 68, 68, 0.3) !important;
-            transform: scale(1.05) !important;
-        }
-
-        button[data-testid="stSidebarCollapseButton"] svg {
+        [data-testid="stSidebarNavCollapseButton"] svg {
             display: none !important;
         }
 
-        button[data-testid="stSidebarCollapseButton"]::before {
-            content: "\\f00d"; /* fa-xmark */
+        [data-testid="stSidebarCollapsedControl"]::before,
+        [data-testid="collapsedControl"]::before,
+        [data-testid="stSidebarNavCollapseButton"]::before {
+            color: var(--leaf-primary) !important;
+            content: "\\f0c9";
+            display: block !important;
             font-family: "Font Awesome 6 Free";
+            font-size: 20px;
             font-weight: 900;
-            font-size: 18px;
-            color: var(--leaf-muted) !important;
-            transition: color 0.3s ease !important;
-        }
-
-        button[data-testid="stSidebarCollapseButton"]:hover::before {
-            color: #ef4444 !important;
+            line-height: 1;
         }
 
         /* --- Global 5-Layer Background CSS --- */
@@ -1490,124 +1459,168 @@ def load_css():
             scrollbar-color: var(--leaf-primary-dark) rgba(255, 255, 255, 0.02);
         }
 
-        /* --- Attractive Sidebar Styling --- */
+        /* --- Sidebar: rebuilt from scratch --- */
+        section[data-testid="stSidebar"] {
+            background: rgba(15, 23, 42, 0.96) !important;
+            border-right: 1px solid rgba(34, 197, 94, 0.24) !important;
+            box-shadow: 18px 0 46px rgba(0, 0, 0, 0.34) !important;
+            color: var(--leaf-text) !important;
+            overflow: visible !important;
+            visibility: visible !important;
+            z-index: 2147483000 !important;
+        }
+
+        section[data-testid="stSidebar"] > div {
+            background: transparent !important;
+            padding-top: 12px !important;
+        }
+
         @media (min-width: 769px) {
             section[data-testid="stSidebar"] {
-                visibility: visible !important;
-                width: 320px !important;
                 min-width: 320px !important;
+                width: 320px !important;
             }
         }
 
-        section[data-testid="stSidebar"] {
-            background: rgba(15, 23, 42, 0.95) !important;
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-right: 1px solid rgba(34, 197, 94, 0.2) !important;
-            z-index: 1000 !important;
-            z-index: 999999 !important;
+        @media (max-width: 768px) {
+            section[data-testid="stSidebar"] {
+                max-width: min(86vw, 320px) !important;
+                width: min(86vw, 320px) !important;
+            }
         }
 
-        /* Sidebar Header (App Name/Logo area) */
-        div[data-testid="stSidebarNav"]::before {
-            content: "\\f4d8  AgroVision AI";
+        button[data-testid="stSidebarCollapseButton"] {
+            align-items: center !important;
+            background: rgba(255, 255, 255, 0.04) !important;
+            border: 1px solid rgba(255, 255, 255, 0.12) !important;
+            border-radius: 10px !important;
+            display: flex !important;
+            height: 38px !important;
+            justify-content: center !important;
+            width: 38px !important;
+        }
+
+        button[data-testid="stSidebarCollapseButton"]:hover {
+            background: rgba(239, 68, 68, 0.15) !important;
+            border-color: rgba(239, 68, 68, 0.36) !important;
+        }
+
+        button[data-testid="stSidebarCollapseButton"] svg {
+            display: none !important;
+        }
+
+        button[data-testid="stSidebarCollapseButton"]::before {
+            color: var(--leaf-muted);
+            content: "\\f00d";
             font-family: "Font Awesome 6 Free";
+            font-size: 17px;
             font-weight: 900;
-            display: block;
+        }
+
+        button[data-testid="stSidebarCollapseButton"]:hover::before {
+            color: #ef4444;
+        }
+
+        div[data-testid="stSidebarNav"]::before {
+            border-bottom: 1px solid rgba(34, 197, 94, 0.22);
             color: var(--leaf-primary);
-            font-size: 22px;
-            padding: 32px 24px 16px;
-            margin-bottom: 16px;
-            border-bottom: 1px solid var(--leaf-border);
+            content: "\\f4d8  AgroVision AI";
+            display: block;
+            font-family: "Font Awesome 6 Free";
+            font-size: 21px;
+            font-weight: 900;
+            letter-spacing: 0;
+            margin: 4px 18px 14px;
+            padding: 16px 4px 18px;
             text-align: center;
-            letter-spacing: 0.5px;
         }
 
-        /* Link Container */
         div[data-testid="stSidebarNav"] ul {
-            padding-top: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding: 4px 12px 12px !important;
         }
 
-        /* Individual Links */
         a[data-testid="stSidebarNavLink"] {
-            border-radius: 12px;
-            margin: 4px 16px;
-            padding: 12px 16px;
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            align-items: center;
+            background: transparent;
+            border: 1px solid transparent;
+            border-radius: 10px;
             color: var(--leaf-text) !important;
             display: flex;
-            align-items: center;
-            font-weight: 600;
-            background: transparent;
+            font-size: 15px;
+            font-weight: 650;
+            gap: 12px;
+            min-height: 46px;
+            padding: 10px 14px !important;
             text-decoration: none !important;
+            transition: background 0.2s ease, border-color 0.2s ease;
+            white-space: normal;
         }
 
-        /* Hover State */
         a[data-testid="stSidebarNavLink"]:hover {
-            background: rgba(16, 185, 129, 0.15);
-            transform: translateX(4px);
+            background: rgba(34, 197, 94, 0.12);
+            border-color: rgba(34, 197, 94, 0.24);
         }
 
-        /* Active State */
         a[data-testid="stSidebarNavLink"][aria-current="page"] {
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(5, 150, 105, 0.25));
-            border-left: 4px solid var(--leaf-primary);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            background: rgba(34, 197, 94, 0.18);
+            border-color: rgba(34, 197, 94, 0.38);
+            box-shadow: inset 3px 0 0 var(--leaf-primary);
         }
 
-        /* Hide Native Icons (Emojis or SVGs) */
-        span[data-testid="stSidebarNavLinkIcon"] { display: none !important; }
-        a[data-testid="stSidebarNavLink"] svg { display: none !important; }
+        span[data-testid="stSidebarNavLinkIcon"],
+        a[data-testid="stSidebarNavLink"] svg {
+            display: none !important;
+        }
 
-        /* FontAwesome Icon Base */
         a[data-testid="stSidebarNavLink"]::before {
-            font-family: "Font Awesome 6 Free";
-            font-weight: 900;
-            margin-right: 14px;
-            font-size: 18px;
             color: var(--leaf-primary);
-            width: 24px;
-            text-align: center;
             display: inline-block;
+            flex: 0 0 22px;
+            font-family: "Font Awesome 6 Free";
+            font-size: 17px;
+            font-weight: 900;
+            text-align: center;
         }
 
-        /* Specific Icons based on order */
-        div[data-testid="stSidebarNav"] ul li:nth-child(1) a::before { content: "\\f015"; } /* fa-home */
-        div[data-testid="stSidebarNav"] ul li:nth-child(2) a::before { content: "\\f1da"; } /* fa-clock-rotate-left */
-        div[data-testid="stSidebarNav"] ul li:nth-child(3) a::before { content: "\\f1c0"; } /* fa-database */
-        div[data-testid="stSidebarNav"] ul li:nth-child(4) a::before { content: "\\f05a"; } /* fa-circle-info */
-        div[data-testid="stSidebarNav"] ul li:nth-child(5) a::before { content: "\\f3ed"; } /* fa-shield-halved for Admin */
-        div[data-testid="stSidebarNav"] ul li:nth-child(6) a::before { content: "\\f007"; } /* fa-user for Profile */
+        div[data-testid="stSidebarNav"] ul li:nth-child(1) a::before { content: "\\f015"; }
+        div[data-testid="stSidebarNav"] ul li:nth-child(2) a::before { content: "\\f1da"; }
+        div[data-testid="stSidebarNav"] ul li:nth-child(3) a::before { content: "\\f1c0"; }
+        div[data-testid="stSidebarNav"] ul li:nth-child(4) a::before { content: "\\f05a"; }
+        div[data-testid="stSidebarNav"] ul li:nth-child(5) a::before { content: "\\f3ed"; }
+        div[data-testid="stSidebarNav"] ul li:nth-child(6) a::before { content: "\\f007"; }
 
-        /* --- Sidebar Action Buttons (Logout) --- */
         section[data-testid="stSidebar"] .stButton button {
+            align-items: center;
             background: transparent;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: var(--leaf-muted);
-            border-radius: 12px;
-            padding: 12px 16px;
-            min-height: 48px;
-            justify-content: flex-start;
-            font-weight: 600;
-            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 10px;
             box-shadow: none;
+            color: var(--leaf-muted);
+            display: flex;
+            font-weight: 650;
+            justify-content: flex-start;
+            margin: 8px 12px 0;
+            min-height: 46px;
+            padding: 10px 14px;
+            width: calc(100% - 24px);
         }
 
         section[data-testid="stSidebar"] .stButton button:hover {
-            background: rgba(239, 68, 68, 0.1);
-            border-color: rgba(239, 68, 68, 0.3);
+            background: rgba(239, 68, 68, 0.12);
+            border-color: rgba(239, 68, 68, 0.34);
             color: #ef4444;
-            transform: translateX(4px);
         }
 
         section[data-testid="stSidebar"] .stButton button::before {
-            content: "\f2f5"; /* fa-right-from-bracket */
+            content: "\\f2f5";
             font-family: "Font Awesome 6 Free";
+            font-size: 17px;
             font-weight: 900;
-            margin-right: 14px;
-            font-size: 18px;
-            width: 24px;
-            text-align: center;
+            margin-right: 12px;
+            width: 22px;
         }
 
         /* --- Show Password Toggle Styling --- */
