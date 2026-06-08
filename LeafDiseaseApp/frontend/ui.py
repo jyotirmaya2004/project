@@ -2,10 +2,13 @@ import io
 import json
 import os
 import re
+import hashlib
 import time
+import uuid
 from datetime import datetime
 
 import streamlit as st
+from dotenv import load_dotenv
 from PIL import Image as PILImage
 
 from backend.disease_info import get_disease_details
@@ -20,13 +23,58 @@ from frontend.components import (
 )
 from frontend.styles import load_css
 
+load_dotenv()
+
+def get_hashed_ip():
+    try:
+        # Retrieve IP address from Streamlit context headers
+        ip = st.context.headers.get("x-forwarded-for", "")
+        if not ip:
+            ip = st.context.headers.get("remote-addr", "127.0.0.1")
+        else:
+            ip = ip.split(",")[0].strip()
+    except Exception:
+        ip = "127.0.0.1"
+
+    return hashlib.sha256(ip.encode('utf-8')).hexdigest()
+
 def load_history():
-    if "history" not in st.session_state:
-        st.session_state.history = []
-    return st.session_state.history
+    username = get_hashed_ip()
+    try:
+        from supabase import create_client
+        supabase_url = os.getenv("SUPABASE_URL", "https://dloxbfflvfcciczfibxh.supabase.co")
+        supabase_key = os.getenv("SUPABASE_KEY")
+        if supabase_key:
+            supabase = create_client(supabase_url, supabase_key)
+            response = supabase.table("user_history").select("*").eq("username", username).order("id").execute()
+            rows = response.data
+            return [{"Timestamp": r["timestamp"], "Disease": r["disease"], "Confidence": r["confidence"], "Image_URL": r.get("image_url")} for r in rows]
+    except Exception as e:
+        st.warning(f"Could not load history from Supabase: {e}")
+    return []
 
 def save_history(history):
-    st.session_state.history = history
+    username = get_hashed_ip()
+    try:
+        from supabase import create_client
+        supabase_url = os.getenv("SUPABASE_URL", "https://dloxbfflvfcciczfibxh.supabase.co")
+        supabase_key = os.getenv("SUPABASE_KEY")
+        if supabase_key:
+            supabase = create_client(supabase_url, supabase_key)
+            # Clear current user's history to mirror the previous overwriting behavior
+            supabase.table("user_history").delete().eq("username", username).execute()
+
+            if history:
+                records = [{
+                    "username": username,
+                    "timestamp": item["Timestamp"],
+                    "disease": item["Disease"],
+                    "confidence": item["Confidence"],
+                    "image_url": item.get("Image_URL")
+                } for item in history]
+                supabase.table("user_history").insert(records).execute()
+    except Exception as e:
+        st.warning(f"Could not save history to Supabase: {e}")
 
 def render_header():
     landing_hero()
@@ -286,6 +334,38 @@ def render_prediction_section(image_file):
                 st.write("🧬 Running disease classification model...")
                 result = predict_two_stage(image_file, top_k=3)
 
+                st.write("☁️ Uploading image to Supabase...")
+                image_url = None
+                try:
+                    from supabase import create_client
+                    supabase_url = os.getenv("SUPABASE_URL", "https://dloxbfflvfcciczfibxh.supabase.co")
+                    supabase_key = os.getenv("SUPABASE_KEY")
+
+                    if supabase_key:
+                        supabase = create_client(supabase_url, supabase_key)
+                        file_ext = "jpg"
+                        if hasattr(image_file, "name") and "." in image_file.name:
+                            file_ext = image_file.name.split('.')[-1]
+
+                        file_name = f"{uuid.uuid4()}.{file_ext}"
+
+                        supabase.storage.from_("Leafimage").upload(
+                            path=file_name,
+                            file=image_file.getvalue(),
+                            file_options={"content-type": image_file.type if hasattr(image_file, "type") else "image/jpeg"}
+                        )
+                        image_url = supabase.storage.from_("Leafimage").get_public_url(file_name)
+                    else:
+                        st.warning("SUPABASE_KEY not found in .env file. Upload skipped.")
+                except ImportError:
+                    st.warning("Supabase package not installed. Please run `pip install supabase`.")
+                except Exception as e:
+                    error_msg = str(e).lower()
+                    if "policy" in error_msg or "row-level security" in error_msg or "unauthorized" in error_msg:
+                        st.warning("⚠️ Image upload blocked by Supabase policy restrictions. Please check your storage bucket permissions.")
+                    else:
+                        st.warning(f"Could not upload image to Supabase: {e}")
+
                 st.session_state.prediction = result
 
                 history = load_history()
@@ -294,6 +374,7 @@ def render_prediction_section(image_file):
                         "Timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                         "Disease": result["disease"],
                         "Confidence": result["confidence"],
+                        "Image_URL": image_url,
                     }
                 )
                 save_history(history)
@@ -393,7 +474,13 @@ def render_history_section():
         st.info("No history yet. Analyze a leaf image to see records here.")
         return
 
-    st.dataframe(history, use_container_width=True)
+    st.dataframe(
+        history,
+        use_container_width=True,
+        column_config={
+            "Image_URL": st.column_config.ImageColumn("Uploaded Image")
+        }
+    )
 
     col1, col2 = st.columns(2)
 

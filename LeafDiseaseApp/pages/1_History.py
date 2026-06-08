@@ -27,7 +27,13 @@ if not history:
     empty_placeholder("fa-folder-open", "No History Found", "Analyze a leaf from the Home page first to see records here.")
 else:
     df = pd.DataFrame(history)
-    st.dataframe(df, use_container_width=True)
+    st.dataframe(
+        df,
+        use_container_width=True,
+        column_config={
+            "Image_URL": st.column_config.ImageColumn("Uploaded Image")
+        }
+    )
 
     col1, col2, col3 = st.columns(3)
 
