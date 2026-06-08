@@ -31,20 +31,24 @@ def require_username():
             """
             <div class="glass-card" style="padding: 40px 24px; text-align: center; margin-bottom: 32px; margin-top: 16px; border-top: 3px solid var(--leaf-primary);">
                 <div style="display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; border-radius: 50%; background: rgba(34, 197, 94, 0.1); color: var(--leaf-primary); font-size: 28px; margin-bottom: 16px;">
-                    <i class="fa-solid fa-user"></i>
+                    <i class="fa-solid fa-shield-halved"></i>
                 </div>
-                <h1 style="margin: 0 0 12px 0; font-family: 'Poppins', sans-serif; font-size: 32px !important; color: var(--leaf-text);">Welcome to AgroVision AI</h1>
-                <p style="margin: 0; color: var(--leaf-muted); font-size: 18px; max-width: 600px; margin-left: auto; margin-right: auto;">Please enter your name to start your session and save your analysis history.</p>
+                <h1 style="margin: 0 0 12px 0; font-family: 'Poppins', sans-serif; font-size: 32px !important; color: var(--leaf-text);">Authentication Required</h1>
+                <p style="margin: 0; color: var(--leaf-muted); font-size: 18px; max-width: 600px; margin-left: auto; margin-right: auto;">Please log in or create an account to securely access AgroVision AI and save your history.</p>
             </div>
             """
         )
         col1, col2, col3 = st.columns([1, 2, 1])
         with col2:
-            with st.form("username_form"):
-                username = st.text_input("Your Name", placeholder="e.g. John Farmer", label_visibility="collapsed")
-                password = st.text_input("Password", placeholder="Enter your password", type="password", label_visibility="collapsed")
-                submitted = st.form_submit_button("Start Analyzing", type="primary", use_container_width=True)
-                if submitted:
+            tab_login, tab_signup = st.tabs(["Login", "Create Account"])
+
+            with tab_login:
+                st.html('<h4 style="margin-top: 0; margin-bottom: 16px; color: var(--leaf-text); font-family: \'Poppins\', sans-serif;"><i class="fa-solid fa-right-to-bracket" style="color: var(--leaf-primary); margin-right: 8px;"></i> Welcome Back</h4>')
+                username = st.text_input("Username", placeholder="Enter your username", label_visibility="collapsed", key="log_user")
+                pw_type_log = "default" if st.session_state.get("log_show_pw") else "password"
+                password = st.text_input("Password", placeholder="Enter your password", type=pw_type_log, label_visibility="collapsed", key="log_pass")
+                st.toggle("Show Password", key="log_show_pw")
+                if st.button("Login", type="primary", use_container_width=True):
                     if username.strip() and password.strip():
                         try:
                             from supabase import create_client
@@ -53,34 +57,77 @@ def require_username():
                             if supabase_key:
                                 supabase = create_client(supabase_url, supabase_key)
                                 hashed_pw = hashlib.sha256(password.strip().encode('utf-8')).hexdigest()
-                                # Fetch the user from app_users
-                                response = supabase.table("app_users").select("id, password").eq("username", username.strip()).limit(1).execute()
-
+                                response = supabase.table("app_users").select("id, password, avatar").eq("username", username.strip()).limit(1).execute()
                                 if response.data:
-                                    # Returning user: Verify password
                                     if response.data[0].get("password") == hashed_pw:
                                         st.session_state.username = username.strip()
                                         st.session_state.user_id = response.data[0].get("id")
+                                        st.session_state.avatar = response.data[0].get("avatar") or "🧑‍🌾"
                                         st.rerun()
                                     else:
-                                        st.error("Incorrect password for this username.")
+                                        st.error("Incorrect password.")
                                 else:
-                                    # New user: Create session
-                                    new_user = {"username": username.strip(), "password": hashed_pw}
-                                    insert_res = supabase.table("app_users").insert(new_user).execute()
-                                    if insert_res.data:
-                                        st.session_state.username = username.strip()
-                                        st.session_state.user_id = insert_res.data[0].get("id")
-                                        st.rerun()
-                                    else:
-                                        st.error("Failed to create new user account.")
+                                    st.error("Username not found. Please create an account.")
                         except Exception as e:
                             st.error(f"Login failed: {e}")
                     else:
-                        st.error("Please enter both a valid name and password.")
+                        st.error("Please enter both username and password.")
+
+            with tab_signup:
+                st.html('<h4 style="margin-top: 0; margin-bottom: 16px; color: var(--leaf-text); font-family: \'Poppins\', sans-serif;"><i class="fa-solid fa-user-plus" style="color: var(--leaf-primary); margin-right: 8px;"></i> New Account</h4>')
+                st.markdown("<p style='margin-bottom: 4px; margin-top: 8px; color: var(--leaf-muted); font-size: 14px;'>Choose Avatar</p>", unsafe_allow_html=True)
+                selected_avatar = st.selectbox("Avatar", ["🧑‍🌾 Farmer", "👩‍🌾 Gardener", "👨‍🌾 Agronomist", "🪴 Plant Lover", "🌻 Sunflower", "🌵 Cactus", "🌾 Botanist", "🤖 AI Bot"], key="reg_avatar", label_visibility="collapsed")
+                avatar_emoji = selected_avatar.split(" ")[0]
+
+                new_username = st.text_input("Choose a Username", placeholder="e.g. JohnFarmer", label_visibility="collapsed", key="reg_user")
+                pw_type_reg = "default" if st.session_state.get("reg_show_pw") else "password"
+                new_password = st.text_input("Choose a Password", placeholder="Enter a secure password", type=pw_type_reg, label_visibility="collapsed", key="reg_pass")
+                confirm_password = st.text_input("Confirm Password", placeholder="Re-enter your password", type=pw_type_reg, label_visibility="collapsed", key="reg_confirm")
+                st.toggle("Show Passwords", key="reg_show_pw")
+
+                passwords_match = False
+                if new_password or confirm_password:
+                    if new_password == confirm_password:
+                        st.html('<div style="color: #22c55e; font-size: 14px; margin-bottom: 12px; font-weight: 600;"><i class="fa-solid fa-circle-check"></i> Passwords match</div>')
+                        passwords_match = True
+                    else:
+                        st.html('<div style="color: #ef4444; font-size: 14px; margin-bottom: 12px; font-weight: 600;"><i class="fa-solid fa-circle-xmark"></i> Passwords do not match</div>')
+
+                btn_disabled = not (new_username.strip() and new_password.strip() and passwords_match)
+
+                if st.button("Create Account", type="primary", use_container_width=True, disabled=btn_disabled):
+                    try:
+                        from supabase import create_client
+                        supabase_url = os.getenv("SUPABASE_URL", "https://dloxbfflvfcciczfibxh.supabase.co")
+                        supabase_key = os.getenv("SUPABASE_KEY")
+                        if supabase_key:
+                            supabase = create_client(supabase_url, supabase_key)
+                            check = supabase.table("app_users").select("id").eq("username", new_username.strip()).execute()
+                            if check.data:
+                                st.error("Username already exists. Please log in or choose another.")
+                            else:
+                                hashed_pw = hashlib.sha256(new_password.strip().encode('utf-8')).hexdigest()
+                                new_user = {"username": new_username.strip(), "password": hashed_pw, "avatar": avatar_emoji}
+                                insert_res = supabase.table("app_users").insert(new_user).execute()
+                                if insert_res.data:
+                                    st.session_state.username = new_username.strip()
+                                    st.session_state.user_id = insert_res.data[0].get("id")
+                                    st.session_state.avatar = avatar_emoji
+                                    st.rerun()
+                                else:
+                                    st.error("Failed to create new user account.")
+                    except Exception as e:
+                        st.error(f"Registration failed: {e}")
         st.stop()
     else:
-        if st.sidebar.button("🚪 Logout", key="logout_sidebar", use_container_width=True):
+        st.sidebar.html(f"""
+        <div class="glass-card" style="padding: 16px; margin: 0 0 24px 0; text-align: center; border-top: 3px solid var(--leaf-primary);">
+            <div style="font-size: 48px; margin-bottom: 8px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));">{st.session_state.get('avatar', '🧑‍🌾')}</div>
+            <h3 style="margin: 0; font-size: 18px; color: var(--leaf-text); font-family: 'Poppins', sans-serif;">{st.session_state.get('username', 'User')}</h3>
+            <p style="margin: 4px 0 0 0; color: var(--leaf-primary); font-size: 12px; font-weight: 600;"><i class="fa-solid fa-circle" style="font-size: 8px; margin-right: 4px;"></i> Online</p>
+        </div>
+        """)
+        if st.sidebar.button("Logout", key="logout_sidebar", use_container_width=True):
             st.session_state.clear()
             st.rerun()
 

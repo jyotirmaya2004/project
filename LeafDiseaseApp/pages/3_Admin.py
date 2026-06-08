@@ -24,20 +24,36 @@ load_dotenv()
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "admin123")
 
 if not st.session_state.get("admin_authenticated", False):
-    st.warning("This page is restricted. Please enter the admin password to continue.")
-    pwd = st.text_input("Admin Password", type="password")
-    if st.button("Login"):
-        if pwd == ADMIN_PASSWORD:
-            st.session_state.admin_authenticated = True
-            st.rerun()
-        else:
-            st.error("Incorrect password.")
+    st.html(
+        """
+        <div class="glass-card" style="padding: 40px 24px; text-align: center; margin-bottom: 32px; margin-top: 16px; border-top: 3px solid #ef4444;">
+            <div style="display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; border-radius: 50%; background: rgba(239, 68, 68, 0.1); color: #ef4444; font-size: 28px; margin-bottom: 16px;">
+                <i class="fa-solid fa-lock"></i>
+            </div>
+            <h1 style="margin: 0 0 12px 0; font-family: 'Poppins', sans-serif; font-size: 32px !important; color: var(--leaf-text);">Admin Access Restricted</h1>
+            <p style="margin: 0; color: var(--leaf-muted); font-size: 18px; max-width: 600px; margin-left: auto; margin-right: auto;">Please enter the master admin password to access the database viewer.</p>
+        </div>
+        """
+    )
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        st.html('<h4 style="margin-top: 0; margin-bottom: 16px; color: var(--leaf-text); font-family: \'Poppins\', sans-serif;"><i class="fa-solid fa-key" style="color: #ef4444; margin-right: 8px;"></i> Admin Authentication</h4>')
+        pw_type_admin = "default" if st.session_state.get("admin_show_pw") else "password"
+        pwd = st.text_input("Admin Password", type=pw_type_admin, placeholder="Enter admin password", label_visibility="collapsed", key="admin_pass")
+        st.toggle("Show Password", key="admin_show_pw")
+
+        if st.button("Unlock Dashboard", type="primary", use_container_width=True):
+            if pwd == ADMIN_PASSWORD:
+                st.session_state.admin_authenticated = True
+                st.rerun()
+            else:
+                st.error("Incorrect admin password.")
 
     # Render chatbot and stop execution so the database remains hidden
     chatbot_ui()
     st.stop()
 
-if st.button("Logout", icon="🔒"):
+if st.button("Lock Dashboard", key="lock_dashboard"):
     st.session_state.admin_authenticated = False
     st.rerun()
 

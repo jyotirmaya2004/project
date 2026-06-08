@@ -1427,6 +1427,56 @@ def load_css():
         div[data-testid="stSidebarNav"] ul li:nth-child(3) a::before { content: "\\f1c0"; } /* fa-database */
         div[data-testid="stSidebarNav"] ul li:nth-child(4) a::before { content: "\\f05a"; } /* fa-circle-info */
 
+        /* --- Sidebar Action Buttons (Logout) --- */
+        section[data-testid="stSidebar"] .stButton button {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--leaf-muted);
+            border-radius: 12px;
+            padding: 12px 16px;
+            min-height: 48px;
+            justify-content: flex-start;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: none;
+        }
+
+        section[data-testid="stSidebar"] .stButton button:hover {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+            transform: translateX(4px);
+        }
+
+        section[data-testid="stSidebar"] .stButton button::before {
+            content: "\f2f5"; /* fa-right-from-bracket */
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            margin-right: 14px;
+            font-size: 18px;
+            width: 24px;
+            text-align: center;
+        }
+
+        /* --- Show Password Toggle Styling --- */
+        div[data-testid="stToggle"] label p::before {
+            content: "\\f070"; /* fa-eye-slash */
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            margin-right: 8px;
+            color: var(--leaf-muted);
+            transition: color 0.3s ease;
+        }
+
+        div[data-testid="stToggle"]:has(input:checked) label p::before {
+            content: "\\f06e"; /* fa-eye */
+            color: var(--leaf-primary);
+        }
+
+        div[data-testid="stToggle"]:has(input:checked) label p {
+            color: var(--leaf-text);
+        }
+
         </style>
         """,
 
