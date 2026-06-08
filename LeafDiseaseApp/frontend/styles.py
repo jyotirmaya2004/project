@@ -110,7 +110,7 @@ def load_css():
             transition: all 0.3s ease !important;
             z-index: 9999999 !important;
             position: fixed !important;
-            top: 20px !important;
+            top: 200px !important;
             left: 20px !important;
             color: var(--leaf-primary) !important;
             box-shadow: 0 4px 12px rgba(0,0,0,0.5) !important;
