@@ -20,20 +20,13 @@ from frontend.components import (
 )
 from frontend.styles import load_css
 
-HISTORY_FILE = "user_history.json"
-
 def load_history():
-    if os.path.exists(HISTORY_FILE):
-        try:
-            with open(HISTORY_FILE, "r") as f:
-                return json.load(f)
-        except Exception:
-            return []
-    return []
+    if "history" not in st.session_state:
+        st.session_state.history = []
+    return st.session_state.history
 
 def save_history(history):
-    with open(HISTORY_FILE, "w") as f:
-        json.dump(history, f)
+    st.session_state.history = history
 
 def render_header():
     landing_hero()
@@ -402,14 +395,23 @@ def render_history_section():
 
     st.dataframe(history, use_container_width=True)
 
+    col1, col2 = st.columns(2)
+
     pdf_bytes = _generate_history_pdf(history)
     if pdf_bytes:
-        st.download_button(
-            label="Download History PDF",
-            data=pdf_bytes,
-            file_name="agrovision_ai_history.pdf",
-            mime="application/pdf",
-        )
+        with col1:
+            st.download_button(
+                label="Download History PDF",
+                data=pdf_bytes,
+                file_name="agrovision_ai_history.pdf",
+                mime="application/pdf",
+                use_container_width=True,
+            )
+    with col2:
+        if st.button("Clear History", key="clear_history_home", use_container_width=True):
+            save_history([])
+            st.session_state.prediction_history = []
+            st.rerun()
 
 
 def render_tips_section():

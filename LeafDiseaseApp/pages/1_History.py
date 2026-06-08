@@ -3,7 +3,7 @@ import streamlit as st
 
 from frontend.components import page_header, section_title, empty_placeholder
 from frontend.styles import load_css
-from frontend.ui import load_history, _generate_history_pdf
+from frontend.ui import load_history, save_history, _generate_history_pdf
 from frontend.chatbot import chatbot_ui
 
 
@@ -29,7 +29,7 @@ else:
     df = pd.DataFrame(history)
     st.dataframe(df, use_container_width=True)
 
-    col1, col2 = st.columns(2)
+    col1, col2, col3 = st.columns(3)
 
     pdf_bytes = _generate_history_pdf(history)
     if pdf_bytes:
@@ -39,6 +39,7 @@ else:
                 data=pdf_bytes,
                 file_name="agrovision_ai_history.pdf",
                 mime="application/pdf",
+                use_container_width=True,
             )
     with col2:
         st.download_button(
@@ -46,7 +47,12 @@ else:
             df.to_csv(index=False),
             file_name="prediction_history.csv",
             mime="text/csv",
+            use_container_width=True,
         )
+    with col3:
+        if st.button("Clear History", use_container_width=True):
+            save_history([])
+            st.rerun()
 
 # Render floating chatbot globally
 chatbot_ui()
