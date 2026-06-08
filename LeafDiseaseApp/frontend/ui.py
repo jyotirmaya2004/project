@@ -714,15 +714,95 @@ def render_tips_section():
 
 def render_footer():
     st.html("""
-    <div style="text-align: center; padding: 40px 20px; border-top: 1px solid var(--leaf-border); margin-top: 60px;">
-        <h4 style="color: var(--leaf-text); font-family: 'Poppins', sans-serif;">AgroVision AI</h4>
-        <p style="color: var(--leaf-muted); font-size: 14px;">Enterprise-grade plant disease detection powered by Deep Learning and NVIDIA AI.</p>
-        <div style="display: flex; justify-content: center; gap: 24px; margin-top: 20px;">
-            <a href="#" style="color: var(--leaf-primary); text-decoration: none;"><i class="fa-brands fa-github"></i> GitHub</a>
-            <a href="#" style="color: var(--leaf-primary); text-decoration: none;"><i class="fa-solid fa-book"></i> Documentation</a>
-            <a href="#" style="color: var(--leaf-primary); text-decoration: none;"><i class="fa-solid fa-envelope"></i> Contact</a>
+    <div class="saas-footer">
+        <div class="footer-gradient-line"></div>
+
+        <!-- Floating Particles -->
+        <div class="footer-particle fp-1"></div>
+        <div class="footer-particle fp-2"></div>
+        <div class="footer-particle fp-3"></div>
+        <div class="footer-particle fp-4"></div>
+
+        <div class="footer-content">
+            <!-- Statistics Bar -->
+            <div class="footer-stats">
+                <div class="f-stat"><span class="f-stat-val">15+</span><span class="f-stat-label">Plant Species</span></div>
+                <div class="f-stat"><span class="f-stat-val">38+</span><span class="f-stat-label">Diseases</span></div>
+                <div class="f-stat"><span class="f-stat-val">98%</span><span class="f-stat-label">Accuracy</span></div>
+                <div class="f-stat"><span class="f-stat-val">10K+</span><span class="f-stat-label">Analyses</span></div>
+            </div>
+
+            <!-- Trust Indicators -->
+            <div class="footer-trust">
+                <span><i class="fa-solid fa-check"></i> AI Powered</span>
+                <span><i class="fa-solid fa-check"></i> NVIDIA Accelerated</span>
+                <span><i class="fa-solid fa-check"></i> Secure Uploads</span>
+                <span><i class="fa-solid fa-check"></i> Real-Time Analysis</span>
+                <span><i class="fa-solid fa-check"></i> Research Grade Models</span>
+            </div>
+
+            <!-- Main Columns -->
+            <div class="footer-grid">
+                <!-- Column 1: Brand -->
+                <div class="footer-col">
+                    <div class="f-logo">
+                        <i class="fa-solid fa-leaf f-logo-icon"></i> AgroVision AI
+                    </div>
+                    <p class="f-desc">AI-powered plant disease diagnosis and crop health intelligence platform.</p>
+                    <div class="f-badges">
+                        <span class="f-badge">v2.0.0</span>
+                        <span class="f-badge nvidia-badge"><i class="fa-solid fa-microchip"></i> Powered by NVIDIA AI</span>
+                    </div>
+                </div>
+
+                <!-- Column 2: Navigation -->
+                <div class="footer-col">
+                    <h4 class="f-heading">Navigation</h4>
+                    <a href="#diagnosis-section" class="f-link">Home</a>
+                    <a href="#diagnosis-section" class="f-link">Disease Detection</a>
+                    <a href="?tab=history" class="f-link">Prediction History</a>
+                    <a href="?tab=history" class="f-link">Reports</a>
+                    <a href="#diagnosis-section" class="f-link">Dashboard</a>
+                    <a href="#diagnosis-section" class="f-link">Analytics</a>
+                    <a href="?tab=chat" class="f-link">Chat Assistant</a>
+                </div>
+
+                <!-- Column 3: Resources -->
+                <div class="footer-col">
+                    <h4 class="f-heading">Resources</h4>
+                    <a href="#" class="f-link">Documentation</a>
+                    <a href="#" class="f-link">User Guide</a>
+                    <a href="#" class="f-link">FAQ</a>
+                    <a href="#" class="f-link">API Reference</a>
+                    <a href="#" class="f-link">Privacy Policy</a>
+                    <a href="#" class="f-link">Terms & Conditions</a>
+                </div>
+
+                <!-- Column 4: Contact & Newsletter -->
+                <div class="footer-col">
+                    <h4 class="f-heading">Connect</h4>
+                    <a href="#" class="f-social"><i class="fa-brands fa-github"></i> GitHub</a>
+                    <a href="#" class="f-social"><i class="fa-brands fa-linkedin"></i> LinkedIn</a>
+                    <a href="#" class="f-social"><i class="fa-solid fa-envelope"></i> Email</a>
+                    <a href="#" class="f-social"><i class="fa-solid fa-briefcase"></i> Portfolio</a>
+                    <a href="#" class="f-social"><i class="fa-solid fa-headset"></i> Contact Us</a>
+
+                    <div style="margin-top: 24px;">
+                        <p class="f-desc" style="margin-bottom: 8px;">Get latest crop disease updates</p>
+                        <form class="f-form" onsubmit="event.preventDefault();">
+                            <input type="email" placeholder="Email address..." class="f-input" />
+                            <button type="submit" class="f-submit"><i class="fa-solid fa-arrow-right"></i></button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Copyright Section -->
+            <div class="footer-bottom">
+                <p>&copy; 2026 AgroVision AI</p>
+                <p>Built with Streamlit <i class="fa-solid fa-plus" style="font-size:10px; margin:0 4px; color:var(--leaf-primary);"></i> Deep Learning <i class="fa-solid fa-plus" style="font-size:10px; margin:0 4px; color:var(--leaf-primary);"></i> NVIDIA AI</p>
+            </div>
         </div>
-        <p style="color: rgba(148, 163, 184, 0.5); font-size: 12px; margin-top: 24px;">&copy; 2026 AgroVision AI. Version 2.0.0</p>
     </div>
     """)
 
