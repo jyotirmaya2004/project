@@ -464,6 +464,38 @@ def render_prediction_section(image_file):
 
     if analyze_clicked:
         with st.status("Analyzing Leaf Image...", expanded=True) as status:
+            st.write("☁️ Uploading image to Supabase...")
+            image_url = None
+            try:
+                from supabase import create_client
+                supabase_url = os.getenv("SUPABASE_URL", "https://dloxbfflvfcciczfibxh.supabase.co")
+                supabase_key = os.getenv("SUPABASE_KEY")
+
+                if supabase_key:
+                    supabase = create_client(supabase_url, supabase_key)
+                    file_ext = "jpg"
+                    if hasattr(image_file, "name") and "." in image_file.name:
+                        file_ext = image_file.name.split('.')[-1]
+
+                    file_name = f"{uuid.uuid4()}.{file_ext}"
+
+                    supabase.storage.from_("Leafimage").upload(
+                        path=file_name,
+                        file=image_file.getvalue(),
+                        file_options={"content-type": image_file.type if hasattr(image_file, "type") else "image/jpeg"}
+                    )
+                    image_url = supabase.storage.from_("Leafimage").get_public_url(file_name)
+                else:
+                    st.warning("SUPABASE_KEY not found in .env file. Upload skipped.")
+            except ImportError:
+                st.warning("Supabase package not installed. Please run `pip install supabase`.")
+            except Exception as e:
+                error_msg = str(e).lower()
+                if "policy" in error_msg or "row-level security" in error_msg or "unauthorized" in error_msg:
+                    st.warning("⚠️ Image upload blocked by Supabase policy restrictions. Please check your storage bucket permissions.")
+                else:
+                    st.warning(f"Could not upload image to Supabase: {e}")
+
             try:
                 st.write("🔍 Extracting image features...")
                 time.sleep(0.5)
@@ -518,10 +550,30 @@ def render_prediction_section(image_file):
                 status.update(label="Analysis Complete", state="complete", expanded=False)
             except PredictionError as exc:
                 st.session_state.prediction = None
+
+                new_record = {
+                    "Timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                    "Disease": "Failed: Invalid Image (Not a Leaf)",
+                    "Confidence": 0.0,
+                    "Image_URL": image_url,
+                }
+                append_history(new_record)
+                st.session_state.prediction_history = load_history()
+
                 status.update(label="Analysis Failed", state="error", expanded=False)
                 st.error(str(exc))
             except Exception as exc:
                 st.session_state.prediction = None
+
+                new_record = {
+                    "Timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                    "Disease": "Analysis Error",
+                    "Confidence": 0.0,
+                    "Image_URL": image_url,
+                }
+                append_history(new_record)
+                st.session_state.prediction_history = load_history()
+
                 status.update(label="Analysis Failed", state="error", expanded=False)
                 st.error(f"Unexpected error: {exc}")
 
@@ -591,12 +643,13 @@ def render_prediction_section(image_file):
 
     if pdf_bytes:
         safe_name = re.sub(r'[^a-zA-Z0-9]+', '_', result['disease']).strip('_').lower()
-        st.download_button(
+        if st.download_button(
             label="Download Full Report Card",
             data=pdf_bytes,
             file_name=f"agrovision_report_{safe_name}.pdf",
             mime="application/pdf",
-        )
+        ):
+            st.markdown('<div class="success-msg-anim"><i class="fa-solid fa-circle-check"></i> Report downloaded successfully!</div>', unsafe_allow_html=True)
     else:
         st.warning("ReportLab is required to generate PDF reports. Please run `pip install reportlab`.")
 
@@ -623,13 +676,14 @@ def render_history_section():
     pdf_bytes = _generate_history_pdf(history)
     if pdf_bytes:
         with col1:
-            st.download_button(
+            if st.download_button(
                 label="Download History PDF",
                 data=pdf_bytes,
                 file_name="agrovision_ai_history.pdf",
                 mime="application/pdf",
                 use_container_width=True,
-            )
+            ):
+                st.markdown('<div class="success-msg-anim"><i class="fa-solid fa-circle-check"></i> PDF downloaded successfully!</div>', unsafe_allow_html=True)
     with col2:
         if st.button("Clear History", key="clear_history_home", use_container_width=True):
             clear_history()

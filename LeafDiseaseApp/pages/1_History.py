@@ -41,21 +41,23 @@ else:
     pdf_bytes = _generate_history_pdf(history)
     if pdf_bytes:
         with col1:
-            st.download_button(
+            if st.download_button(
                 label="Download History PDF",
                 data=pdf_bytes,
                 file_name="agrovision_ai_history.pdf",
                 mime="application/pdf",
                 use_container_width=True,
-            )
+            ):
+                st.markdown('<div class="success-msg-anim"><i class="fa-solid fa-circle-check"></i> PDF downloaded successfully!</div>', unsafe_allow_html=True)
     with col2:
-        st.download_button(
+        if st.download_button(
             "Download CSV",
             df.to_csv(index=False),
             file_name="prediction_history.csv",
             mime="text/csv",
             use_container_width=True,
-        )
+        ):
+            st.markdown('<div class="success-msg-anim"><i class="fa-solid fa-circle-check"></i> CSV downloaded successfully!</div>', unsafe_allow_html=True)
     with col3:
         if st.button("Clear History", use_container_width=True):
             clear_history()
