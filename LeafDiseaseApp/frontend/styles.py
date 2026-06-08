@@ -76,6 +76,7 @@ def load_css():
         html, body, .stApp {
             scroll-behavior: smooth;
             font-size: var(--body-size);
+            overflow-x: hidden;
         }
 
         /* --- Streamlit Chrome --- */
@@ -1560,6 +1561,9 @@ def load_css():
         /* --- Enterprise SaaS Footer --- */
         .saas-footer {
             position: relative;
+            width: 100vw;
+            margin-left: calc(50% - 50vw);
+            margin-right: calc(50% - 50vw);
             margin-top: 80px;
             padding: 60px 20px 20px;
             background: rgba(10, 15, 28, 0.85);
