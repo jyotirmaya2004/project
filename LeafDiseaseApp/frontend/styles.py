@@ -80,7 +80,7 @@ def load_css():
         }
 
         /* --- Streamlit Chrome --- */
-        #MainMenu, header, footer {
+        #MainMenu, footer {
             display: none !important;
         }
 
