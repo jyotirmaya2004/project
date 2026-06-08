@@ -78,9 +78,47 @@ def load_css():
             font-size: var(--body-size);
         }
 
-        /* --- Hide Streamlit Default Top Bar --- */
+        /* --- Custom Streamlit Top Bar & Sidebar Toggle --- */
         header[data-testid="stHeader"] {
+            background: transparent !important;
+            box-shadow: none !important;
+        }
+
+        /* Hide the right-side header elements (Deploy button, GitHub icon, etc.) */
+        header[data-testid="stHeader"] > div:last-child {
             display: none !important;
+        }
+
+        /* Style the hamburger menu button */
+        header[data-testid="stHeader"] > div:first-child button {
+            background: rgba(15, 23, 42, 0.6) !important;
+            border: 1px solid rgba(34, 197, 94, 0.3) !important;
+            border-radius: 12px !important;
+            margin: 16px !important;
+            width: 48px !important;
+            height: 48px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            backdrop-filter: blur(12px) !important;
+            -webkit-backdrop-filter: blur(12px) !important;
+            transition: all 0.3s ease !important;
+        }
+
+        header[data-testid="stHeader"] > div:first-child button:hover {
+            background: rgba(34, 197, 94, 0.15) !important;
+            border-color: var(--leaf-primary) !important;
+            transform: scale(1.05) !important;
+        }
+
+        /* Hide the default Streamlit SVG hamburger icon and inject Font Awesome */
+        header[data-testid="stHeader"] > div:first-child button svg { display: none !important; }
+        header[data-testid="stHeader"] > div:first-child button::before {
+            content: "\\f0c9"; /* fa-bars */
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            font-size: 22px;
+            color: var(--leaf-primary) !important;
         }
 
         /* --- Global 5-Layer Background CSS --- */
@@ -320,8 +358,9 @@ def load_css():
             box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3) !important;
         }
 
-        /* Hide the native active tab highlight bar */
-        div[data-baseweb="tab-highlight"] {
+        /* Hide the native active tab highlight bar and border */
+        div[data-baseweb="tab-highlight"],
+        div[data-baseweb="tab-border"] {
             display: none !important;
         }
 
@@ -814,22 +853,30 @@ def load_css():
             box-shadow:0 4px 12px rgba(82,183,136,0.2);
         }
 
-        /* --- Primary 'Analyze' Button Customization --- */
-        .analyze-btn-spacer {
-            height: 16px;
+        /* --- Dynamic Button Marker System --- */
+        .login-btn-marker, .signup-btn-marker, .analyze-btn-marker, .admin-unlock-marker, .admin-lock-marker { display: none; }
+
+        div[data-testid="stElementContainer"]:has(.login-btn-marker),
+        div[data-testid="stElementContainer"]:has(.signup-btn-marker),
+        div[data-testid="stElementContainer"]:has(.analyze-btn-marker),
+        div[data-testid="stElementContainer"]:has(.admin-unlock-marker),
+        div[data-testid="stElementContainer"]:has(.admin-lock-marker) {
+            display: none !important;
         }
 
+        /* --- Primary Button Base Customization --- */
         div[data-testid="stButton"] button[kind="primary"] {
-            max-width: 320px;
-            margin: 0 auto;
             background: linear-gradient(135deg, var(--leaf-primary), var(--leaf-primary-dark), var(--leaf-primary));
             background-size: 200% auto;
             color: white !important;
-            font-size: 18px;
-            font-weight: 800;
-            padding: 14px 32px;
-            min-height: 56px;
+            font-size: 16px;
+            font-weight: 700;
+            border-radius: 12px !important;
+            padding: 14px 24px;
+            min-height: 48px;
+            border: none;
             box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
+            transition: all 0.3s ease;
         }
 
         div[data-testid="stButton"] button[kind="primary"]:hover {
@@ -838,12 +885,43 @@ def load_css():
             background-position: right center;
         }
 
-        div[data-testid="stButton"] button[kind="primary"]::before {
+        /* --- Analyze Leaf Button (Enlarged & Centered) --- */
+        .analyze-btn-spacer { height: 16px; }
+
+        div[data-testid="stElementContainer"]:has(.analyze-btn-marker) + div[data-testid="stElementContainer"] button[kind="primary"] {
+            max-width: 320px;
+            margin: 0 auto;
+            font-size: 18px;
+            font-weight: 800;
+            padding: 14px 32px;
+            min-height: 56px;
+            border-radius: 30px !important;
+        }
+
+        /* --- Button FontAwesome Icons via Markers --- */
+        div[data-testid="stElementContainer"]:has(.analyze-btn-marker) + div[data-testid="stElementContainer"] button[kind="primary"]::before {
             content: "\\f610"; /* fa-microscope */
-            font-family: "Font Awesome 6 Free";
-            font-weight: 900;
-            margin-right: 12px;
-            font-size: 20px;
+            font-family: "Font Awesome 6 Free"; font-weight: 900; margin-right: 12px; font-size: 20px;
+        }
+
+        div[data-testid="stElementContainer"]:has(.login-btn-marker) + div[data-testid="stElementContainer"] button[kind="primary"]::before {
+            content: "\\f2f6"; /* fa-right-to-bracket */
+            font-family: "Font Awesome 6 Free"; font-weight: 900; margin-right: 10px; font-size: 18px;
+        }
+
+        div[data-testid="stElementContainer"]:has(.signup-btn-marker) + div[data-testid="stElementContainer"] button[kind="primary"]::before {
+            content: "\\f234"; /* fa-user-plus */
+            font-family: "Font Awesome 6 Free"; font-weight: 900; margin-right: 10px; font-size: 18px;
+        }
+
+        div[data-testid="stElementContainer"]:has(.admin-unlock-marker) + div[data-testid="stElementContainer"] button[kind="primary"]::before {
+            content: "\\f09c"; /* fa-unlock */
+            font-family: "Font Awesome 6 Free"; font-weight: 900; margin-right: 10px; font-size: 18px;
+        }
+
+        div[data-testid="stElementContainer"]:has(.admin-lock-marker) + div[data-testid="stElementContainer"] button::before {
+            content: "\\f023"; /* fa-lock */
+            font-family: "Font Awesome 6 Free"; font-weight: 900; margin-right: 10px; font-size: 16px;
         }
 
         /* Strip margins from internal p-tags Streamlit adds to prevent uncentering */

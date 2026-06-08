@@ -42,6 +42,7 @@ if not st.session_state.get("admin_authenticated", False):
         pwd = st.text_input("Admin Password", type=pw_type_admin, placeholder="Enter admin password", label_visibility="collapsed", key="admin_pass")
         st.toggle("Show Password", key="admin_show_pw")
 
+        st.markdown('<div class="admin-unlock-marker"></div>', unsafe_allow_html=True)
         if st.button("Unlock Dashboard", type="primary", use_container_width=True):
             if pwd == ADMIN_PASSWORD:
                 st.session_state.admin_authenticated = True
@@ -49,10 +50,11 @@ if not st.session_state.get("admin_authenticated", False):
             else:
                 st.error("Incorrect admin password.")
 
-    # Render chatbot and stop execution so the database remains hidden
+    # Rendont er chatbot and stop execution so the database remains hidden
     chatbot_ui()
     st.stop()
 
+st.markdown('<div class="admin-lock-marker"></div>', unsafe_allow_html=True)
 if st.button("Lock Dashboard", key="lock_dashboard"):
     st.session_state.admin_authenticated = False
     st.rerun()

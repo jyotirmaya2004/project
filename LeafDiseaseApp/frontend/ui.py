@@ -48,6 +48,7 @@ def require_username():
                 pw_type_log = "default" if st.session_state.get("log_show_pw") else "password"
                 password = st.text_input("Password", placeholder="Enter your password", type=pw_type_log, label_visibility="collapsed", key="log_pass")
                 st.toggle("Show Password", key="log_show_pw")
+                st.markdown('<div class="login-btn-marker"></div>', unsafe_allow_html=True)
                 if st.button("Login", type="primary", use_container_width=True):
                     if username.strip() and password.strip():
                         try:
@@ -95,6 +96,7 @@ def require_username():
 
                 btn_disabled = not (new_username.strip() and new_password.strip() and passwords_match)
 
+                st.markdown('<div class="signup-btn-marker"></div>', unsafe_allow_html=True)
                 if st.button("Create Account", type="primary", use_container_width=True, disabled=btn_disabled):
                     try:
                         from supabase import create_client
@@ -461,7 +463,7 @@ def render_prediction_section(image_file):
         empty_placeholder("fa-microscope", "Awaiting Image", "Please upload or capture an image above to start analysis.")
         return
 
-    st.html('<div class="analyze-btn-spacer"></div>')
+    st.markdown('<div class="analyze-btn-marker"></div><div class="analyze-btn-spacer"></div>', unsafe_allow_html=True)
     analyze_clicked = st.button("Analyze Leaf", type="primary", use_container_width=True)
 
     if analyze_clicked:
