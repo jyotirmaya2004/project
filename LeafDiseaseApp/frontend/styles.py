@@ -111,6 +111,9 @@ def load_css():
             transition: all 0.3s ease !important;
             z-index: 2147483647 !important;
             position: relative !important;
+            position: fixed !important;
+            top: 16px !important;
+            left: 16px !important;
             color: var(--leaf-primary) !important;
             box-shadow: 0 4px 12px rgba(0,0,0,0.5) !important;
             visibility: visible !important;
@@ -1505,6 +1508,7 @@ def load_css():
             border-right: 1px solid rgba(34, 197, 94, 0.2) !important;
             position: relative !important;
             z-index: 1000 !important;
+            z-index: 999999 !important;
         }
 
         /* Sidebar Header (App Name/Logo area) */
