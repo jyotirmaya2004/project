@@ -82,6 +82,7 @@ def load_css():
         header[data-testid="stHeader"] {
             background: transparent !important;
             box-shadow: none !important;
+            overflow: visible !important;
         }
 
         /* Hide the right-side header elements (Deploy button, GitHub icon, etc.) */
@@ -108,8 +109,8 @@ def load_css():
             transition: all 0.3s ease !important;
             z-index: 9999999 !important;
             position: fixed !important;
-            top: 16px !important;
-            left: 16px !important;
+            top: 76px !important;
+            left: 20px !important;
             color: var(--leaf-primary) !important;
             box-shadow: 0 4px 12px rgba(0,0,0,0.5) !important;
             visibility: visible !important;
