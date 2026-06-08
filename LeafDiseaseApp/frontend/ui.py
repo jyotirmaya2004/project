@@ -489,6 +489,11 @@ def render_prediction_section(image_file):
     analyze_clicked = st.button("Analyze Leaf", type="primary", use_container_width=True)
 
     if analyze_clicked:
+        # Require authentication to perform an analysis
+        if not st.session_state.get("username"):
+            st.session_state.show_auth = True
+            st.rerun()
+
         with st.status("Analyzing Leaf Image...", expanded=True) as status:
             st.write("☁️ Uploading image to Supabase...")
             image_url = None
