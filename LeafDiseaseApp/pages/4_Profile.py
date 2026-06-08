@@ -12,7 +12,7 @@ st.set_page_config(
 )
 
 load_css()
-require_username()
+require_username(force=True)
 
 page_header(
     "User Profile",

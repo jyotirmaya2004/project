@@ -25,8 +25,23 @@ from frontend.styles import load_css
 
 load_dotenv()
 
-def require_username():
+def require_username(force=False):
     if not st.session_state.get("username"):
+        st.sidebar.html("""
+        <div class="glass-card" style="padding: 16px; margin: 0 0 24px 0; text-align: center; border-top: 3px solid var(--leaf-primary);">
+            <div style="font-size: 48px; margin-bottom: 8px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));">👤</div>
+            <h3 style="margin: 0; font-size: 18px; color: var(--leaf-text); font-family: 'Poppins', sans-serif;">Guest Mode</h3>
+            <p style="margin: 4px 0 0 0; color: var(--leaf-muted); font-size: 12px; font-weight: 600;">Sign in to save your history</p>
+        </div>
+        """)
+        st.sidebar.markdown('<div class="sidebar-login-marker"></div>', unsafe_allow_html=True)
+        if st.sidebar.button("Sign In / Register", key="login_sidebar", use_container_width=True):
+            st.session_state.show_auth = True
+            st.rerun()
+
+        if not force and not st.session_state.get("show_auth", False):
+            return
+
         st.html(
             """
             <div class="glass-card" style="padding: 40px 24px; text-align: center; margin-bottom: 32px; margin-top: 16px; border-top: 3px solid var(--leaf-primary);">
@@ -62,6 +77,7 @@ def require_username():
                                         st.session_state.username = username.strip()
                                         st.session_state.user_id = response.data[0].get("id")
                                         st.session_state.avatar = response.data[0].get("avatar") or "🧑‍🌾"
+                                        st.session_state.show_auth = False
                                         st.rerun()
                                     else:
                                         st.error("Incorrect password.")
@@ -111,11 +127,20 @@ def require_username():
                                     st.session_state.username = new_username.strip()
                                     st.session_state.user_id = insert_res.data[0].get("id")
                                     st.session_state.avatar = avatar_emoji
+                                    st.session_state.show_auth = False
                                     st.rerun()
                                 else:
                                     st.error("Failed to create new user account.")
                     except Exception as e:
                         st.error(f"Registration failed: {e}")
+
+        if not force:
+            st.html("<br>")
+            col_b1, col_b2, col_b3 = st.columns([1, 2, 1])
+            with col_b2:
+                if st.button("← Back to Home", use_container_width=True):
+                    st.session_state.show_auth = False
+                    st.rerun()
         st.stop()
     else:
         st.sidebar.html(f"""
@@ -125,6 +150,7 @@ def require_username():
             <p style="margin: 4px 0 0 0; color: var(--leaf-primary); font-size: 12px; font-weight: 600;"><i class="fa-solid fa-circle" style="font-size: 8px; margin-right: 4px;"></i> Online</p>
         </div>
         """)
+        st.sidebar.markdown('<div class="sidebar-logout-marker"></div>', unsafe_allow_html=True)
         if st.sidebar.button("Logout", key="logout_sidebar", use_container_width=True):
             st.session_state.clear()
             st.rerun()

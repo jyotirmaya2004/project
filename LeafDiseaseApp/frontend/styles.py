@@ -1536,8 +1536,20 @@ def load_css():
             color: #ef4444;
         }
 
-        section[data-testid="stSidebar"] .stButton button::before {
+
+                /* Hide markers */
+        .sidebar-login-marker, .sidebar-logout-marker { display: none; }
+        div[data-testid="stElementContainer"]:has(.sidebar-login-marker),
+        div[data-testid="stElementContainer"]:has(.sidebar-logout-marker) { display: none !important; }
+
+        div[data-testid="stElementContainer"]:has(.sidebar-login-marker) + div[data-testid="stElementContainer"] button::before {
+            content: "\\f2f6";
+        }
+        div[data-testid="stElementContainer"]:has(.sidebar-logout-marker) + div[data-testid="stElementContainer"] button::before {
             content: "\\f2f5";
+        }
+
+        section[data-testid="stSidebar"] .stButton button::before {
             font-family: "Font Awesome 6 Free";
             font-size: 17px;
             font-weight: 900;

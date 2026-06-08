@@ -14,7 +14,7 @@ st.set_page_config(
 )
 
 load_css()
-require_username()
+require_username(force=True)
 page_header(
     "Prediction History",
     "Review previous analyses and export them as a PDF or CSV file.",
