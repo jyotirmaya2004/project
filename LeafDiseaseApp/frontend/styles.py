@@ -93,44 +93,48 @@ def load_css():
 
         /* Style the hamburger menu button */
         [data-testid="collapsedControl"],
-        button[kind="header"] {
-            background: rgba(15, 23, 42, 0.6) !important;
-            border: 1px solid rgba(34, 197, 94, 0.3) !important;
+        [data-testid="stSidebarCollapsedControl"] {
+            background: rgba(15, 23, 42, 0.8) !important;
+            border: 1px solid rgba(34, 197, 94, 0.5) !important;
             border-radius: 12px !important;
             margin: 0 !important;
-            width: 48px !important;
-            height: 48px !important;
+            width: 50px !important;
+            height: 50px !important;
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
             backdrop-filter: blur(12px) !important;
             -webkit-backdrop-filter: blur(12px) !important;
             transition: all 0.3s ease !important;
-            z-index: 999999 !important;
+            z-index: 9999999 !important;
             position: fixed !important;
-            top: 20px !important;
-            left: 20px !important;
+            top: 16px !important;
+            left: 16px !important;
             color: var(--leaf-primary) !important;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5) !important;
+            visibility: visible !important;
+            opacity: 1 !important;
         }
 
         [data-testid="collapsedControl"]:hover,
-        button[kind="header"]:hover {
-            background: rgba(34, 197, 94, 0.15) !important;
+        [data-testid="stSidebarCollapsedControl"]:hover {
+            background: rgba(34, 197, 94, 0.2) !important;
             border-color: var(--leaf-primary) !important;
             transform: scale(1.05) !important;
         }
 
         /* Hide the default Streamlit SVG hamburger icon and inject Font Awesome */
         [data-testid="collapsedControl"] svg,
-        button[kind="header"] svg { display: none !important; }
+        [data-testid="stSidebarCollapsedControl"] svg { display: none !important; }
 
         [data-testid="collapsedControl"]::before,
-        button[kind="header"]::before {
+        [data-testid="stSidebarCollapsedControl"]::before {
             content: "\\f0c9"; /* fa-bars */
             font-family: "Font Awesome 6 Free";
             font-weight: 900;
             font-size: 22px;
             color: var(--leaf-primary) !important;
+            display: block !important;
         }
 
         /* --- Style the Sidebar Close Button --- */
