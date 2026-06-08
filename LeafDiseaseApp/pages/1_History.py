@@ -3,7 +3,7 @@ import streamlit as st
 
 from frontend.components import page_header, section_title, empty_placeholder
 from frontend.styles import load_css
-from frontend.ui import load_history, clear_history, _generate_history_pdf
+from frontend.ui import load_history, clear_history, _generate_history_pdf, require_username
 from frontend.chatbot import chatbot_ui
 
 
@@ -14,6 +14,7 @@ st.set_page_config(
 )
 
 load_css()
+require_username()
 page_header(
     "Prediction History",
     "Review previous analyses and export them as a PDF or CSV file.",

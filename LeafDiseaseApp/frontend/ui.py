@@ -25,28 +25,76 @@ from frontend.styles import load_css
 
 load_dotenv()
 
-def get_hashed_ip():
-    try:
-        # Retrieve IP address from Streamlit context headers
-        ip = st.context.headers.get("x-forwarded-for", "")
-        if not ip:
-            ip = st.context.headers.get("remote-addr", "127.0.0.1")
-        else:
-            ip = ip.split(",")[0].strip()
-    except Exception:
-        ip = "127.0.0.1"
+def require_username():
+    if not st.session_state.get("username"):
+        st.html(
+            """
+            <div class="glass-card" style="padding: 40px 24px; text-align: center; margin-bottom: 32px; margin-top: 16px; border-top: 3px solid var(--leaf-primary);">
+                <div style="display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; border-radius: 50%; background: rgba(34, 197, 94, 0.1); color: var(--leaf-primary); font-size: 28px; margin-bottom: 16px;">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+                <h1 style="margin: 0 0 12px 0; font-family: 'Poppins', sans-serif; font-size: 32px !important; color: var(--leaf-text);">Welcome to AgroVision AI</h1>
+                <p style="margin: 0; color: var(--leaf-muted); font-size: 18px; max-width: 600px; margin-left: auto; margin-right: auto;">Please enter your name to start your session and save your analysis history.</p>
+            </div>
+            """
+        )
+        col1, col2, col3 = st.columns([1, 2, 1])
+        with col2:
+            with st.form("username_form"):
+                username = st.text_input("Your Name", placeholder="e.g. John Farmer", label_visibility="collapsed")
+                password = st.text_input("Password", placeholder="Enter your password", type="password", label_visibility="collapsed")
+                submitted = st.form_submit_button("Start Analyzing", type="primary", use_container_width=True)
+                if submitted:
+                    if username.strip() and password.strip():
+                        try:
+                            from supabase import create_client
+                            supabase_url = os.getenv("SUPABASE_URL", "https://dloxbfflvfcciczfibxh.supabase.co")
+                            supabase_key = os.getenv("SUPABASE_KEY")
+                            if supabase_key:
+                                supabase = create_client(supabase_url, supabase_key)
+                                hashed_pw = hashlib.sha256(password.strip().encode('utf-8')).hexdigest()
+                                # Fetch the user from app_users
+                                response = supabase.table("app_users").select("id, password").eq("username", username.strip()).limit(1).execute()
 
-    return hashlib.sha256(ip.encode('utf-8')).hexdigest()
+                                if response.data:
+                                    # Returning user: Verify password
+                                    if response.data[0].get("password") == hashed_pw:
+                                        st.session_state.username = username.strip()
+                                        st.session_state.user_id = response.data[0].get("id")
+                                        st.rerun()
+                                    else:
+                                        st.error("Incorrect password for this username.")
+                                else:
+                                    # New user: Create session
+                                    new_user = {"username": username.strip(), "password": hashed_pw}
+                                    insert_res = supabase.table("app_users").insert(new_user).execute()
+                                    if insert_res.data:
+                                        st.session_state.username = username.strip()
+                                        st.session_state.user_id = insert_res.data[0].get("id")
+                                        st.rerun()
+                                    else:
+                                        st.error("Failed to create new user account.")
+                        except Exception as e:
+                            st.error(f"Login failed: {e}")
+                    else:
+                        st.error("Please enter both a valid name and password.")
+        st.stop()
+    else:
+        if st.sidebar.button("🚪 Logout", key="logout_sidebar", use_container_width=True):
+            st.session_state.clear()
+            st.rerun()
 
 def load_history():
-    username = get_hashed_ip()
+    user_id = st.session_state.get("user_id")
+    if not user_id:
+        return []
     try:
         from supabase import create_client
         supabase_url = os.getenv("SUPABASE_URL", "https://dloxbfflvfcciczfibxh.supabase.co")
         supabase_key = os.getenv("SUPABASE_KEY")
         if supabase_key:
             supabase = create_client(supabase_url, supabase_key)
-            response = supabase.table("user_history").select("*").eq("username", username).order("id").execute()
+            response = supabase.table("user_predictions").select("*").eq("user_id", user_id).order("id").execute()
             rows = response.data
             return [{"Timestamp": r["timestamp"], "Disease": r["disease"], "Confidence": r["confidence"], "Image_URL": r.get("image_url")} for r in rows]
     except Exception as e:
@@ -54,7 +102,9 @@ def load_history():
     return []
 
 def append_history(item):
-    username = get_hashed_ip()
+    user_id = st.session_state.get("user_id")
+    if not user_id:
+        return
     try:
         from supabase import create_client
         supabase_url = os.getenv("SUPABASE_URL", "https://dloxbfflvfcciczfibxh.supabase.co")
@@ -62,25 +112,27 @@ def append_history(item):
         if supabase_key:
             supabase = create_client(supabase_url, supabase_key)
             record = {
-                "username": username,
+                "user_id": user_id,
                 "timestamp": item["Timestamp"],
                 "disease": item["Disease"],
                 "confidence": item["Confidence"],
                 "image_url": item.get("Image_URL")
             }
-            supabase.table("user_history").insert(record).execute()
+            supabase.table("user_predictions").insert(record).execute()
     except Exception as e:
         st.warning(f"Could not save history to Supabase: {e}")
 
 def clear_history():
-    username = get_hashed_ip()
+    user_id = st.session_state.get("user_id")
+    if not user_id:
+        return
     try:
         from supabase import create_client
         supabase_url = os.getenv("SUPABASE_URL", "https://dloxbfflvfcciczfibxh.supabase.co")
         supabase_key = os.getenv("SUPABASE_KEY")
         if supabase_key:
             supabase = create_client(supabase_url, supabase_key)
-            supabase.table("user_history").delete().eq("username", username).execute()
+            supabase.table("user_predictions").delete().eq("user_id", user_id).execute()
     except Exception as e:
         st.warning(f"Could not clear history: {e}")
 
@@ -545,6 +597,7 @@ def render_footer():
 
 def main(active_tab: str = "all"):
     load_css()
+    require_username()
     render_header()
 
     if active_tab == "history":

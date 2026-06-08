@@ -16,7 +16,7 @@ st.set_page_config(
 load_css()
 page_header(
     "Admin - Database Viewer",
-    "View and download the SQLite database directly from the deployed app.",
+    "View the Supabase database records directly from the deployed app.",
     "fa-shield-halved",
 )
 
@@ -50,10 +50,19 @@ try:
         st.stop()
 
     supabase = create_client(supabase_url, supabase_key)
-    response = supabase.table("user_history").select("*").execute()
+    # Fetch predictions and automatically join the username from the app_users table
+    response = supabase.table("user_predictions").select("id, timestamp, disease, confidence, image_url, user_id, app_users(username)").execute()
     df = pd.DataFrame(response.data)
-    if df.empty:
-        df = pd.DataFrame(columns=["id", "username", "timestamp", "disease", "confidence", "image_url"])
+
+    if not df.empty:
+        # Flatten the nested dictionary from the foreign key join
+        df["username"] = df["app_users"].apply(lambda x: x.get("username") if isinstance(x, dict) else "Unknown")
+        df = df.drop(columns=["app_users"])
+        # Reorder columns for better readability
+        cols = ["id", "username", "timestamp", "disease", "confidence", "image_url", "user_id"]
+        df = df[[c for c in cols if c in df.columns]]
+    else:
+        df = pd.DataFrame(columns=["id", "username", "timestamp", "disease", "confidence", "image_url", "user_id"])
 
     st.write(f"### Total Records: {len(df)}")
     st.dataframe(
@@ -71,12 +80,12 @@ try:
             row_id = st.selectbox("Select Record ID to delete", df["id"].tolist(), label_visibility="collapsed")
         with col_btn_del:
             if st.button("Delete Row", use_container_width=True):
-                supabase.table("user_history").delete().eq("id", row_id).execute()
+                supabase.table("user_predictions").delete().eq("id", row_id).execute()
                 st.rerun()
         with col_btn_all:
             confirm_delete = st.checkbox("Confirm wipe", help="Check this box to enable the delete button")
             if st.button("Delete ALL", type="primary", use_container_width=True, disabled=not confirm_delete):
-                supabase.table("user_history").delete().neq("id", -1).execute() # .neq is a wildcard to delete all rows
+                supabase.table("user_predictions").delete().neq("id", -1).execute() # .neq is a wildcard to delete all rows
                 st.rerun()
         st.html("<br>")
 
